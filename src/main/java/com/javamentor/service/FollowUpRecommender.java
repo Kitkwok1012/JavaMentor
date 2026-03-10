@@ -6,6 +6,7 @@ import com.javamentor.repository.QuestionRepository;
 import com.javamentor.repository.UserProgressRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,7 +42,7 @@ public class FollowUpRecommender {
      * 7. Prioritize unanswered questions over seen ones
      */
     public Question recommend(Long currentQuestionId, boolean correct) {
-        Question current = questionRepository.findById(currentQuestionId).orElse(null);
+        Question current = getQuestionById(currentQuestionId);
         if (current == null) return getRandomQuestion(new HashSet<>());
         
         // Get all progress history
@@ -117,6 +118,12 @@ public class FollowUpRecommender {
         
         // Fallback: random question not in exclude list
         return getRandomQuestion(answeredIds);
+    }
+    
+    @Cacheable(value = "questions", key = "#questionId")
+    public Question getQuestionById(Long questionId) {
+        log.debug("Fetching question from DB: {}", questionId);
+        return questionRepository.findById(questionId).orElse(null);
     }
     
     private Map<String, Double> calculateTopicAccuracy(List<UserProgress> history) {

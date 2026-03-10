@@ -3,6 +3,10 @@ package com.javamentor.service;
 import com.javamentor.dto.*;
 import com.javamentor.entity.*;
 import com.javamentor.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +15,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
+    
+    private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
     
     private final QuestionRepository questionRepository;
     private final TopicRepository topicRepository;
@@ -29,15 +35,21 @@ public class QuestionService {
         this.followUpRecommender = followUpRecommender;
     }
     
+    @Cacheable(value = "topics", key = "'all'")
     public List<Topic> getAllTopics() {
+        log.debug("Loading all topics from database");
         return topicRepository.findAll();
     }
     
+    @Cacheable(value = "topics", key = "#topicId")
     public Topic getTopicById(String topicId) {
+        log.debug("Loading topic by id: {}", topicId);
         return topicRepository.findByTopicId(topicId).orElse(null);
     }
     
+    @Cacheable(value = "questions", key = "#questionId")
     public QuestionDto getQuestionById(Long questionId) {
+        log.debug("Loading question by id: {}", questionId);
         Question question = questionRepository.findById(questionId).orElse(null);
         if (question == null) return null;
         return mapToDto(question);
@@ -73,6 +85,7 @@ public class QuestionService {
     }
     
     @Transactional
+    @CacheEvict(value = {"recommendations", "relatedQuestions"}, allEntries = true)
     public AnswerResponseDto submitAnswer(Long questionId, String answer) {
         Question question = questionRepository.findById(questionId).orElse(null);
         if (question == null) {
@@ -146,7 +159,11 @@ public class QuestionService {
         questionOrderMap.remove(topicId);
     }
     
+    @Cacheable(value = "relatedQuestions", 
+               key = "#currentQuestionId + '_' + #answeredCorrect",
+               unless = "#result.isEmpty()")
     public List<QuestionDto> findRelatedQuestions(Long currentQuestionId, boolean answeredCorrect) {
+        log.debug("Finding related questions for: {}", currentQuestionId);
         Question current = questionRepository.findById(currentQuestionId).orElse(null);
         if (current == null || current.getTags() == null) {
             return Collections.emptyList();
@@ -200,7 +217,11 @@ public class QuestionService {
         return String.join(",", parts);
     }
     
+    @Cacheable(value = "recommendations", 
+               key = "#currentQuestionId + '_' + #correct",
+               unless = "#result == null")
     public QuestionDto recommendNextQuestion(Long currentQuestionId, boolean correct) {
+        log.debug("Getting recommendation for question: {}, correct: {}", currentQuestionId, correct);
         Question recommended = followUpRecommender.recommend(currentQuestionId, correct);
         if (recommended == null) return null;
         return mapToDto(recommended);
