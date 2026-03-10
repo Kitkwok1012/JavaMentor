@@ -25,20 +25,11 @@ spring:
     cache: false
     mode: HTML
   
-  # Redis Configuration (optional - app works without it)
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 5000ms
-      connect-timeout: 5000ms
-  
-  # Cache Configuration
+  # Caffeine Cache Configuration
   cache:
-    type: redis
-    redis:
-      time-to-live: 3600000
-      cache-null-values: false
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=30m
 
 server:
   port: 8080

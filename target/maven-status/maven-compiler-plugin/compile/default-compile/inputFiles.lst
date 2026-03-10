@@ -5,6 +5,7 @@
 /private/tmp/JavaMentor/src/main/java/com/javamentor/controller/LearnController.java
 /private/tmp/JavaMentor/src/main/java/com/javamentor/service/FollowUpRecommender.java
 /private/tmp/JavaMentor/src/main/java/com/javamentor/repository/QuestionRepository.java
+/private/tmp/JavaMentor/src/main/java/com/javamentor/config/CaffeineConfig.java
 /private/tmp/JavaMentor/src/main/java/com/javamentor/config/DataFixer.java
 /private/tmp/JavaMentor/src/main/java/com/javamentor/dto/AnswerResponseDto.java
 /private/tmp/JavaMentor/src/main/java/com/javamentor/config/JsonQuestionLoader.java
