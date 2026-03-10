@@ -112,6 +112,14 @@ public class LearnController {
         return questionService.findRelatedQuestions(questionId, correct);
     }
     
+    // Mock Exam Page
+    @GetMapping("/mock")
+    public String mockExam(Model model) {
+        List<TopicProgressDto> progress = questionService.getTopicProgress();
+        model.addAttribute("progress", progress);
+        return "mock";
+    }
+    
     // Follow-up recommendation endpoint
     @GetMapping("/api/recommend")
     @ResponseBody

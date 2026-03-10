@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock考試 - JavaMentor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .option-selected { @apply ring-2 ring-blue-500 bg-blue-50; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
+            <div class="space-x-4">
+                <a href="/" class="text-gray-600 hover:text-blue-600">首頁</a>
+                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Start Screen -->
+    <div id="startScreen" class="max-w-2xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Mock考試模式</h1>
+            <p class="text-gray-600 mb-8">模擬真實面試，計時作答，測試你既實力！</p>
+            
+            <!-- Topic Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">選擇題目範圍</label>
+                <div class="grid grid-cols-2 gap-2" id="topicList">
+                    <label th:each="p : ${progress}" class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" class="topic-checkbox mr-2" th:value="${p.topicId}" checked>
+                        <span class="text-sm" th:text="${p.topicName}">Topic</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Question Count -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">題目數量</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="count" value="30" class="mr-2" checked>
+                        <span>30題 (15分鐘)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="count" value="60" class="mr-2">
+                        <span>60題 (30分鐘)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="count" value="90" class="mr-2">
+                        <span>90題 (45分鐘)</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button onclick="startMockTest()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition">
+                開始考試
+            </button>
+        </div>
+    </div>
+    
+    <!-- Exam Screen -->
+    <div id="examScreen" class="hidden max-w-3xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-4 mb-6 flex justify-between items-center">
+            <div>
+                <span class="text-gray-600">題目 </span>
+                <span id="currentNum" class="font-bold text-blue-600">1</span>
+                <span class="text-gray-600"> / </span>
+                <span id="totalNum" class="font-bold">60</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-xs text-gray-500">剩餘時間</div>
+                    <div id="timer" class="font-mono font-bold text-lg text-blue-600">30:00</div>
+                </div>
+                <button onclick="endExam()" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                    結束考試
+                </button>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+        
+        <!-- Question -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 fade-in">
+            <!-- Difficulty Badge -->
+            <div class="flex justify-between items-start mb-4">
+                <span id="difficultyBadge" class="text-xs px-2 py-1 rounded bg-green-100 text-green-600">Easy</span>
+            </div>
+            
+            <!-- Question Text -->
+            <h2 id="questionText" class="text-lg text-gray-900 mb-6">Question text here...</h2>
+            
+            <!-- Options -->
+            <div class="space-y-3" id="optionsContainer">
+                <button onclick="selectOption('A')" id="optionA" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <span class="font-medium mr-2">A.</span>
+                    <span id="optionAText">Option A</span>
+                </button>
+                <button onclick="selectOption('B')" id="optionB" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <span class="font-medium mr-2">B.</span>
+                    <span id="optionBText">Option B</span>
+                </button>
+                <button onclick="selectOption('C')" id="optionC" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <span class="font-medium mr-2">C.</span>
+                    <span id="optionCText">Option C</span>
+                </button>
+                <button onclick="selectOption('D')" id="optionD" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
+                    <span class="font-medium mr-2">D.</span>
+                    <span id="optionDText">Option D</span>
+                </button>
+            </div>
+            
+            <!-- Multi-select hint -->
+            <div id="multiSelectHint" class="hidden mt-4 text-sm text-orange-600 bg-orange-50 p-2 rounded">
+                ⚠️ 呢題係多選題，請選擇多個答案（用逗號分隔，如：A,C）
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="mt-6 flex gap-4">
+                <input type="text" id="answerInput" placeholder="輸入答案 (A/B/C/D 或 A,C)" 
+                       class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <button onclick="submitAnswer()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                    提交
+                </button>
+            </div>
+        </div>
+        
+        <!-- Result Feedback -->
+        <div id="resultFeedback" class="hidden mt-6 p-4 rounded-lg fade-in">
+            <div id="feedbackContent"></div>
+        </div>
+    </div>
+    
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden max-w-2xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm border p-8 text-center">
+            <h1 class="text-3xl font-bold mb-6">考試完成！</h1>
+            
+            <div class="mb-8">
+                <div id="scoreDisplay" class="text-6xl font-bold text-blue-600 mb-2">85%</div>
+                <div id="scoreDetail" class="text-gray-600">51/60 正確</div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8 text-left">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500">用時</div>
+                    <div id="timeSpent" class="text-xl font-semibold">25:30</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500">題目數量</div>
+                    <div id="totalQuestions" class="text-xl font-semibold">60</div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="/mock" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition">
+                    再考一次
+                </a>
+                <a href="/" class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition">
+                    返回首頁
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let sessionId = null;
+        let currentQuestion = null;
+        let timerInterval = null;
+        let timeRemaining = 0;
+        
+        function startMockTest() {
+            const topics = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.value);
+            const count = parseInt(document.querySelector('input[name="count"]:checked').value);
+            
+            // Set time based on count
+            timeRemaining = count * 30; // 30 seconds per question
+            
+            fetch('/api/mock/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({topics: topics, count: count})
+            })
+            .then(res => res.json())
+            .then(data => {
+                sessionId = data.sessionId;
+                document.getElementById('totalNum').textContent = data.totalQuestions;
+                
+                // Switch screens
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('examScreen').classList.remove('hidden');
+                
+                // Start timer
+                startTimer();
+                
+                // Load first question
+                loadQuestion();
+            });
+        }
+        
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    endExam();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            // Warning colors
+            if (timeRemaining < 300) {
+                document.getElementById('timer').classList.add('text-red-600');
+                document.getElementById('timer').classList.remove('text-blue-600');
+            }
+        }
+        
+        function loadQuestion() {
+            fetch(`/api/mock/${sessionId}/question`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.completed) {
+                        endExam();
+                        return;
+                    }
+                    
+                    currentQuestion = data;
+                    
+                    // Update UI
+                    const currentNum = parseInt(document.getElementById('currentNum').textContent);
+                    const totalNum = parseInt(document.getElementById('totalNum').textContent);
+                    document.getElementById('currentNum').textContent = currentNum + 1;
+                    
+                    // Progress bar
+                    const progress = ((currentNum + 1) / totalNum) * 100;
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    
+                    // Difficulty badge
+                    const diffBadge = document.getElementById('difficultyBadge');
+                    if (data.difficulty === 1) {
+                        diffBadge.textContent = 'Easy';
+                        diffBadge.className = 'text-xs px-2 py-1 rounded bg-green-100 text-green-600';
+                    } else if (data.difficulty === 2) {
+                        diffBadge.textContent = 'Medium';
+                        diffBadge.className = 'text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-600';
+                    } else {
+                        diffBadge.textContent = 'Hard';
+                        diffBadge.className = 'text-xs px-2 py-1 rounded bg-red-100 text-red-600';
+                    }
+                    
+                    // Question and options
+                    document.getElementById('questionText').textContent = data.question;
+                    document.getElementById('optionAText').textContent = data.optionA || '';
+                    document.getElementById('optionBText').textContent = data.optionB || '';
+                    document.getElementById('optionCText').textContent = data.optionC || '';
+                    document.getElementById('optionDText').textContent = data.optionD || '';
+                    
+                    // Show/hide options based on what's available
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        const btn = document.getElementById('option' + opt);
+                        const text = document.getElementById('option' + opt + 'Text');
+                        btn.style.display = text.textContent ? 'block' : 'none';
+                    });
+                    
+                    // Multi-select hint
+                    const multiHint = document.getElementById('multiSelectHint');
+                    if (data.multiSelect) {
+                        multiHint.classList.remove('hidden');
+                        document.getElementById('answerInput').placeholder = '輸入答案 (如：A,C)';
+                    } else {
+                        multiHint.classList.add('hidden');
+                        document.getElementById('answerInput').placeholder = '輸入答案 (A/B/C/D)';
+                    }
+                    
+                    // Clear previous feedback
+                    document.getElementById('resultFeedback').classList.add('hidden');
+                    document.getElementById('answerInput').value = '';
+                    
+                    // Reset option styles
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        document.getElementById('option' + opt).classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50');
+                    });
+                });
+        }
+        
+        function selectOption(opt) {
+            const input = document.getElementById('answerInput');
+            const current = input.value.toUpperCase().replace(/\s/g, '');
+            
+            if (currentQuestion.multiSelect) {
+                // Multi-select: toggle option
+                let parts = current ? current.split(',') : [];
+                if (parts.includes(opt)) {
+                    parts = parts.filter(p => p !== opt);
+                } else {
+                    parts.push(opt);
+                }
+                input.value = parts.sort().join(',');
+            } else {
+                // Single select
+                input.value = opt;
+            }
+            
+            // Visual feedback
+            ['A', 'B', 'C', 'D'].forEach(o => {
+                const btn = document.getElementById('option' + o);
+                if (input.value.includes(o)) {
+                    btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50');
+                }
+            });
+        }
+        
+        function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                alert('請輸入答案');
+                return;
+            }
+            
+            fetch(`/api/mock/${sessionId}/answer`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({answer: answer})
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Show feedback
+                const feedback = document.getElementById('resultFeedback');
+                const content = document.getElementById('feedbackContent');
+                
+                if (data.correct) {
+                    feedback.className = 'mt-6 p-4 rounded-lg bg-green-100 border border-green-300 fade-in';
+                    content.innerHTML = '<div class="text-green-700 font-medium">✅ 正確！</div>';
+                } else {
+                    feedback.className = 'mt-6 p-4 rounded-lg bg-red-100 border border-red-300 fade-in';
+                    content.innerHTML = `<div class="text-red-700 font-medium">❌ 錯誤！正確答案：${data.correctAnswer}</div>`;
+                }
+                
+                feedback.classList.remove('hidden');
+                
+                // Load next question after short delay
+                setTimeout(() => {
+                    loadQuestion();
+                }, 1500);
+            });
+        }
+        
+        function endExam() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            fetch(`/api/mock/${sessionId}/result`)
+                .then(res => res.json())
+                .then(data => {
+                    // Show result screen
+                    document.getElementById('examScreen').classList.add('hidden');
+                    document.getElementById('resultScreen').classList.remove('hidden');
+                    
+                    // Fill in results
+                    document.getElementById('scoreDisplay').textContent = Math.round(data.accuracy) + '%';
+                    document.getElementById('scoreDetail').textContent = 
+                        `${data.correctAnswers}/${data.totalQuestions} 正確`;
+                    
+                    const timeSpentSec = Math.floor(data.timeSpent / 1000);
+                    const mins = Math.floor(timeSpentSec / 60);
+                    const secs = timeSpentSec % 60;
+                    document.getElementById('timeSpent').textContent = 
+                        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    
+                    document.getElementById('totalQuestions').textContent = data.totalQuestions;
+                    
+                    // Color based on score
+                    const scoreDisplay = document.getElementById('scoreDisplay');
+                    if (data.accuracy >= 80) {
+                        scoreDisplay.className = 'text-6xl font-bold text-green-600 mb-2';
+                    } else if (data.accuracy >= 60) {
+                        scoreDisplay.className = 'text-6xl font-bold text-blue-600 mb-2';
+                    } else {
+                        scoreDisplay.className = 'text-6xl font-bold text-red-600 mb-2';
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
