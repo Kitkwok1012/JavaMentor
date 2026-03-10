@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaMentor - Java面試互動學習</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
+            <div class="space-x-4">
+                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
+                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div th:replace="~{::content}"></div>
+    </main>
+    
+    <footer class="text-center text-gray-500 text-sm py-8">
+        Java面試互動學習平台
+    </footer>
+</body>
+</html>
