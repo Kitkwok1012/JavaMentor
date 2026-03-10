@@ -91,7 +91,7 @@
       "C": "編譯與解釋並存",
       "D": "腳本語言",
       "answer": "C",
-      "explanation": "正確答案係C。 因為JAVASE既核心概念係Java 係一種咩類。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項B並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：建議睇多啲源碼加深理解",
+      "explanation": "正確答案係 C（編譯與解釋並存）。\n\n📖 深入解釋：Java 既執行過程係「編譯 + 解釋」。首先通過 javac 編譯器將 .java 源文件編譯成 .class 字節碼文件，呢個過程叫「編譯」。然后由 JVM（Java Virtual Machine）既解釋器將字節碼翻譯成機器碼執行，呢個過程叫「解釋」。呢種方式既優勢係「一次編譯，到處運行」—— 只需要安裝對應既 JVM，無論係 Windows、Linux 定 macOS 都可以運行同一份字節碼。\n\n❌ 其他選項點解錯：\n- A 選項（編譯型）：錯，C/C++ 先係純編譯型\n- B 選項（解釋型）：錯，Python 先係\n- D 選項（腳本語言）：錯，呢個係另一種分類\n\n💡 面試記住：重點講「編譯為字節碼，JVM 解釋執行」，呢個先係 Java 既核心價值。面試官最鍾意聽你講 JVM 既角色同跨平台既原理。",
       "tags": "javase,basic"
     },
     {
@@ -103,7 +103,7 @@
       "C": "JVM > JRE > JDK",
       "D": "三者平等",
       "answer": "A",
-      "explanation": "正確答案係A。 因為JAVASE既核心概念係JDK、JRE、JV。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項B並非正確答案，請注意區分相似概念。 選項C並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：呢個知識點經常會喺面試中出现",
+      "explanation": "正確答案係 A（JDK > JRE > JVM）。\n\n📖 深入解釋：呢三個既關係可以用俄羅斯套娃嚟理解：\n- JVM（Java Virtual Machine）：最內層，負責執行字節碼，既 Java 既核心\n- JRE（Java Runtime Environment）：包含 JVM + 運行時類庫（rt.jar 等）\n- JDK（Java Development Kit）：最外層，JRE + 開發工具（javac、javadoc、jdb 等）\n\n簡單嚟講：開發者用 JDK（因為要編譯），普通用戶裝 JRE 就可以運行 Java 程序，而 JVM 就係兩者既核心。\n\n❌ 其他選項點解錯：\n- B 選項：錯，順序搞反咗\n- C 選項：錯，JVM 係被包含既角色\n- D 選項：錯，三者唔係平等既\n\n💡 面試加分：可以補充「如果只用運行 Java Applet 就只需要 JRE，如果要開發 Java 程序就要裝 JDK」呢啲實際應用場景。",
       "tags": "javase,jdk"
     },
     {
@@ -115,7 +115,7 @@
       "C": "10 種",
       "D": "12 種",
       "answer": "B",
-      "explanation": "8 種：byte、short、int、long、float、double、char、boolean。",
+      "explanation": "正確答案係 B（8種）。\n\n📖 深入解釋：Java 既基本數據類型（Primitive Type）分為四大類，共8種：\n1. 整數型：byte（1字節）、short（2字節）、int（4字節）、long（8字節）\n2. 浮點型：float（4字節）、double（8字節）\n3. 字符型：char（2字節，Unicode 編碼）\n4. 布爾型：boolean（1字節）\n\n而引用類型就包括：類（Class）、接口（Interface）、數組（Array）、枚舉（Enum）、String 等等。\n\n❌ 其他選項點解錯：\n- A 選項（4種）：錯，漏咗一半\n- C 選項（10種）：錯，多咗\n- D 選項（12種）：錯，更加唔岩\n\n💡 面試記住：String 唔係基本類型，係引用類型！呢個係99%面試官都會問既陷阱。",
       "tags": "javase,datatype"
     },
     {
@@ -127,7 +127,7 @@
       "C": "溢出錯誤",
       "D": "無窮大",
       "answer": "B",
-      "explanation": "正確答案係B。 因為JAVASE既核心概念係Integer.MA。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項C並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：呢個知識點經常會喺面試中出现",
+      "explanation": "正確答案係 B（Integer.MIN_VALUE）。\n\n📖 深入解釋：呢個涉及到 Java 既整數溢出問題。Java 既 int 類型用 32 位二進制補碼表示：\n- Integer.MAX_VALUE = 01111111 11111111 11111111 11111111（2147483647）\n- 當 MAX_VALUE + 1 既時候，會發生進位，最高位變成 1（即負號位），變成：\n- 10000000 00000000 00000000 00000000 = -2147483648（Integer.MIN_VALUE）\n\n呢個現象叫「環繞」（Wrap Around），就好似時鐘既 59 分鐘後變成 0 分鐘咁。\n\n❌ 其他選項點解錯：\n- A 選項：錯，唔會保持最大值\n- C 選項：錯，Java 唔會報錯，會默默溢出\n- D 選項：錯，唔係無窮大\n\n💡 面試加分：可以提議用 BigInteger 避免溢出，或者講「实际开发中可以用 Math.addExact() 方法，呢個方法會拋出 ArithmeticException 提醒溢出」",
       "tags": "javase,overflow"
     },
     {
@@ -151,7 +151,7 @@
       "C": "取決於 JDK 版本",
       "D": "取決於上下文",
       "answer": "B",
-      "explanation": "正確答案係B。 因為JAVASE既核心概念係String 係可變。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項C並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：結合實際項目理解呢個概念",
+      "explanation": "正確答案係 B（不可變）。\n\n📖 深入解釋：String 係 Java 入面最重要既不可變類（Immutable Class）。一旦創建，就唔可以被修改。所有涉及「修改」既操作，實際上都係創建咗一個新既 String 對象。\n\n不可變既原因有三大好處：\n1. 線程安全：多線程訪問同一 String 對象唔需要同步\n2. 安全姓：String 常用於存儲密碼，路徑等 sensitive 信息\n3. 性能優化：String 既 hashCode 可以緩存，HashMap 既 key 可以直接用\n\nString 既不可變性通過以下機制實現：\n- class 係 final 既，唔可以被繼承\n- 底層既 char[] / byte[] 係 private 既\n- 所有修改方法都會創建新既 String 對象\n\n❌ 其他選項點解錯：\n- A 選項（可變）：大錯！String 係不可變既\n- C 選項（取決於 JDK）：錯，無論邊個版本都不可變\n- D 選項（取決於上下文）：錯，String 永遠不可變\n\n💡 面試加分：可以提「StringBuilder、StringBuffer 先係可變既」，呢個係經常會問既延伸問題",
       "tags": "javase,string"
     },
     {
@@ -163,7 +163,7 @@
       "C": "靜態",
       "D": "以上全部",
       "answer": "B",
-      "explanation": "正確答案係B。 因為JAVASE既核心概念係final 關鍵字既。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項C並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：平時多練習，先理解再做題",
+      "explanation": "正確答案係 B（不可修改）。\n\n📖 深入解釋：final 可以修飾三種目標：\n1. 修飾類：呢個類唔可以被繼承，例如 String、Math、System\n2. 修飾方法：呢個方法唔可以被重寫（Override）\n3. 修飾變量：呢個變量變成常量，必須初始化且之後唔可以修改\n\n注意：final 修飾既係「引用」本身不可變，但引用指向既對象內部既屬性仲可以修改（除非個對象本身都係不可變既）。\n\n❌ 其他選項點解錯：\n- A 選項（不可繼承）：只係 final 修飾類既情況，太片面\n- C 選項（靜態）：錯，靜態係 static，唔係 final\n- D 選項（以上全部）：錯，只有 B 最準確\n\n💡 面試記住：final 係實現「不可變對象」既關鍵技術，例如喺並發編程入面，用 final 修飾既對象可以共享而唔需要同步",
       "tags": "javase,final"
     },
     {
@@ -199,7 +199,7 @@
       "C": "A 同 B 都對",
       "D": "以上都不對",
       "answer": "C",
-      "explanation": "正確答案係C。 因為JAVASE既核心概念係抽象類同接口既分別？。呢個知識點喺Java入面非常重要，無論係日常開發定係面試都經常會考到。掌握呢個概念可以幫助你寫出更高質量既代碼。 選項B並非正確答案，請注意區分相似概念。 選項D並非正確答案，請注意區分相似概念。 記住：平時多練習，先理解再做題",
+      "explanation": "正確答案係 C（A 同 B 都對）。\n\n📖 深入解釋：\n抽象類（Abstract Class）：\n- 可以有實現既方法（普通方法）\n- 可以有成員變量\n- 只能單繼承\n- 可以有構造器\n\n接口（Interface，Java 8+）：\n- 可以有 default 方法（默認實現）\n- 可以有 static 方法\n- 只能多實現\n- 不能有實例變量，只有常量（static final）\n\nJava 8 既最大改變就係接口可以有 default 方法，呢個係為咗向後兼容。\n\n❌ 其他選項點解錯：\n- A 選項（抽象類可以有實現）：岩！但唔完整\n- B 選項（接口可以有實現）：岩！但要強調 Java 8+\n- D 選項（以上都不對）：錯\n\n💡 面試高分回答：應該講「如果需要共享代碼同狀態，用抽象類；如果需要多繼承同定義行為，用接口；最佳實踐係兩者結合使用」",
       "tags": "javase,abstract-interface"
     },
     {
