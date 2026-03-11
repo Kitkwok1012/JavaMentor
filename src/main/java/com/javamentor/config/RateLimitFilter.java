@@ -1,6 +1,8 @@
 package com.javamentor.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,12 +11,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Rate Limiting Filter - Simple IP-based rate limiting
- * Prevents API abuse and scraping
+ * Rate Limiting Filter - Caffeine-based rate limiting
+ * Prevents memory leaks from unbounded ConcurrentHashMap
  */
 @Component
 public class RateLimitFilter implements Filter {
@@ -25,8 +27,11 @@ public class RateLimitFilter implements Filter {
     @Value("${ratelimit.requests-per-minute:60}")
     private int requestsPerMinute;
 
-    private final Map<String, RateLimitInfo> ipTracker = new ConcurrentHashMap<>();
-    private static final long WINDOW_MS = 60_000; // 1 minute
+    // Caffeine cache with TTL and max size to prevent memory leaks
+    private final Cache<String, RateLimitInfo> ipTracker = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .maximumSize(50_000)
+            .build();
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -52,17 +57,13 @@ public class RateLimitFilter implements Filter {
         }
 
         String key = clientIp + ":" + endpoint;
-        RateLimitInfo info = ipTracker.computeIfAbsent(key, k -> new RateLimitInfo());
-
-        long now = System.currentTimeMillis();
         
-        // Reset window if expired
-        if (now - info.windowStart > WINDOW_MS) {
-            info.windowStart = now;
-            info.count.set(0);
-        }
+        // Get or create rate limit info - Caffeine handles expiration automatically
+        RateLimitInfo info = ipTracker.get(key, k -> new RateLimitInfo());
 
-        if (info.count.incrementAndGet() > requestsPerMinute) {
+        int currentCount = info.count.incrementAndGet();
+
+        if (currentCount > requestsPerMinute) {
             httpResponse.setStatus(429); // Too Many Requests
             httpResponse.setContentType("application/json");
             httpResponse.setCharacterEncoding("UTF-8");
@@ -70,7 +71,7 @@ public class RateLimitFilter implements Filter {
             Map<String, Object> error = Map.of(
                 "error", "Rate limit exceeded",
                 "message", "Too many requests. Please try again later.",
-                "retryAfter", (WINDOW_MS - (now - info.windowStart)) / 1000
+                "retryAfter", 60
             );
             
             new ObjectMapper().writeValue(httpResponse.getWriter(), error);
@@ -80,7 +81,7 @@ public class RateLimitFilter implements Filter {
         // Add rate limit headers
         httpResponse.setHeader("X-RateLimit-Limit", String.valueOf(requestsPerMinute));
         httpResponse.setHeader("X-RateLimit-Remaining", 
-            String.valueOf(requestsPerMinute - info.count.get()));
+            String.valueOf(requestsPerMinute - currentCount));
 
         chain.doFilter(request, response);
     }
@@ -93,8 +94,10 @@ public class RateLimitFilter implements Filter {
         return request.getRemoteAddr();
     }
 
+    /**
+     * Rate limit info holder - simple counter
+     */
     private static class RateLimitInfo {
-        long windowStart = System.currentTimeMillis();
         AtomicInteger count = new AtomicInteger(0);
     }
 }

@@ -4,20 +4,21 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_sessions")
+@Table(name = "user_sessions", 
+       uniqueConstraints = @UniqueConstraint(columnNames = {"session_id", "topic_id"}))
 public class UserSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String sessionId;  // Cookie value (UUID)
+    @Column(nullable = false)
+    private String sessionId;  // Cookie value (UUID) - no longer unique
 
     @Column(nullable = false)
     private String topicId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String questionOrder;  // JSON array of question IDs in order
 
     private Integer currentIndex;

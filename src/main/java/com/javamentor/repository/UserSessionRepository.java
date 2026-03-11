@@ -12,6 +12,8 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
     
     Optional<UserSession> findBySessionId(String sessionId);
     
+    Optional<UserSession> findBySessionIdAndTopicId(String sessionId, String topicId);
+    
     List<UserSession> findBySessionIdOrderByCreatedAtDesc(String sessionId);
     
     void deleteBySessionId(String sessionId);

@@ -22,4 +22,15 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     
     @Query("SELECT COUNT(q) FROM Question q WHERE q.topic.topicId = :topicId")
     Long countByTopicId(String topicId);
+    
+    @Query("SELECT q.topic.topicId, COUNT(q) FROM Question q GROUP BY q.topic.topicId")
+    List<Object[]> countAllGroupedByTopic();
+    
+    @Query("SELECT q FROM Question q WHERE q.id NOT IN :excludeIds")
+    List<Question> findExcluding(java.util.Set<Long> excludeIds);
+    
+    @Query("SELECT q FROM Question q")
+    List<Question> findAllQuestions();
+    
+    List<Question> findByTopicTopicIdNotNull();
 }

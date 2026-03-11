@@ -166,20 +166,18 @@ public class FollowUpRecommender {
     }
     
     private Question getRandomUnansweredWithExclude(Set<Long> excludeIds) {
-        List<Question> all = questionRepository.findAll();
-        List<Question> unanswered = all.stream()
-            .filter(q -> !excludeIds.contains(q.getId()))
-            .collect(Collectors.toList());
+        // Handle empty excludeIds to avoid JPQL error with empty IN clause
+        Set<Long> safeExcludeIds = excludeIds.isEmpty() ? Set.of(-1L) : excludeIds;
+        List<Question> all = questionRepository.findExcluding(safeExcludeIds);
         
-        return unanswered.isEmpty() ? null : unanswered.get(new Random().nextInt(unanswered.size()));
+        return all.isEmpty() ? null : all.get(new Random().nextInt(all.size()));
     }
     
     private Question getRandomQuestion(Set<Long> excludeIds) {
-        List<Question> all = questionRepository.findAll();
-        List<Question> available = all.stream()
-            .filter(q -> !excludeIds.contains(q.getId()))
-            .collect(Collectors.toList());
+        // Handle empty excludeIds to avoid JPQL error with empty IN clause
+        Set<Long> safeExcludeIds = excludeIds.isEmpty() ? Set.of(-1L) : excludeIds;
+        List<Question> all = questionRepository.findExcluding(safeExcludeIds);
         
-        return available.isEmpty() ? null : available.get(new Random().nextInt(available.size()));
+        return all.isEmpty() ? null : all.get(new Random().nextInt(all.size()));
     }
 }

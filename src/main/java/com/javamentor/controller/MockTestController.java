@@ -1,13 +1,13 @@
 package com.javamentor.controller;
 
 import com.javamentor.dto.MockTestDto;
+import com.javamentor.dto.MockTestStartRequest;
 import com.javamentor.entity.Question;
 import com.javamentor.service.MockTestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,12 +25,11 @@ public class MockTestController {
      * Body: { "topics": ["oop", "collection"], "count": 60 }
      */
     @PostMapping("/start")
-    public ResponseEntity<MockTestDto> startMockTest(@RequestBody Map<String, Object> request) {
-        @SuppressWarnings("unchecked")
-        List<String> topics = (List<String>) request.get("topics");
-        Integer count = (Integer) request.getOrDefault("count", 60);
-        
-        MockTestDto mockTest = mockTestService.startMockTest(topics, count);
+    public ResponseEntity<MockTestDto> startMockTest(@RequestBody MockTestStartRequest request) {
+        MockTestDto mockTest = mockTestService.startMockTest(
+            request.getTopics(), 
+            request.getCount() != null ? request.getCount() : 60
+        );
         return ResponseEntity.ok(mockTest);
     }
     

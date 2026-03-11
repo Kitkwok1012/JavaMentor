@@ -60,7 +60,7 @@ public class QuestionService {
 
     @Transactional
     public void moveToNextQuestion(String sessionId, String topicId) {
-        UserSession session = userSessionRepository.findBySessionId(sessionId)
+        UserSession session = userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .orElseGet(() -> createNewSession(sessionId, topicId));
 
         int newIndex = (session.getCurrentIndex() == null ? 0 : session.getCurrentIndex()) + 1;
@@ -70,8 +70,7 @@ public class QuestionService {
     }
 
     public QuestionDto getNextQuestion(String sessionId, String topicId) {
-        UserSession session = userSessionRepository.findBySessionId(sessionId)
-                .filter(s -> s.getTopicId().equals(topicId))
+        UserSession session = userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .orElseGet(() -> createNewSession(sessionId, topicId));
 
         List<Long> questionIds;
@@ -174,7 +173,7 @@ public class QuestionService {
         }
 
         String topicId = question.getTopic().getTopicId();
-        UserSession session = userSessionRepository.findBySessionId(sessionId)
+        UserSession session = userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .orElse(null);
         if (session != null) {
             List<Long> questionIds;
@@ -203,7 +202,16 @@ public class QuestionService {
     public List<TopicProgressDto> getTopicProgress(String sessionId) {
         List<Topic> topics = topicRepository.findAll();
         
-        // Single query to get all stats grouped by topic
+        // Single query to get all question counts grouped by topic
+        Map<String, Long> questionCountMap = new HashMap<>();
+        List<Object[]> questionCounts = questionRepository.countAllGroupedByTopic();
+        for (Object[] row : questionCounts) {
+            String topicId = (String) row[0];
+            long count = ((Number) row[1]).longValue();
+            questionCountMap.put(topicId, count);
+        }
+        
+        // Single query to get all user progress stats grouped by topic
         Map<String, TopicStats> statsMap = new HashMap<>();
         List<Object[]> stats = userProgressRepository.getTopicStatsGrouped(sessionId);
         for (Object[] row : stats) {
@@ -216,7 +224,7 @@ public class QuestionService {
         List<TopicProgressDto> progressList = new ArrayList<>();
         for (Topic topic : topics) {
             String topicId = topic.getTopicId();
-            Long total = questionRepository.countByTopicId(topicId);
+            Long total = questionCountMap.getOrDefault(topicId, 0L);
             
             TopicStats stats2 = statsMap.getOrDefault(topicId, new TopicStats(0, 0));
             

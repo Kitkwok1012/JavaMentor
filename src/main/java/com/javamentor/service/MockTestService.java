@@ -1,22 +1,41 @@
 package com.javamentor.service;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.javamentor.dto.MockTestDto;
 import com.javamentor.entity.Question;
 import com.javamentor.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Mock Test Service with Caffeine caching
+ * Replaces ConcurrentHashMap to prevent memory leaks
+ */
 @Service
 public class MockTestService {
     
     private final QuestionRepository questionRepository;
     
-    // In-memory mock test sessions
-    private final Map<String, MockTestDto> mockTestSessions = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> mockTestAnswers = new ConcurrentHashMap<>(); // sessionId -> list of answers
+    // Wrapper class to hold both MockTestDto and answers together
+    public static class MockTestSession {
+        public final MockTestDto mockTest;
+        public final List<String> answers;
+        
+        public MockTestSession(MockTestDto mockTest, List<String> answers) {
+            this.mockTest = mockTest;
+            this.answers = answers;
+        }
+    }
+    
+    // Caffeine cache with TTL (2 hours) and max size to prevent memory leaks
+    private final Cache<String, MockTestSession> mockTestCache = Caffeine.newBuilder()
+            .expireAfterAccess(2, TimeUnit.HOURS)
+            .maximumSize(10_000)
+            .build();
     
     public MockTestService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
@@ -33,8 +52,8 @@ public class MockTestService {
         
         List<Question> allQuestions;
         if (topics == null || topics.isEmpty()) {
-            // All topics
-            allQuestions = questionRepository.findAll();
+            // All topics - use repository query instead of findAll()
+            allQuestions = questionRepository.findByTopicTopicIdNotNull();
         } else {
             // Specific topics
             allQuestions = topics.stream()
@@ -71,8 +90,8 @@ public class MockTestService {
         mockTest.setSelectedTopics(topics);
         mockTest.setStartTime(System.currentTimeMillis());
         
-        mockTestSessions.put(sessionId, mockTest);
-        mockTestAnswers.put(sessionId, new ArrayList<>());
+        // Store in cache with wrapper
+        mockTestCache.put(sessionId, new MockTestSession(mockTest, new ArrayList<>()));
         
         return mockTest;
     }
@@ -81,9 +100,10 @@ public class MockTestService {
      * Get current question for the session
      */
     public Question getCurrentQuestion(String sessionId) {
-        MockTestDto mockTest = mockTestSessions.get(sessionId);
-        if (mockTest == null) return null;
+        MockTestSession session = mockTestCache.getIfPresent(sessionId);
+        if (session == null) return null;
         
+        MockTestDto mockTest = session.mockTest;
         int index = mockTest.getCurrentIndex();
         if (index >= mockTest.getQuestionIds().size()) return null;
         
@@ -95,8 +115,10 @@ public class MockTestService {
      * Submit answer for current question
      */
     public boolean submitAnswer(String sessionId, String answer) {
-        MockTestDto mockTest = mockTestSessions.get(sessionId);
-        if (mockTest == null) return false;
+        MockTestSession session = mockTestCache.getIfPresent(sessionId);
+        if (session == null) return false;
+        
+        MockTestDto mockTest = session.mockTest;
         
         Question question = getCurrentQuestion(sessionId);
         if (question == null) return false;
@@ -111,8 +133,7 @@ public class MockTestService {
         }
         
         // Store answer
-        List<String> answers = mockTestAnswers.get(sessionId);
-        answers.add(isCorrect ? "1" : "0");
+        session.answers.add(isCorrect ? "1" : "0");
         
         // Move to next question
         mockTest.setCurrentIndex(mockTest.getCurrentIndex() + 1);
@@ -124,10 +145,12 @@ public class MockTestService {
      * Get test result
      */
     public Map<String, Object> getTestResult(String sessionId) {
-        MockTestDto mockTest = mockTestSessions.get(sessionId);
-        if (mockTest == null) return null;
+        MockTestSession session = mockTestCache.getIfPresent(sessionId);
+        if (session == null) return null;
         
-        List<String> answers = mockTestAnswers.get(sessionId);
+        MockTestDto mockTest = session.mockTest;
+        List<String> answers = session.answers;
+        
         int total = answers.size();
         long correct = answers.stream().filter("1"::equals).count();
         
@@ -146,8 +169,10 @@ public class MockTestService {
      * Get progress (questions answered / total)
      */
     public Map<String, Object> getProgress(String sessionId) {
-        MockTestDto mockTest = mockTestSessions.get(sessionId);
-        if (mockTest == null) return null;
+        MockTestSession session = mockTestCache.getIfPresent(sessionId);
+        if (session == null) return null;
+        
+        MockTestDto mockTest = session.mockTest;
         
         Map<String, Object> progress = new HashMap<>();
         progress.put("current", mockTest.getCurrentIndex() + 1);

@@ -29,7 +29,9 @@ com/javamentor/service/FollowUpRecommender.class
 com/javamentor/repository/UserProgressRepository.class
 com/javamentor/repository/TopicRepository.class
 com/javamentor/entity/UserSession.class
+com/javamentor/service/MockTestService$MockTestSession.class
 com/javamentor/dto/AnswerResponseDto.class
+com/javamentor/dto/MockTestStartRequest.class
 com/javamentor/controller/MockTestController.class
 com/javamentor/exception/GlobalExceptionHandler.class
 com/javamentor/dto/TopicProgressDto.class
