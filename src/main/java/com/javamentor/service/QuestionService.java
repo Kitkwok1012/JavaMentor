@@ -32,26 +32,30 @@ public class QuestionService {
                           TopicRepository topicRepository,
                           UserProgressRepository userProgressRepository,
                           UserSessionRepository userSessionRepository,
-                          FollowUpRecommender followUpRecommender) {
+                          FollowUpRecommender followUpRecommender,
+                          ObjectMapper objectMapper) {
         this.questionRepository = questionRepository;
         this.topicRepository = topicRepository;
         this.userProgressRepository = userProgressRepository;
         this.userSessionRepository = userSessionRepository;
         this.followUpRecommender = followUpRecommender;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
     }
 
     @Cacheable("topics")
+    @Transactional(readOnly = true)
     public List<Topic> getAllTopics() {
         log.debug("Loading all topics from database");
         return topicRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Topic getTopicById(String topicId) {
         return topicRepository.findByTopicId(topicId)
                 .orElseThrow(() -> new TopicNotFoundException(topicId));
     }
 
+    @Transactional(readOnly = true)
     public QuestionDto getQuestionById(Long questionId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException(questionId));
@@ -192,6 +196,7 @@ public class QuestionService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public List<UserProgress> getWrongQuestions(String sessionId) {
         return userProgressRepository.findBySessionIdAndIsCorrectFalseOrderByAnsweredAtDesc(sessionId);
     }
@@ -199,6 +204,7 @@ public class QuestionService {
     /**
      * Get topic progress - optimized with single query to fix N+1 problem
      */
+    @Transactional(readOnly = true)
     public List<TopicProgressDto> getTopicProgress(String sessionId) {
         List<Topic> topics = topicRepository.findAll();
         
@@ -272,6 +278,7 @@ public class QuestionService {
         log.info("Reset all progress for session {}", sessionId);
     }
 
+    @Transactional(readOnly = true)
     public Map<String, Object> getUserStats(String sessionId) {
         List<UserProgress> allProgress = userProgressRepository.findBySessionIdOrderByAnsweredAtDesc(sessionId);
         
@@ -290,6 +297,7 @@ public class QuestionService {
         return stats;
     }
 
+    @Transactional(readOnly = true)
     public List<QuestionDto> findRelatedQuestions(Long currentQuestionId, boolean answeredCorrect) {
         Question current = questionRepository.findById(currentQuestionId).orElse(null);
         if (current == null || current.getTags() == null) {
@@ -344,6 +352,7 @@ public class QuestionService {
         return String.join(",", parts);
     }
 
+    @Transactional(readOnly = true)
     public QuestionDto recommendNextQuestion(String sessionId, Long currentQuestionId, boolean correct) {
         Question recommended = followUpRecommender.recommend(sessionId, currentQuestionId, correct);
         if (recommended == null) return null;

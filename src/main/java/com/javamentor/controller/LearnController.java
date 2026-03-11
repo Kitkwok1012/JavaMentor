@@ -109,11 +109,6 @@ public class LearnController {
         log.info("Submitting answer: sessionId={}, questionId={}, answer={}, topicId={}", 
                 sessionId, questionId, answer, topicId);
 
-        if (questionId == null || answer == null || topicId == null) {
-            model.addAttribute("error", "請填寫所有必填項目");
-            return "redirect:/learn/" + topicId;
-        }
-
         try {
             QuestionDto question = questionService.getQuestionById(questionId);
             AnswerResponseDto response = questionService.submitAnswer(sessionId, questionId, answer);

@@ -1,7 +1,7 @@
 package com.javamentor.controller;
 
 import com.javamentor.dto.MockTestDto;
-import com.javamentor.dto.MockTestStartRequest;
+import com.javamentor.dto.StartMockTestRequest;
 import com.javamentor.entity.Question;
 import com.javamentor.service.MockTestService;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,10 @@ public class MockTestController {
      * Body: { "topics": ["oop", "collection"], "count": 60 }
      */
     @PostMapping("/start")
-    public ResponseEntity<MockTestDto> startMockTest(@RequestBody MockTestStartRequest request) {
+    public ResponseEntity<MockTestDto> startMockTest(@RequestBody StartMockTestRequest request) {
         MockTestDto mockTest = mockTestService.startMockTest(
-            request.getTopics(), 
-            request.getCount() != null ? request.getCount() : 60
+            request.topics(), 
+            request.count()
         );
         return ResponseEntity.ok(mockTest);
     }
