@@ -21,13 +21,13 @@ public class MockTestService {
     private final QuestionRepository questionRepository;
     
     // Wrapper class to hold both MockTestDto and answers together
-    public static class MockTestSession {
-        public final MockTestDto mockTest;
-        public final List<String> answers;
-        
-        public MockTestSession(MockTestDto mockTest, List<String> answers) {
+    private static class MockTestSession {
+        final MockTestDto mockTest;
+        final List<String> answers;
+
+        MockTestSession(MockTestDto mockTest) {
             this.mockTest = mockTest;
-            this.answers = answers;
+            this.answers = Collections.synchronizedList(new ArrayList<>());
         }
     }
     
@@ -61,24 +61,17 @@ public class MockTestService {
                 .collect(Collectors.toList());
         }
         
-        // Shuffle and select
+        // Shuffle and select - operate directly on Question objects
         Collections.shuffle(allQuestions);
         int actualCount = Math.min(count, allQuestions.size());
-        List<Long> questionIds = allQuestions.stream()
+        
+        // Sort by difficulty and select directly - no re-fetch needed
+        List<Question> selectedQuestions = allQuestions.stream()
             .limit(actualCount)
-            .map(Question::getId)
+            .sorted(Comparator.comparingInt(q -> q.getDifficulty() != null ? q.getDifficulty() : 1))
             .collect(Collectors.toList());
         
-        // Distribution: 30% easy, 50% medium, 20% hard
-        List<Question> selectedQuestions = questionIds.stream()
-            .map(id -> questionRepository.findById(id).orElse(null))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        
-        // Sort by difficulty for balanced distribution
-        selectedQuestions.sort(Comparator.comparingInt(q -> q.getDifficulty() != null ? q.getDifficulty() : 1));
-        
-        questionIds = selectedQuestions.stream()
+        List<Long> questionIds = selectedQuestions.stream()
             .map(Question::getId)
             .collect(Collectors.toList());
         
@@ -91,7 +84,7 @@ public class MockTestService {
         mockTest.setStartTime(System.currentTimeMillis());
         
         // Store in cache with wrapper
-        mockTestCache.put(sessionId, new MockTestSession(mockTest, new ArrayList<>()));
+        mockTestCache.put(sessionId, new MockTestSession(mockTest));
         
         return mockTest;
     }

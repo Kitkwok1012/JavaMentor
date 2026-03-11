@@ -16,6 +16,9 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId")
     Long countBySessionId(String sessionId);
+    
+    @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.isCorrect = true")
+    Long countCorrectBySessionId(String sessionId);
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId")
     Long countBySessionIdAndTopicId(String sessionId, String topicId);

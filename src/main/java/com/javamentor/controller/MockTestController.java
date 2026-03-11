@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/mock")
 public class MockTestController {
@@ -25,7 +27,7 @@ public class MockTestController {
      * Body: { "topics": ["oop", "collection"], "count": 60 }
      */
     @PostMapping("/start")
-    public ResponseEntity<MockTestDto> startMockTest(@RequestBody StartMockTestRequest request) {
+    public ResponseEntity<MockTestDto> startMockTest(@RequestBody @Valid StartMockTestRequest request) {
         MockTestDto mockTest = mockTestService.startMockTest(
             request.topics(), 
             request.count()

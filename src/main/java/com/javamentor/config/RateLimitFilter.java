@@ -27,11 +27,17 @@ public class RateLimitFilter implements Filter {
     @Value("${ratelimit.requests-per-minute:60}")
     private int requestsPerMinute;
 
+    private final ObjectMapper objectMapper;
+
     // Caffeine cache with TTL and max size to prevent memory leaks
     private final Cache<String, RateLimitInfo> ipTracker = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .maximumSize(50_000)
             .build();
+
+    public RateLimitFilter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -74,7 +80,7 @@ public class RateLimitFilter implements Filter {
                 "retryAfter", 60
             );
             
-            new ObjectMapper().writeValue(httpResponse.getWriter(), error);
+            objectMapper.writeValue(httpResponse.getWriter(), error);
             return;
         }
 

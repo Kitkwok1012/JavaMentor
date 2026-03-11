@@ -260,8 +260,7 @@ public class QuestionService {
 
     @Transactional
     public void resetTopic(String sessionId, String topicId) {
-        userSessionRepository.findBySessionId(sessionId)
-                .filter(s -> s.getTopicId().equals(topicId))
+        userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .ifPresent(session -> {
                     List<Long> newOrder = generateNewQuestionOrder(topicId);
                     session.setQuestionOrder(toJson(newOrder));
@@ -280,10 +279,8 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getUserStats(String sessionId) {
-        List<UserProgress> allProgress = userProgressRepository.findBySessionIdOrderByAnsweredAtDesc(sessionId);
-        
-        long totalAnswered = allProgress.size();
-        long totalCorrect = allProgress.stream().filter(p -> Boolean.TRUE.equals(p.getIsCorrect())).count();
+        long totalAnswered = userProgressRepository.countBySessionId(sessionId);
+        long totalCorrect = userProgressRepository.countCorrectBySessionId(sessionId);
         long totalWrong = totalAnswered - totalCorrect;
         double accuracy = totalAnswered > 0 ? (double) totalCorrect / totalAnswered * 100 : 0;
 
