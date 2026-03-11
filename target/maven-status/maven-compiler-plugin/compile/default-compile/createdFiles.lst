@@ -7,11 +7,13 @@ com/javamentor/config/DataFixer.class
 com/javamentor/config/JsonQuestionLoader$1.class
 com/javamentor/dto/QuestionDto.class
 com/javamentor/config/JsonQuestionLoader.class
+com/javamentor/config/CaffeineConfig.class
 com/javamentor/config/QuestionDataSupplier.class
 com/javamentor/service/QuestionService.class
 com/javamentor/config/QuestionDataLoader.class
 com/javamentor/controller/LearnController.class
 com/javamentor/entity/Question.class
+com/javamentor/validator/ExplanationValidator.class
 com/javamentor/repository/QuestionRepository.class
 com/javamentor/service/FollowUpRecommender.class
 com/javamentor/repository/UserProgressRepository.class

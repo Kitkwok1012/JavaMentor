@@ -24,6 +24,12 @@ spring:
   thymeleaf:
     cache: false
     mode: HTML
+  
+  # Caffeine Cache Configuration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=30m
 
 server:
   port: 8080
@@ -31,3 +37,4 @@ server:
 logging:
   level:
     com.javamentor: DEBUG
+    org.springframework.cache: DEBUG
