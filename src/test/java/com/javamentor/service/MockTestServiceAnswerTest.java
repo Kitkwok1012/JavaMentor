@@ -77,9 +77,10 @@ class MockTestServiceAnswerTest {
 
     @Test
     void testSubmitAnswer_wrongAnswer() {
-        when(questionRepository.findByTopicTopicIdNotNull()).thenReturn(Arrays.asList(
-            createMockQuestion(1L, "A", false)
-        ));
+        Question q1 = createMockQuestion(1L, "A", false);
+        when(questionRepository.findByTopicTopicIdNotNull()).thenReturn(Arrays.asList(q1));
+        // Must mock findById since submitAnswer calls it internally
+        when(questionRepository.findById(1L)).thenReturn(java.util.Optional.of(q1));
 
         var mockTest = mockTestService.startMockTest(null, 1);
         String sessionId = mockTest.getSessionId();
