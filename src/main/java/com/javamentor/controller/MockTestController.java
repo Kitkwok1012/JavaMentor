@@ -2,6 +2,7 @@ package com.javamentor.controller;
 
 import com.javamentor.dto.MockTestDto;
 import com.javamentor.dto.StartMockTestRequest;
+import com.javamentor.dto.AnswerRequest;
 import com.javamentor.entity.Question;
 import com.javamentor.service.MockTestService;
 import org.springframework.http.ResponseEntity;
@@ -64,8 +65,10 @@ public class MockTestController {
      * Body: { "answer": "A" }
      */
     @PostMapping("/{sessionId}/answer")
-    public ResponseEntity<?> submitAnswer(@PathVariable String sessionId, @RequestBody Map<String, String> request) {
-        String answer = request.get("answer");
+    public ResponseEntity<?> submitAnswer(
+            @PathVariable String sessionId, 
+            @RequestBody @Valid AnswerRequest request) {
+        String answer = request.getAnswer();
         boolean isCorrect = mockTestService.submitAnswer(sessionId, answer);
         
         Map<String, Object> response = new HashMap<>();

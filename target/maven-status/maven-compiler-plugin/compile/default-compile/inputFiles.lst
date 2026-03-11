@@ -14,6 +14,7 @@
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/exception/QuestionNotFoundException.java
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/config/QuestionDataLoader.java
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/dto/AnswerResponseDto.java
+/Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/dto/AnswerRequest.java
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/repository/UserSessionRepository.java
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/config/QuestionDataSupplier.java
 /Users/kit/.openclaw/workspace/JavaMentor/src/main/java/com/javamentor/service/FollowUpRecommender.java

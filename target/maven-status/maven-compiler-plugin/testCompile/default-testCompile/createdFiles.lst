@@ -1,3 +1,4 @@
-com/javamentor/service/FollowUpRecommenderTest.class
 com/javamentor/validator/InputSanitizerTest.class
 com/javamentor/service/MockTestServiceAnswerTest.class
+com/javamentor/service/QuestionServiceTest.class
+com/javamentor/service/FollowUpRecommenderTest.class
