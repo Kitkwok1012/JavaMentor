@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaMentor - 學習進度</title>
+    <title>JavaMentor - 學習進度 | Learning Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -16,7 +16,7 @@
             <div class="space-x-4">
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
                 <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
-                <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？呢個動作唔可以復原。')" style="display:inline;">
+                <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？此操作不可復原。')" style="display:inline;">
                     <button type="submit" class="text-red-500 hover:text-red-700 text-sm">清除進度</button>
                 </form>
             </div>
@@ -24,28 +24,28 @@
     </nav>
     
     <main class="max-w-4xl mx-auto px-4 py-8">
-        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁</a>
+        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁 | Back to Home</a>
         
-        <h1 class="text-2xl font-bold text-gray-900 mb-4">學習進度</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">學習進度 | Learning Progress</h1>
         
         <!-- Overall Stats -->
         <div th:if="${stats}" class="bg-white rounded-lg shadow-sm border p-6 mb-8">
             <div class="grid grid-cols-4 gap-4 text-center">
                 <div>
                     <div class="text-2xl font-bold text-blue-600" th:text="${stats.totalAnswered}">0</div>
-                    <div class="text-sm text-gray-500">總答題</div>
+                    <div class="text-sm text-gray-500">總答題 | Total</div>
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-green-600" th:text="${stats.totalCorrect}">0</div>
-                    <div class="text-sm text-gray-500">正確</div>
+                    <div class="text-sm text-gray-500">正確 | Correct</div>
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-red-600" th:text="${stats.totalWrong}">0</div>
-                    <div class="text-sm text-gray-500">錯誤</div>
+                    <div class="text-sm text-gray-500">錯誤 | Wrong</div>
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-purple-600" th:text="${stats.accuracy}">0%</div>
-                    <div class="text-sm text-gray-500">正確率</div>
+                    <div class="text-sm text-gray-500">正確率 | Accuracy</div>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
                 </div>
                 
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">準確率</span>
+                    <span class="text-gray-500">準確率 | Accuracy</span>
                     <span th:class="${p.accuracy >= 80 ? 'text-green-600' : p.accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'}"
                           class="font-medium"
                           th:text="${#numbers.formatDecimal(p.accuracy, 1, 1)} + '%'">80%</span>
@@ -72,7 +72,7 @@
                 
                 <a th:href="@{/learn/{topicId}(topicId=${p.topicId})}" 
                    class="mt-4 block text-center text-blue-600 hover:underline text-sm">
-                    繼續學習 &rarr;
+                    繼續學習 | Continue Learning &rarr;
                 </a>
             </div>
         </div>

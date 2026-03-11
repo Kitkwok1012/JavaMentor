@@ -22,7 +22,7 @@
                 </span>
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
                 <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
-                <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？呢個動作唔可以復原。')" style="display:inline;">
+                <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？此操作不可復原。')" style="display:inline;">
                     <button type="submit" class="text-red-500 hover:text-red-700 text-sm">清除進度</button>
                 </form>
             </div>
@@ -33,7 +33,7 @@
         <!-- Hero Section -->
         <div class="text-center mb-12">
             <h1 class="text-4xl font-bold text-gray-900 mb-4">Java面試互動學習</h1>
-            <p class="text-xl text-gray-600 mb-8">一題接一題，AI追問幫你真實掌握每個知識點</p>
+            <p class="text-xl text-gray-600 mb-8">一題接一題，AI追問幫助您真實掌握每個知識點</p>
         </div>
         
         <!-- Topics Grid -->
@@ -70,23 +70,23 @@
             <div class="p-6">
                 <div class="text-3xl mb-3">🎯</div>
                 <h3 class="font-semibold mb-2">一題接一題</h3>
-                <p class="text-gray-500 text-sm">模擬真實面試，一題答完先顯示下一題</p>
+                <p class="text-gray-500 text-sm">模擬真實面試，一題答完才顯示下一題</p>
             </div>
             <div class="p-6">
                 <div class="text-3xl mb-3">🤔</div>
                 <h3 class="font-semibold mb-2">AI追問</h3>
-                <p class="text-gray-500 text-sm">根據你既回答追問，確保你真係識</p>
+                <p class="text-gray-500 text-sm">根據您的回答追問，確保您真正理解</p>
             </div>
             <div class="p-6">
                 <div class="text-3xl mb-3">📚</div>
                 <h3 class="font-semibold mb-2">錯題複習</h3>
-                <p class="text-gray-500 text-sm">記錄低你既錯題，隨時翻查</p>
+                <p class="text-gray-500 text-sm">記錄您的錯題，隨時翻查</p>
             </div>
         </div>
     </main>
     
     <footer class="text-center text-gray-500 text-sm py-8">
-        Java面試互動學習平台
+        Java面試互動學習平台 | Java Interview Learning Platform
     </footer>
 </body>
 </html>
