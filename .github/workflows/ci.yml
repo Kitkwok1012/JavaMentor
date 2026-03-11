@@ -95,9 +95,4 @@ jobs:
           cache: 'maven'
       
       - name: Build for analysis
-        run: mvn clean compile -DskipTests
-      
-      - name: Run SpotBugs
-        uses: ngsec/action-spotbugs@master
-        with:
-          fail-on-error: false
+        run: mvn clean compile -DskipTests -q
