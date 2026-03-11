@@ -168,7 +168,7 @@ public class QuestionService {
         if (followUp != null && !followUp.isBlank()) {
             response.setHasFollowUp(true);
             response.setFollowUpQuestion(followUp);
-            response.setFollowUpOptions(Arrays.asList(AppConstants.FOLLOW_UP_OPTIONS));
+            response.setFollowUpOptions(Arrays.asList("A", "B", "C"));
         } else {
             response.setHasFollowUp(false);
         }
