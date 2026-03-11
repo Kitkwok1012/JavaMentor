@@ -1,5 +1,6 @@
 package com.javamentor.service;
 
+import com.javamentor.config.AppConstants;
 import com.javamentor.entity.Question;
 import com.javamentor.entity.UserProgress;
 import com.javamentor.repository.QuestionRepository;
@@ -44,23 +45,19 @@ public class FollowUpRecommender {
         Question current = questionRepository.findById(currentQuestionId).orElse(null);
         if (current == null) return getRandomQuestion(new HashSet<>());
         
-        // Get user's progress history for this session
-        List<UserProgress> history = userProgressRepository.findAllBySessionIdOrderByAnsweredAtDesc(sessionId);
+        List<UserProgress> history = userProgressRepository.findBySessionIdOrderByAnsweredAtDesc(sessionId);
         
-        // Get questions already answered
         Set<Long> answeredIds = history.stream()
             .map(p -> p.getQuestion().getId())
             .collect(Collectors.toSet());
         answeredIds.add(currentQuestionId);
         
-        // Get user's weak topics (Rule 5)
         Map<String, Double> topicAccuracy = calculateTopicAccuracy(history);
         List<String> weakTopics = topicAccuracy.entrySet().stream()
-            .filter(e -> e.getValue() < 0.6)
+            .filter(e -> e.getValue() < AppConstants.ACCURACY_WEAK_TOPIC)
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
         
-        // Count recent answers for current topic (Rule 4)
         long recentCountInTopic = history.stream()
             .filter(p -> p.getQuestion().getTopic().getTopicId().equals(current.getTopic().getTopicId()))
             .count();
@@ -71,39 +68,37 @@ public class FollowUpRecommender {
                 current.getTopic().getTopicId(), 
                 current.getDifficulty(),
                 answeredIds,
-                true // same or lower difficulty
+                true
             );
             if (q != null) return q;
         }
         
         // Rule 4: Too many recent answers in same topic → inject different topic
-        if (recentCountInTopic >= 3 && !weakTopics.isEmpty()) {
+        if (recentCountInTopic >= AppConstants.RECENT_COUNT_THRESHOLD && !weakTopics.isEmpty()) {
             Question q = findQuestionFromTopics(weakTopics, answeredIds);
             if (q != null) return q;
         }
         
-        // Rule 5: Weak topics → inject weak topic question (every 10 questions)
-        if (history.size() % 10 == 0 && !weakTopics.isEmpty()) {
+        // Rule 5: Weak topics → inject weak topic question
+        if (history.size() % AppConstants.WEAK_TOPIC_INJECTION_INTERVAL == 0 && !weakTopics.isEmpty()) {
             Question q = findQuestionFromTopics(weakTopics, answeredIds);
             if (q != null) return q;
         }
         
         // Rule 2-3: Correct answer → escalate difficulty
         if (correct) {
-            if (current.getDifficulty() == 1) {
-                // Easy → Medium
+            if (current.getDifficulty() == AppConstants.DIFFICULTY_EASY) {
                 Question q = findQuestionSameTopic(
                     current.getTopic().getTopicId(),
-                    2, // medium
+                    AppConstants.DIFFICULTY_MEDIUM,
                     answeredIds,
                     false
                 );
                 if (q != null) return q;
-            } else if (current.getDifficulty() == 2) {
-                // Medium → Hard or related topic
+            } else if (current.getDifficulty() == AppConstants.DIFFICULTY_MEDIUM) {
                 Question q = findQuestionSameTopic(
                     current.getTopic().getTopicId(),
-                    3, // hard
+                    AppConstants.DIFFICULTY_HARD,
                     answeredIds,
                     false
                 );
@@ -146,12 +141,10 @@ public class FollowUpRecommender {
             candidates = questionRepository.findByTopicTopicIdAndDifficulty(topicId, maxDifficulty);
         }
         
-        // Filter out answered questions
         candidates = candidates.stream()
             .filter(q -> !excludeIds.contains(q.getId()))
             .collect(Collectors.toList());
         
-        // Sort by difficulty (closest to target)
         candidates.sort((a, b) -> Math.abs(a.getDifficulty() - maxDifficulty) - 
                                    Math.abs(b.getDifficulty() - maxDifficulty));
         

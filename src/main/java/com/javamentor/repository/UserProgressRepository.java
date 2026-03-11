@@ -23,8 +23,13 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId AND p.isCorrect = true")
     Long countCorrectBySessionIdAndTopicId(String sessionId, String topicId);
 
-    @Query("SELECT p FROM UserProgress p WHERE p.sessionId = :sessionId ORDER BY p.answeredAt DESC")
-List<UserProgress> findAllBySessionIdOrderByAnsweredAtDesc(String sessionId);
+    @Query("SELECT p.question.topic.topicId, " +
+           "COUNT(p), " +
+           "SUM(CASE WHEN p.isCorrect = true THEN 1 ELSE 0 END) " +
+           "FROM UserProgress p " +
+           "WHERE p.sessionId = :sessionId " +
+           "GROUP BY p.question.topic.topicId")
+    List<Object[]> getTopicStatsGrouped(String sessionId);
 
     void deleteBySessionId(String sessionId);
 }

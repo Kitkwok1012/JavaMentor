@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_progress")
+@Table(name = "user_progress", indexes = {
+    @Index(name = "idx_progress_session_id", columnList = "session_id"),
+    @Index(name = "idx_progress_question_id", columnList = "question_id"),
+    @Index(name = "idx_progress_is_correct", columnList = "is_correct"),
+    @Index(name = "idx_progress_answered_at", columnList = "answered_at")
+})
 public class UserProgress {
 
     @Id
@@ -12,7 +17,7 @@ public class UserProgress {
     private Long id;
 
     @Column(nullable = false)
-    private String sessionId;  // Link to user's cookie session
+    private String sessionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)

@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "questions", indexes = {
+    @Index(name = "idx_question_topic_id", columnList = "topic_id"),
+    @Index(name = "idx_question_difficulty", columnList = "difficulty"),
+    @Index(name = "idx_question_display_order", columnList = "display_order")
+})
 public class Question {
     
     @Id
@@ -37,7 +41,7 @@ public class Question {
     private String correctAnswer;
     
     @Column(nullable = false)
-    private Boolean multiSelect = false;  // true = 多選題, false = 單選題
+    private Boolean multiSelect = false;
     
     @Column(columnDefinition = "TEXT")
     private String explanation;
@@ -52,7 +56,7 @@ public class Question {
     
     private Integer displayOrder;
     
-    private String tags;  // e.g., "ArrayList,List,collection,performance"
+    private String tags;
     
     // Constructors
     public Question() {}

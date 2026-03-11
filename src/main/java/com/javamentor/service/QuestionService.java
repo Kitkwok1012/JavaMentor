@@ -2,12 +2,14 @@ package com.javamentor.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javamentor.config.AppConstants;
 import com.javamentor.dto.*;
 import com.javamentor.entity.*;
 import com.javamentor.exception.*;
 import com.javamentor.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +41,9 @@ public class QuestionService {
         this.objectMapper = new ObjectMapper();
     }
 
+    @Cacheable("topics")
     public List<Topic> getAllTopics() {
+        log.debug("Loading all topics from database");
         return topicRepository.findAll();
     }
 
@@ -66,12 +70,10 @@ public class QuestionService {
     }
 
     public QuestionDto getNextQuestion(String sessionId, String topicId) {
-        // Get or create session for this user + topic
         UserSession session = userSessionRepository.findBySessionId(sessionId)
                 .filter(s -> s.getTopicId().equals(topicId))
                 .orElseGet(() -> createNewSession(sessionId, topicId));
 
-        // Parse question order
         List<Long> questionIds;
         try {
             questionIds = objectMapper.readValue(session.getQuestionOrder(),
@@ -130,7 +132,6 @@ public class QuestionService {
 
     @Transactional
     public AnswerResponseDto submitAnswer(String sessionId, Long questionId, String answer) {
-        // Validation
         if (questionId == null) {
             throw new InvalidAnswerException("Question ID 不能為空");
         }
@@ -149,9 +150,8 @@ public class QuestionService {
             isCorrect = answer.equalsIgnoreCase(question.getCorrectAnswer());
         }
 
-        // Save progress to database (linked to session)
         UserProgress progress = new UserProgress();
-        progress.setSessionId(sessionId);  // Link to user's session
+        progress.setSessionId(sessionId);
         progress.setQuestion(question);
         progress.setUserAnswer(answer);
         progress.setIsCorrect(isCorrect);
@@ -168,12 +168,11 @@ public class QuestionService {
         if (followUp != null && !followUp.isBlank()) {
             response.setHasFollowUp(true);
             response.setFollowUpQuestion(followUp);
-            response.setFollowUpOptions(List.of("A. 理解", "B. 再諗下", "C. 唔識", "D. 其他"));
+            response.setFollowUpOptions(Arrays.asList(AppConstants.FOLLOW_UP_OPTIONS));
         } else {
             response.setHasFollowUp(false);
         }
 
-        // Check if last question
         String topicId = question.getTopic().getTopicId();
         UserSession session = userSessionRepository.findBySessionId(sessionId)
                 .orElse(null);
@@ -198,28 +197,51 @@ public class QuestionService {
         return userProgressRepository.findBySessionIdAndIsCorrectFalseOrderByAnsweredAtDesc(sessionId);
     }
 
+    /**
+     * Get topic progress - optimized with single query to fix N+1 problem
+     */
     public List<TopicProgressDto> getTopicProgress(String sessionId) {
         List<Topic> topics = topicRepository.findAll();
-        List<TopicProgressDto> progressList = new ArrayList<>();
+        
+        // Single query to get all stats grouped by topic
+        Map<String, TopicStats> statsMap = new HashMap<>();
+        List<Object[]> stats = userProgressRepository.getTopicStatsGrouped(sessionId);
+        for (Object[] row : stats) {
+            String topicId = (String) row[0];
+            long total = ((Number) row[1]).longValue();
+            long correct = ((Number) row[2]).longValue();
+            statsMap.put(topicId, new TopicStats(total, correct));
+        }
 
+        List<TopicProgressDto> progressList = new ArrayList<>();
         for (Topic topic : topics) {
             String topicId = topic.getTopicId();
             Long total = questionRepository.countByTopicId(topicId);
-            Long correct = userProgressRepository.countCorrectBySessionIdAndTopicId(sessionId, topicId);
-
+            
+            TopicStats stats2 = statsMap.getOrDefault(topicId, new TopicStats(0, 0));
+            
             TopicProgressDto dto = new TopicProgressDto();
             dto.setTopicId(topicId);
             dto.setTopicName(topic.getName());
             dto.setDescription(topic.getDescription());
             dto.setTotalQuestions(total);
-            dto.setCorrectAnswers(correct);
-            dto.setAnsweredQuestions(userProgressRepository.countBySessionIdAndTopicId(sessionId, topicId));
-            dto.setAccuracy(total > 0 ? (double) correct / total * 100 : 0);
+            dto.setCorrectAnswers(stats2.correct);
+            dto.setAnsweredQuestions(stats2.total);
+            dto.setAccuracy(total > 0 ? (double) stats2.correct / total * 100 : 0);
 
             progressList.add(dto);
         }
 
         return progressList;
+    }
+
+    private static class TopicStats {
+        long total;
+        long correct;
+        TopicStats(long total, long correct) {
+            this.total = total;
+            this.correct = correct;
+        }
     }
 
     @Transactional
@@ -235,9 +257,6 @@ public class QuestionService {
                 });
     }
 
-    /**
-     * Reset ALL progress for a user session
-     */
     @Transactional
     public void resetAllProgress(String sessionId) {
         userSessionRepository.deleteBySessionId(sessionId);
@@ -259,6 +278,7 @@ public class QuestionService {
         stats.put("totalWrong", totalWrong);
         stats.put("accuracy", Math.round(accuracy * 100) / 100.0);
 
+        log.debug("User stats for session {}: {}", sessionId, stats);
         return stats;
     }
 
