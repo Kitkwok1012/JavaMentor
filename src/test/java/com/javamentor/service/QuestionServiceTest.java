@@ -8,12 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestionServiceTest {
@@ -24,13 +22,15 @@ class QuestionServiceTest {
     @InjectMocks
     private QuestionService questionService;
     
+    // ========== Topic Tests ==========
+    
     @Test
     void testGetTopicById_found() {
-        Topic topic = new Topic();
-        topic.setTopicId("oop");
-        topic.setName("Object-Oriented Programming");
+        Topic testTopic = new Topic();
+        testTopic.setTopicId("oop");
+        testTopic.setName("Object-Oriented Programming");
         
-        when(topicRepository.findByTopicId("oop")).thenReturn(Optional.of(topic));
+        when(topicRepository.findByTopicId("oop")).thenReturn(Optional.of(testTopic));
         
         Topic result = questionService.getTopicById("oop");
         
@@ -61,5 +61,15 @@ class QuestionServiceTest {
         
         assertNotNull(result);
         assertEquals(2, result.size());
+    }
+    
+    @Test
+    void testGetAllTopics_empty() {
+        when(topicRepository.findAll()).thenReturn(new ArrayList<>());
+        
+        List<Topic> result = questionService.getAllTopics();
+        
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }
