@@ -28,6 +28,15 @@ spring:
 server:
   port: ${PORT:8080}
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:true}
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: ${SWAGGER_UI_ENABLED:false}
+    path: /swagger-ui.html
+
 # Rate limiting config
 ratelimit:
   enabled: ${RATE_LIMIT_ENABLED:true}
