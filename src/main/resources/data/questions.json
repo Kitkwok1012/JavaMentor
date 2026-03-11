@@ -4698,19 +4698,6 @@
       "description": "分佈式架構、CAP，BASE",
       "questions": [
         {
-          "id": 1,
-          "difficulty": 2,
-          "multiSelect": false,
-          "question": "CAP定理既三個特性？",
-          "optionA": "Consistency/Availability/Partition Tolerance",
-          "optionB": "只有CP",
-          "optionC": "只有AP",
-          "optionD": "以上都唔係",
-          "correct": "A",
-          "tags": "distributed,cap",
-          "explanation": "CAP定理：系統最多只能滿足其中兩個。Partition Tolerance係必須保證既，所以實際係CP或AP既選擇。"
-        },
-        {
           "id": 2,
           "difficulty": 2,
           "multiSelect": false,
@@ -5087,19 +5074,6 @@
           "correct": "A",
           "tags": "redis,transaction",
           "explanation": "Redis事務用MULTI/EXEC/WATCH，保證原子性，但唔支持回滾(如果命令失敗繼續執行)。"
-        },
-        {
-          "id": 10,
-          "difficulty": 3,
-          "multiSelect": false,
-          "question": "Redis同Memcached既分別？",
-          "optionA": "Redis支持更多數據類型/持久化/集群",
-          "optionB": "一樣",
-          "optionC": "Memcached更強",
-          "optionD": "以上都唔係",
-          "correct": "A",
-          "tags": "redis,vs-memcached",
-          "explanation": "Redis vs Memcached：Redis支持更多數據類型、持久化、集群、主從複製。"
         }
       ]
     },
@@ -6420,19 +6394,6 @@
           "explanation": "DNS解析順序：本地緩存 -> 根服務器 -> 頂級域名服務器 -> 權威域名服務器。"
         },
         {
-          "id": 7,
-          "difficulty": 2,
-          "multiSelect": false,
-          "question": "Cookie同Session既分別？",
-          "optionA": "Cookie存客戶端，Session存服務端",
-          "optionB": "一樣",
-          "optionC": "Session更細",
-          "optionD": "以上都唔係",
-          "correct": "A",
-          "tags": "network,cookie-session",
-          "explanation": "Cookie客戶端存儲，有大小限制；Session服務端存儲，更安全但增加服務器負擔。"
-        },
-        {
           "id": 8,
           "difficulty": 2,
           "multiSelect": false,
@@ -7188,19 +7149,6 @@
           "correct": "A",
           "tags": "devops,review",
           "explanation": "Code Review好處：提高代碼質量、團隊知識共享、及早發現問題、培養Coding Standard。"
-        },
-        {
-          "id": 3,
-          "difficulty": 2,
-          "multiSelect": "False",
-          "question": "Dockerfile既最佳實踐？",
-          "optionA": "減少層數/多階段構建/.dockerignore",
-          "optionB": "一層打天下",
-          "optionC": "越大越好",
-          "optionD": "以上都唔係",
-          "correct": "A",
-          "tags": "docker,best-practice",
-          "explanation": "Dockerfile Best：減少層數、.dockerignore、使用多階段構建、選擇精簡既基礎鏡像。"
         },
         {
           "id": 4,
