@@ -15,9 +15,16 @@
     <nav class="bg-white shadow-sm border-b">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
-            <div class="space-x-4">
+            <div class="space-x-4 flex items-center">
+                <span th:if="${stats}" class="text-sm text-gray-500">
+                    總答題: <span class="font-medium text-gray-700" th:text="${stats.totalAnswered}">0</span> | 
+                    正確率: <span class="font-medium text-green-600" th:text="${stats.accuracy}">0</span>%
+                </span>
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
                 <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+                <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？呢個動作唔可以復原。')" style="display:inline;">
+                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm">清除進度</button>
+                </form>
             </div>
         </div>
     </nav>

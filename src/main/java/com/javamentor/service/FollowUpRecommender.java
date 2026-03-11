@@ -40,12 +40,12 @@ public class FollowUpRecommender {
      * 6. NEVER repeat a question within the same session
      * 7. Prioritize unanswered questions over seen ones
      */
-    public Question recommend(Long currentQuestionId, boolean correct) {
+    public Question recommend(String sessionId, Long currentQuestionId, boolean correct) {
         Question current = questionRepository.findById(currentQuestionId).orElse(null);
         if (current == null) return getRandomQuestion(new HashSet<>());
         
-        // Get all progress history
-        List<UserProgress> history = userProgressRepository.findAllByOrderByAnsweredAtDesc();
+        // Get user's progress history for this session
+        List<UserProgress> history = userProgressRepository.findAllBySessionIdOrderByAnsweredAtDesc(sessionId);
         
         // Get questions already answered
         Set<Long> answeredIds = history.stream()

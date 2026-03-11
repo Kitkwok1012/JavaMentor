@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: javamentor
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerCommand: java -jar -DDB_PATH=file:/app/data/javamentor app.jar
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_PATH
+        value: file:/app/data/javamentor
+    healthCheckPath: /
+    autoDeploy: true
