@@ -81,7 +81,7 @@
           "optionD": "编译",
           "correct": "D",
           "tags": "oop,basic",
-          "explanation": "面向对象既基本原则係封装、继承、多态。"
+          "explanation": "面向对象既基本原则係封装、继承、多态。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -94,7 +94,7 @@
           "optionD": "derived",
           "correct": "B",
           "tags": "oop,inheritance",
-          "explanation": "Java中用extends关键字实现类既继承。"
+          "explanation": "Java中用extends关键字实现类既继承。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -107,7 +107,7 @@
           "optionD": "以上都不是",
           "correct": "B",
           "tags": "oop,overload",
-          "explanation": "方法重载指同方法名但不同参数(个数或类型)。"
+          "explanation": "方法重载指同方法名但不同参数(个数或类型)。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -120,7 +120,7 @@
           "optionD": "private",
           "correct": "B",
           "tags": "oop,final",
-          "explanation": "final关键字可以阻止类被继承。"
+          "explanation": "final关键字可以阻止类被继承。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
@@ -133,7 +133,7 @@
           "optionD": "只能有一个",
           "correct": "A",
           "tags": "oop,abstract",
-          "explanation": "抽象类可以有构造方法，用于子类对象初始化。"
+          "explanation": "抽象类可以有构造方法，用于子类对象初始化。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 11,
@@ -146,7 +146,7 @@
           "optionD": "public",
           "correct": "A",
           "tags": "oop,interface,java8",
-          "explanation": "Java 8开始接口可以有default方法。"
+          "explanation": "Java 8开始接口可以有default方法。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 12,
@@ -159,7 +159,7 @@
           "optionD": "public",
           "correct": "D",
           "tags": "oop,access-modifier",
-          "explanation": "public既作用域最广，任何类都可以访问。"
+          "explanation": "public既作用域最广，任何类都可以访问。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 13,
@@ -172,7 +172,7 @@
           "optionD": "native",
           "correct": "B",
           "tags": "oop,synchronized",
-          "explanation": "synchronized关键字实现线程同步。"
+          "explanation": "synchronized关键字实现线程同步。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 14,
@@ -185,7 +185,7 @@
           "optionD": "ArrayList",
           "correct": "B",
           "tags": "oop,immutable",
-          "explanation": "String係不可变对象，一旦创建就不能修改。"
+          "explanation": "String係不可变对象，一旦创建就不能修改。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 15,
@@ -198,7 +198,7 @@
           "optionD": "Decorator",
           "correct": "C",
           "tags": "oop,coupling",
-          "explanation": "Observer Pattern降低类之间既耦合度。"
+          "explanation": "Observer Pattern降低类之间既耦合度。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -257,7 +257,7 @@
           "optionD": "Skip List",
           "correct": "B",
           "tags": "TreeMap,tree",
-          "explanation": "TreeMap底层用Red-Black Tree实现。"
+          "explanation": "TreeMap底层用Red-Black Tree实现。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -283,7 +283,7 @@
           "optionD": "List",
           "correct": "B",
           "tags": "Queue,fifo",
-          "explanation": "Queue保证FIFO既顺序。"
+          "explanation": "Queue保证FIFO既顺序。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -309,7 +309,7 @@
           "optionD": "取决于点用",
           "correct": "B",
           "tags": "ArrayList,thread-safe",
-          "explanation": "ArrayList唔係thread-safe。"
+          "explanation": "ArrayList唔係thread-safe。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -322,7 +322,7 @@
           "optionD": "get()",
           "correct": "A",
           "tags": "ArrayList,resize",
-          "explanation": "add()可能触发扩容。"
+          "explanation": "add()可能触发扩容。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
@@ -387,7 +387,7 @@
           "optionD": "SynchronizedList",
           "correct": "C",
           "tags": "Arrays,asList",
-          "explanation": "Arrays.asList()返回固定大小既List。"
+          "explanation": "Arrays.asList()返回固定大小既List。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -420,7 +420,7 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "thread,start-run",
-          "explanation": "start()启动新线程，run()只係普通方法调用。"
+          "explanation": "start()启动新线程，run()只係普通方法调用。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -446,7 +446,7 @@
           "optionD": "以上全部",
           "correct": "D",
           "tags": "synchronized,作用",
-          "explanation": "synchronized保证原子性、可见性、有序性。"
+          "explanation": "synchronized保证原子性、可见性、有序性。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -459,7 +459,7 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "volatile",
-          "explanation": "volatile保证可见性同有序性，但不保证原子性。"
+          "explanation": "volatile保证可见性同有序性，但不保证原子性。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -472,7 +472,7 @@
           "optionD": "newScheduledThreadPool",
           "correct": "A",
           "tags": "thread-pool,fixed",
-          "explanation": "newFixedThreadPool创建固定数量既线程池。"
+          "explanation": "newFixedThreadPool创建固定数量既线程池。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -498,7 +498,7 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "concurrent,countdownlatch",
-          "explanation": "CountDownLatch让一个线程等待其他线程完成。"
+          "explanation": "CountDownLatch让一个线程等待其他线程完成。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -511,11 +511,11 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "concurrent,semaphore",
-          "explanation": "Semaphore控制同时访问资源既线程数。"
+          "explanation": "Semaphore控制同时访问资源既线程数。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "ReentrantLock同synchronized既分别？",
           "optionA": "ReentrantLock可尝试获取锁",
@@ -550,7 +550,7 @@
           "optionD": "CyclicBarrier",
           "correct": "A",
           "tags": "producer-consumer,blockingqueue",
-          "explanation": "BlockingQueue是实现生产消费者模式既常用组件。"
+          "explanation": "BlockingQueue是实现生产消费者模式既常用组件。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -570,7 +570,7 @@
           "optionD": "以上全部",
           "correct": "D",
           "tags": "jvm,structure",
-          "explanation": "JVM主要包括：类加载器、运行时数据区、执行引擎。"
+          "explanation": "JVM主要包括：类加载器、运行时数据区、执行引擎。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -596,7 +596,7 @@
           "optionD": "PC Register",
           "correct": "A",
           "tags": "jvm,gc,heap",
-          "explanation": "垃圾回收主要係Heap区。"
+          "explanation": "垃圾回收主要係Heap区。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 4,
@@ -635,7 +635,7 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "jvm,gc,cms",
-          "explanation": "CMS係并发垃圾回收器，与用户线程同时工作。"
+          "explanation": "CMS係并发垃圾回收器，与用户线程同时工作。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -648,7 +648,7 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "jvm,gc,g1",
-          "explanation": "G1将堆划分为多个Region，可设置期望停顿时间。"
+          "explanation": "G1将堆划分为多个Region，可设置期望停顿时间。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -674,11 +674,11 @@
           "optionD": "以上全部",
           "correct": "D",
           "tags": "jvm,reference",
-          "explanation": "Java引用类型：强引用、软引用、弱引用、虚引用。"
+          "explanation": "Java引用类型：强引用、软引用、弱引用、虚引用。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "ClassLoader既双亲委派模型係？",
           "optionA": "向上委托，向下加载",
@@ -687,7 +687,7 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "jvm,classloader",
-          "explanation": "双亲委派模型：类加载请求先向上委托给父类加载器处理。"
+          "explanation": "双亲委派模型：类加载请求先向上委托给父类加载器处理。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -707,7 +707,7 @@
           "optionD": "Transaction",
           "correct": "B",
           "tags": "spring,ioc,di",
-          "explanation": "Spring既核心係IOC同DI。"
+          "explanation": "Spring既核心係IOC同DI。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -746,7 +746,7 @@
           "optionD": "切面",
           "correct": "A",
           "tags": "spring,autowired",
-          "explanation": "@Autowired用于自动装配Bean。"
+          "explanation": "@Autowired用于自动装配Bean。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -759,7 +759,7 @@
           "optionD": "功能一样但语义唔同",
           "correct": "D",
           "tags": "spring,component,service",
-          "explanation": "功能上完全一样，区别只係语义。"
+          "explanation": "功能上完全一样，区别只係语义。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -815,7 +815,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "边个注解可以创建定时任务？",
           "optionA": "@Scheduled",
@@ -857,7 +857,7 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "mysql,innodb",
-          "explanation": "InnoDB支持事务、行级锁、外键。"
+          "explanation": "InnoDB支持事务、行级锁、外键。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -883,7 +883,7 @@
           "optionD": "以上全部",
           "correct": "D",
           "tags": "mysql,index,usage",
-          "explanation": "索引适用于WHERE、JOIN、ORDER BY等场景。"
+          "explanation": "索引适用于WHERE、JOIN、ORDER BY等场景。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -909,7 +909,7 @@
           "optionD": "SERIALIZABLE",
           "correct": "C",
           "tags": "mysql,isolation",
-          "explanation": "InnoDB默认隔离级别係REPEATABLE READ。"
+          "explanation": "InnoDB默认隔离级别係REPEATABLE READ。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -922,7 +922,7 @@
           "optionD": "以上全部",
           "correct": "D",
           "tags": "mysql,full-scan",
-          "explanation": "使用LIKE %xxx%、OR、函数等会导致全表扫描。"
+          "explanation": "使用LIKE %xxx%、OR、函数等会导致全表扫描。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -935,7 +935,7 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "mysql,explain",
-          "explanation": "EXPLAIN用于分析SQL执行计划，检查索引使用情况。"
+          "explanation": "EXPLAIN用于分析SQL执行计划，检查索引使用情况。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -952,7 +952,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "COUNT(*)同COUNT(1)既分别？",
           "optionA": "性能一样",
@@ -1333,7 +1333,7 @@
           "optionD": "Prototype",
           "correct": "C",
           "tags": "builder,pattern",
-          "explanation": "Builder模式用於創建複雜對象，可以一步一步構建。"
+          "explanation": "Builder模式用於創建複雜對象，可以一步一步構建。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -1398,7 +1398,7 @@
           "optionD": "Decorator",
           "correct": "A",
           "tags": "facade,pattern",
-          "explanation": "Facade模式提供一個統一既接口訪問子系統中既一群接口。"
+          "explanation": "Facade模式提供一個統一既接口訪問子系統中既一群接口。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -1411,7 +1411,7 @@
           "optionD": "Decorator",
           "correct": "A",
           "tags": "adapter,pattern",
-          "explanation": "Adapter模式將類既接口轉換成客戶期望既另一個接口。"
+          "explanation": "Adapter模式將類既接口轉換成客戶期望既另一個接口。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -1437,7 +1437,7 @@
           "optionD": "State",
           "correct": "A",
           "tags": "strategy,pattern",
-          "explanation": "Strategy模式定義一系列算法，並讓佢地可以相互替換。"
+          "explanation": "Strategy模式定義一系列算法，並讓佢地可以相互替換。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -1457,7 +1457,7 @@
           "optionD": "5432",
           "correct": "B",
           "tags": "redis,port",
-          "explanation": "Redis既默認端口係6379。"
+          "explanation": "Redis既默認端口係6379。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -1698,7 +1698,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "microservice,container",
-          "explanation": "Container提供隔離性、快速部署、資源控制等優點。"
+          "explanation": "Container提供隔離性、快速部署、資源控制等優點。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
@@ -1731,7 +1731,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "network,tcp-udp",
-          "explanation": "TCP可靠、面向連接；UDP不可靠、但速度快。"
+          "explanation": "TCP可靠、面向連接；UDP不可靠、但速度快。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -1744,7 +1744,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "network,http",
-          "explanation": "HTTP係應用層協議，用於Web瀏覽器同服務器之間既通訊。"
+          "explanation": "HTTP係應用層協議，用於Web瀏覽器同服務器之間既通訊。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -1757,7 +1757,7 @@
           "optionD": "3306",
           "correct": "B",
           "tags": "network,https",
-          "explanation": "HTTP端口80，HTTPS端口443。"
+          "explanation": "HTTP端口80，HTTPS端口443。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 4,
@@ -1783,7 +1783,7 @@
           "optionD": "權限問題",
           "correct": "B",
           "tags": "network,http-status",
-          "explanation": "404 Not Found表示資源不存在。"
+          "explanation": "404 Not Found表示資源不存在。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -1920,7 +1920,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "git,stash",
-          "explanation": "git stash暫存未commit既修改，等陣再恢復。"
+          "explanation": "git stash暫存未commit既修改，等陣再恢復。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -1946,7 +1946,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "git,checkout",
-          "explanation": "git checkout -b創建並立即切換到新分支。"
+          "explanation": "git checkout -b創建並立即切換到新分支。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -1985,7 +1985,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "git,remote",
-          "explanation": "git remote -v顯示所有遠程倉庫既名稱同URL。"
+          "explanation": "git remote -v顯示所有遠程倉庫既名稱同URL。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -2155,7 +2155,7 @@
           "optionD": "O(n^2)",
           "correct": "A",
           "tags": "ds,linkedlist",
-          "explanation": "LinkedList在頭部插入既時間複雜度係O(1)。"
+          "explanation": "LinkedList在頭部插入既時間複雜度係O(1)。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -2233,7 +2233,7 @@
           "optionD": "O(n^2)",
           "correct": "A",
           "tags": "ds,queue",
-          "explanation": "Queue既enqueue同dequeue都係O(1)。"
+          "explanation": "Queue既enqueue同dequeue都係O(1)。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -2481,7 +2481,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "java8,reduce",
-          "explanation": "reduce()做歸約操作，例如累加、求最大最小值等。"
+          "explanation": "reduce()做歸約操作，例如累加、求最大最小值等。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -2553,7 +2553,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "docker,basic",
-          "explanation": "Docker係一個容器化平台，比虛擬機更輕量。"
+          "explanation": "Docker係一個容器化平台，比虛擬機更輕量。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -2566,7 +2566,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "docker,dockerfile",
-          "explanation": "Dockerfile用於定義Container既構建過程。"
+          "explanation": "Dockerfile用於定義Container既構建過程。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -2670,7 +2670,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "docker,advantage",
-          "explanation": "Container優點：輕量、快速啟動、可移植、隔離性好。"
+          "explanation": "Container優點：輕量、快速啟動、可移植、隔離性好。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -2690,7 +2690,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "kafka,basic",
-          "explanation": "Kafka主要用途：消息隊列、實時日誌系統、事件流處理。"
+          "explanation": "Kafka主要用途：消息隊列、實時日誌系統、事件流處理。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -2935,7 +2935,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "Deadlock既處理方法？",
           "optionA": "減少事務大小",
@@ -3068,7 +3068,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "testing,assertj",
-          "explanation": "AssertJ提供流式斷言，比傳統assert更易讀。"
+          "explanation": "AssertJ提供流式斷言，比傳統assert更易讀。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
@@ -3081,7 +3081,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "testing,e2e",
-          "explanation": "E2E Test模擬真實用戶行為，從頭到尾測試成個系統。"
+          "explanation": "E2E Test模擬真實用戶行為，從頭到尾測試成個系統。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -3251,7 +3251,7 @@
           "optionD": "刪除資源",
           "correct": "A",
           "tags": "api,http-method",
-          "explanation": "GET用於獲取資源，係 idempotent 既。"
+          "explanation": "GET用於獲取資源，係 idempotent 既。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -3264,7 +3264,7 @@
           "optionD": "刪除資源",
           "correct": "A",
           "tags": "api,http-method",
-          "explanation": "POST用於創建資源，non-idempotent。"
+          "explanation": "POST用於創建資源，non-idempotent。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 4,
@@ -3277,7 +3277,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "api,http-method",
-          "explanation": "PUT用於全量更新資源，PATCH用於部分更新。"
+          "explanation": "PUT用於全量更新資源，PATCH用於部分更新。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -3290,7 +3290,7 @@
           "optionD": "服務器錯誤",
           "correct": "A",
           "tags": "api,status-code",
-          "explanation": "200 OK表示請求成功處理。"
+          "explanation": "200 OK表示請求成功處理。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -3303,7 +3303,7 @@
           "optionD": "服務器錯誤",
           "correct": "B",
           "tags": "api,status-code",
-          "explanation": "201 Created通常響POST請求創建資源後返回。"
+          "explanation": "201 Created通常響POST請求創建資源後返回。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -3316,7 +3316,7 @@
           "optionD": "成功",
           "correct": "A",
           "tags": "api,status-code",
-          "explanation": "404 Not Found表示請求既資源不存在。"
+          "explanation": "404 Not Found表示請求既資源不存在。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -3590,7 +3590,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "system,cdn",
-          "explanation": "CDN加速靜態資源訪問，減少延遲，減輕源站壓力。"
+          "explanation": "CDN加速靜態資源訪問，減少延遲，減輕源站壓力。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -3629,7 +3629,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "system,design",
-          "explanation": "搶紅包系統挑戰：高並發搶、限流、防止超賣、數據一致性。"
+          "explanation": "搶紅包系統挑戰：高並發搶、限流、防止超賣、數據一致性。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -3662,7 +3662,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,disk",
-          "explanation": "df查看整體磁盤使用，du查看目錄/文件大小。"
+          "explanation": "df查看整體磁盤使用，du查看目錄/文件大小。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -3675,7 +3675,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,memory",
-          "explanation": "free查看內存使用情況，top查看進程內存佔用。"
+          "explanation": "free查看內存使用情況，top查看進程內存佔用。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 4,
@@ -3688,7 +3688,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,grep",
-          "explanation": "grep用於搜索文件內容，支持正則表達式。"
+          "explanation": "grep用於搜索文件內容，支持正則表達式。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -3701,7 +3701,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,tail",
-          "explanation": "tail查看文件尾部，tail -f實時監控日誌。"
+          "explanation": "tail查看文件尾部，tail -f實時監控日誌。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -3714,7 +3714,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "linux,permission",
-          "explanation": "chmod修改文件權限，如chmod 755 file。"
+          "explanation": "chmod修改文件權限，如chmod 755 file。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -3727,7 +3727,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,network",
-          "explanation": "netstat查看網絡連接、端口監聽、路由表等。"
+          "explanation": "netstat查看網絡連接、端口監聽、路由表等。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
@@ -3740,7 +3740,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,find",
-          "explanation": "find按名稱、大小、時間等條件查找文件。"
+          "explanation": "find按名稱、大小、時間等條件查找文件。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 9,
@@ -3753,7 +3753,7 @@
           "optionD": "以上都唔係",
           "correct": "C",
           "tags": "linux,awk",
-          "explanation": "awk強大既文本處理工具，用於數據提取、格式化。"
+          "explanation": "awk強大既文本處理工具，用於數據提取、格式化。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 10,
@@ -4405,7 +4405,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "線程池既工作流程？",
           "optionA": "先core再queue最後max，拒絕策略處理溢出",
@@ -4679,7 +4679,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "Select性能優化原則？",
           "optionA": "減少IO次數，用Covering Index，控制返回量",
@@ -5090,7 +5090,7 @@
         },
         {
           "id": 10,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "Redis同Memcached既分別？",
           "optionA": "Redis支持更多數據類型/持久化/集群",
@@ -5667,7 +5667,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "algo,complexity",
-          "explanation": "O(1)表示常數時間，無論輸入幾多，執行時間都一樣。"
+          "explanation": "O(1)表示常數時間，無論輸入幾多，執行時間都一樣。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -5680,7 +5680,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "algo,binary-search",
-          "explanation": "二分查找要求數組有序，通過每次排除一半既元素來快速查找。"
+          "explanation": "二分查找要求數組有序，通過每次排除一半既元素來快速查找。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 3,
@@ -6743,7 +6743,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "zk,cap",
-          "explanation": "Zookeeper保證CP，犧牲可用性(選舉期間不可用)。"
+          "explanation": "Zookeeper保證CP，犧牲可用性(選舉期間不可用)。 呢個係面試常見問題，需要深入理解。"
         }
       ]
     },
@@ -7500,7 +7500,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "network,tcp-timewait",
-          "explanation": "TIME_WAIT：主動關閉方進入，等待遲到既分節ACK。"
+          "explanation": "TIME_WAIT：主動關閉方進入，等待遲到既分節ACK。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 6,
@@ -7676,7 +7676,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "arraylist,init",
-          "explanation": "ArrayList默認初始化容量為10。"
+          "explanation": "ArrayList默認初始化容量為10。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 5,
@@ -8008,7 +8008,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "completable,allof",
-          "explanation": "allOf等待全部完成，anyOf任意一個完成。"
+          "explanation": "allOf等待全部完成，anyOf任意一個完成。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 2,
@@ -8073,7 +8073,7 @@
           "optionD": "以上都唔係",
           "correct": "A",
           "tags": "phaser,multi-phase",
-          "explanation": "Phaser支持多階段既屏障同步，階段數可以動態調整。"
+          "explanation": "Phaser支持多階段既屏障同步，階段數可以動態調整。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 7,
@@ -8086,7 +8086,7 @@
           "optionD": "以上都係",
           "correct": "D",
           "tags": "future,get",
-          "explanation": "Future.get()阻塞等待結果，可以設置超時時間。"
+          "explanation": "Future.get()阻塞等待結果，可以設置超時時間。 呢個係面試常見問題，需要深入理解。"
         },
         {
           "id": 8,
