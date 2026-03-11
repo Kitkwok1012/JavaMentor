@@ -17,11 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
       
-      # Setup Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -29,15 +27,12 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       
-      # Build the project
       - name: Build with Maven
         run: mvn clean package -DskipTests
       
-      # Run tests
       - name: Run tests
         run: mvn test
       
-      # Upload test results
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -47,7 +42,7 @@ jobs:
           retention-days: 7
 
   # ===========================================
-  # Job 2: Security Scan (Optional - Best Effort)
+  # Job 2: Security Scan (Optional)
   # ===========================================
   security-scan:
     runs-on: ubuntu-latest
@@ -66,8 +61,17 @@ jobs:
           exit-code: '0'
           output: 'trivy-results.sarif'
       
-      - name: Upload SARIF to GitHub
-        if: success() || failure()
+      - name: Check if SARIF file exists
+        id: check-sarif
+        run: |
+          if [ -f trivy-results.sarif ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload SARIF if exists
+        if: steps.check-sarif.outputs.exists == 'true'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
