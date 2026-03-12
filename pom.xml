@@ -14,7 +14,7 @@
     <artifactId>javamentor</artifactId>
     <version>1.0.0</version>
     <name>JavaMentor</name>
-    <description>Java面試互動學習平台</description>
+    <description>Java面試知識庫 - A Java Interview Knowledge Base with runnable Q&amp;A platform</description>
     
     <properties>
         <java.version>17</java.version>
