@@ -59,9 +59,15 @@ public class MockTestController {
             @PathVariable String sessionId, 
             @RequestBody @Valid AnswerRequest request) {
         String answer = request.getAnswer();
-        boolean isCorrect = mockTestService.submitAnswer(sessionId, answer);
         
-        return ResponseEntity.ok(Map.of("correct", isCorrect));
+        // Get result including correct answer for feedback
+        Map<String, Object> result = mockTestService.submitAnswerWithFeedback(sessionId, answer);
+        
+        if (result == null) {
+            return ResponseEntity.ok(Map.of("completed", true));
+        }
+        
+        return ResponseEntity.ok(result);
     }
     
     /**

@@ -115,19 +115,26 @@ public class MockTestService {
      * Submit answer for current question
      */
     public boolean submitAnswer(String sessionId, String answer) {
+        return submitAnswerWithFeedback(sessionId, answer) != null;
+    }
+    
+    /**
+     * Submit answer and return result with correct answer for frontend feedback
+     */
+    public Map<String, Object> submitAnswerWithFeedback(String sessionId, String answer) {
         MockTestSession session = mockTestCache.getIfPresent(sessionId);
-        if (session == null) return false;
+        if (session == null) return null;
         
         MockTestDto mockTest = session.mockTest;
         
         // Get current question ID from cache
         int index = mockTest.getCurrentIndex();
-        if (index >= mockTest.getQuestionIds().size()) return false;
+        if (index >= mockTest.getQuestionIds().size()) return null;
         
         Long questionId = mockTest.getQuestionIds().get(index);
         Question question = questionRepository.findById(questionId).orElse(null);
         
-        if (question == null) return false;
+        if (question == null) return null;
         
         String correctAnswer = question.getCorrectAnswer();
         boolean isCorrect = AnswerUtils.isCorrect(answer, correctAnswer, question.getMultiSelect());
@@ -138,7 +145,11 @@ public class MockTestService {
         // Move to next question
         mockTest.setCurrentIndex(mockTest.getCurrentIndex() + 1);
         
-        return isCorrect;
+        // Return result with correct answer for frontend
+        Map<String, Object> result = new HashMap<>();
+        result.put("correct", isCorrect);
+        result.put("correctAnswer", correctAnswer);
+        return result;
     }
     
     /**
