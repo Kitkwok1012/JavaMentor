@@ -82,6 +82,7 @@ public class Question {
         return options.stream()
                 .filter(QuestionOption::getIsCorrect)
                 .map(QuestionOption::getLabel)
+                .sorted()
                 .reduce((a, b) -> a + "," + b)
                 .orElse("");
     }
