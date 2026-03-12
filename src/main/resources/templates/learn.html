@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - 學習</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* HTMX loading indicator */
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        .htmx-request.htmx-indicator { opacity: 1; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -22,7 +29,7 @@
         </div>
     </nav>
     
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-4 py-8" id="main-content">
         <!-- Back Link -->
         <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁</a>
         
@@ -43,89 +50,100 @@
             </div>
         </div>
         
-        <!-- Question - Dynamic Options -->
-        <div th:if="${question != null and (completed == null or not completed)}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-sm text-gray-500">問題</span>
-                <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1" th:text="${question.difficulty == 1 ? '簡單' : question.difficulty == 2 ? '中等' : '困難'}">中等</span>
-            </div>
-            
-            <h2 class="text-xl font-medium text-gray-900 mb-8" th:text="${question.question}">Question text goes here?</h2>
-            
-            <form th:action="@{/answer}" method="post" id="answerForm">
-                <input type="hidden" name="questionId" th:value="${question.id}">
-                <input type="hidden" name="topicId" th:value="${question.topicId}">
+        <!-- Question Section (HTMX target) -->
+        <div id="answer-section" th:fragment="questionSection">
+            <!-- Question - Dynamic Options -->
+            <div th:if="${question != null and (completed == null or not completed)}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-sm text-gray-500">問題</span>
+                    <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1" th:text="${question.difficulty == 1 ? '簡單' : question.difficulty == 2 ? '中等' : '困難'}">中等</span>
+                </div>
                 
-                <!-- Dynamic Options - supports any number of options -->
-                <div class="space-y-4 mb-8">
-                    <!-- Single Select: Radio buttons -->
-                    <th:block th:if="${question.multiSelect == null or not question.multiSelect}">
-                        <label th:each="opt : ${question.options}" 
-                               class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                            <input type="radio" name="answer" th:value="${opt.label}" class="mt-1 mr-3" required>
-                            <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
-                            <span th:text="${opt.content}">Option content</span>
-                        </label>
-                    </th:block>
+                <h2 class="text-xl font-medium text-gray-900 mb-8" th:text="${question.question}">Question text goes here?</h2>
+                
+                <!-- HTMX Form with loading indicator -->
+                <form th:action="@{/answer}" method="post" 
+                      hx-post="/answer" 
+                      hx-target="#answer-section" 
+                      hx-swap="outerHTML"
+                      hx-indicator=".loading"
+                      id="answerForm">
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+                    <input type="hidden" name="topicId" th:value="${question.topicId}">
                     
-                    <!-- Multi Select: Checkboxes -->
-                    <th:block th:if="${question.multiSelect}">
-                        <p class="text-sm text-gray-500 mb-4">請選擇所有正確答案（可多選）</p>
-                        <label th:each="opt : ${question.options}" 
-                               class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                            <input type="checkbox" name="answer" th:value="${opt.label}" class="mt-1 mr-3">
-                            <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
-                            <span th:text="${opt.content}">Option content</span>
-                        </label>
-                    </th:block>
+                    <!-- Dynamic Options -->
+                    <div class="space-y-4 mb-8">
+                        <!-- Single Select: Radio buttons -->
+                        <th:block th:if="${question.multiSelect == null or not question.multiSelect}">
+                            <label th:each="opt : ${question.options}" 
+                                   class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                                <input type="radio" name="answer" th:value="${opt.label}" class="mt-1 mr-3" required>
+                                <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                                <span th:text="${opt.content}">Option content</span>
+                            </label>
+                        </th:block>
+                        
+                        <!-- Multi Select: Checkboxes -->
+                        <th:block th:if="${question.multiSelect}">
+                            <p class="text-sm text-gray-500 mb-4">請選擇所有正確答案（可多選）</p>
+                            <label th:each="opt : ${question.options}" 
+                                   class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                                <input type="checkbox" name="answer" th:value="${opt.label}" class="mt-1 mr-3">
+                                <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                                <span th:text="${opt.content}">Option content</span>
+                            </label>
+                        </th:block>
+                    </div>
+                    
+                    <!-- Submit with loading indicator -->
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition relative">
+                        <span class="htmx-indicator">提交中...</span>
+                        <span class="htmx-inverse">提交答案 | Submit Answer</span>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Answer Result -->
+            <div th:if="${response}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
+                <!-- Correct/Wrong Banner -->
+                <div th:class="${response.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}" 
+                     class="border rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3" th:text="${response.correct ? '✅' : '❌'}">✅</span>
+                        <span th:class="${response.correct ? 'text-green-700' : 'text-red-700'}" 
+                              class="text-xl font-bold" th:text="${response.correct ? '回答正確！' : '回答錯誤！'}">回答正確！</span>
+                    </div>
                 </div>
                 
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-                    提交答案 | Submit Answer
-                </button>
-            </form>
-        </div>
-        
-        <!-- Answer Result -->
-        <div th:if="${response}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
-            <!-- Correct/Wrong Banner -->
-            <div th:class="${response.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}" 
-                 class="border rounded-lg p-4 mb-6">
-                <div class="flex items-center">
-                    <span class="text-2xl mr-3" th:text="${response.correct ? '✅' : '❌'}">✅</span>
-                    <span th:class="${response.correct ? 'text-green-700' : 'text-red-700'}" 
-                          class="text-xl font-bold" th:text="${response.correct ? '回答正確！' : '回答錯誤！'}">回答正確！</span>
+                <!-- Explanation -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">📖 詳細解釋 | Detailed Explanation</h3>
+                    <p class="text-gray-700 leading-relaxed" th:text="${response.explanation}">Explanation...</p>
                 </div>
-            </div>
-            
-            <!-- Explanation -->
-            <div class="mb-6">
-                <h3 class="font-semibold text-gray-900 mb-2">📖 詳細解釋 | Detailed Explanation</h3>
-                <p class="text-gray-700 leading-relaxed" th:text="${response.explanation}">Explanation...</p>
-            </div>
-            
-            <!-- Correct Answer -->
-            <div class="mb-6 p-4 bg-blue-50 rounded-lg">
-                <span class="font-medium text-blue-700">正確答案: </span>
-                <span class="text-blue-900" th:text="${response.correctAnswer}">B</span>
-            </div>
-            
-            <!-- Follow-up Question (Mock) -->
-            <div th:if="${response.hasFollowUp}" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h3 class="font-semibold text-yellow-800 mb-2">🤔 AI追問 | AI Follow-up</h3>
-                <p class="text-yellow-900 mb-4" th:text="${response.followUpQuestion}">Follow-up question...</p>
-                <p class="text-sm text-yellow-700">(AI追問功能待接入... | AI follow-up feature pending...)</p>
-            </div>
-            
-            <!-- Next Question Button -->
-            <div class="flex gap-4">
-                <a th:href="@{/question/next(topicId=${topicId})}" 
-                   class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-                    下一題 | Next Question
-                </a>
-                <a href="/" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
-                    退出 | Exit
-                </a>
+                
+                <!-- Correct Answer -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                    <span class="font-medium text-blue-700">正確答案: </span>
+                    <span class="text-blue-900" th:text="${response.correctAnswer}">B</span>
+                </div>
+                
+                <!-- Follow-up Question (Mock) -->
+                <div th:if="${response.hasFollowUp}" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">🤔 AI追問 | AI Follow-up</h3>
+                    <p class="text-yellow-900 mb-4" th:text="${response.followUpQuestion}">Follow-up question...</p>
+                    <p class="text-sm text-yellow-700">(AI追問功能待接入... | AI follow-up feature pending...)</p>
+                </div>
+                
+                <!-- Next Question Button -->
+                <div class="flex gap-4">
+                    <a th:href="@{/question/next(topicId=${topicId})}" 
+                       class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                        下一題 | Next Question
+                    </a>
+                    <a href="/" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
+                        退出 | Exit
+                    </a>
+                </div>
             </div>
         </div>
     </main>
