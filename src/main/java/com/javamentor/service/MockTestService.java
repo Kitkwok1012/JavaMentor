@@ -1,5 +1,6 @@
 package com.javamentor.service;
 
+import com.javamentor.common.utils.AnswerUtils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.javamentor.mocktest.dto.MockTestDto;
@@ -129,13 +130,7 @@ public class MockTestService {
         if (question == null) return false;
         
         String correctAnswer = question.getCorrectAnswer();
-        boolean isCorrect;
-        
-        if (Boolean.TRUE.equals(question.getMultiSelect())) {
-            isCorrect = normalizeAnswer(answer).equals(normalizeAnswer(correctAnswer));
-        } else {
-            isCorrect = answer.equalsIgnoreCase(correctAnswer);
-        }
+        boolean isCorrect = AnswerUtils.isCorrect(answer, correctAnswer, question.getMultiSelect());
         
         // Store answer
         session.answers.add(isCorrect ? "1" : "0");
@@ -185,16 +180,5 @@ public class MockTestService {
         progress.put("percentage", (double) mockTest.getCurrentIndex() / mockTest.getTotalQuestions() * 100);
         
         return progress;
-    }
-    
-    private String normalizeAnswer(String answer) {
-        if (answer == null) return "";
-        String cleaned = answer.toUpperCase().replaceAll("\\s+", "");
-        if (cleaned.contains(",")) {
-            String[] parts = cleaned.split(",");
-            Arrays.sort(parts);
-            return String.join(",", parts);
-        }
-        return cleaned;
     }
 }

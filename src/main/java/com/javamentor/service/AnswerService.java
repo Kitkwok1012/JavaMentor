@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.javamentor.common.utils.AnswerUtils;
 import java.util.Arrays;
 
 /**
@@ -50,7 +51,7 @@ public class AnswerService {
         var question = questionService.getQuestionEntityById(questionId);
 
         // Check answer
-        boolean isCorrect = checkAnswer(answer, question.getCorrectAnswer(), question.getMultiSelect());
+        boolean isCorrect = AnswerUtils.isCorrect(answer, question.getCorrectAnswer(), question.getMultiSelect());
 
         // Record progress
         progressService.recordAnswer(sessionId, questionId, answer, isCorrect);
@@ -78,24 +79,5 @@ public class AnswerService {
         response.setIsLastQuestion(sessionService.isLastQuestion(sessionId, topicId));
 
         return response;
-    }
-
-    private boolean checkAnswer(String userAnswer, String correctAnswer, Boolean multiSelect) {
-        if (Boolean.TRUE.equals(multiSelect)) {
-            return normalizeMultiSelectAnswer(userAnswer).equals(normalizeMultiSelectAnswer(correctAnswer));
-        } else {
-            return userAnswer.equalsIgnoreCase(correctAnswer);
-        }
-    }
-
-    private String normalizeMultiSelectAnswer(String answer) {
-        if (answer == null) return "";
-        String cleaned = answer.toUpperCase().replaceAll("\\s+", "");
-        if (cleaned.contains(",")) {
-            String[] parts = cleaned.split(",");
-            Arrays.sort(parts);
-            return String.join(",", parts);
-        }
-        return cleaned;
     }
 }
