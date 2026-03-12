@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 /**
- * Topic Entity - with Lombok
+ * Topic Entity - normalized, no denormalized counts
  */
 @Entity
 @Table(name = "topics")
@@ -23,8 +23,6 @@ public class Topic {
     private String name;
     
     private String description;
-    
-    private Integer questionCount;
     
     private LocalDateTime createdAt;
 }

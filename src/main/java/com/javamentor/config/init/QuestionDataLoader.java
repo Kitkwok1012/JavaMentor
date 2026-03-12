@@ -48,10 +48,6 @@ public class QuestionDataLoader implements CommandLineRunner {
             topic.setName((String) t.get("name"));
             topic.setDescription((String) t.get("description"));
             
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> questionsList = (List<Map<String, Object>>) t.get("questions");
-            topic.setQuestionCount(questionsList != null ? questionsList.size() : 0);
-            
             topicMap.put(topicId, topic);
         }
         topicRepository.saveAll(topicMap.values());
