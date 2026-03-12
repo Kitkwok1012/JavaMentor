@@ -2,7 +2,6 @@ package com.javamentor.config.init;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javamentor.question.entity.Question;
-import com.javamentor.question.entity.QuestionOption;
 import com.javamentor.question.entity.Topic;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.repository.TopicRepository;
@@ -58,7 +57,7 @@ public class QuestionDataLoader implements CommandLineRunner {
         topicRepository.saveAll(topicMap.values());
         System.out.println("Loaded " + topicMap.size() + " topics!");
         
-        // Create questions with normalized options
+        // Create questions with normalized options and tags
         List<Question> questions = new ArrayList<>();
         int order = 1;
         
@@ -75,7 +74,15 @@ public class QuestionDataLoader implements CommandLineRunner {
                 question.setTopic(topic);
                 question.setQuestion((String) q.get("question"));
                 question.setExplanation((String) q.get("explanation"));
-                question.setTags((String) q.get("tags"));
+                
+                // Handle tags (comma-separated string to Set<String>)
+                Object tagsObj = q.get("tags");
+                if (tagsObj instanceof String tagsStr && !tagsStr.isEmpty()) {
+                    String[] tagArray = tagsStr.split(",");
+                    for (String tag : tagArray) {
+                        question.addTag(tag.trim());
+                    }
+                }
                 
                 // Handle difficulty
                 Object diff = q.get("difficulty");

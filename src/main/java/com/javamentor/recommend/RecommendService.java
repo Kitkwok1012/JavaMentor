@@ -94,7 +94,7 @@ public class RecommendService {
         String topicId = current.getTopic().getTopicId();
         List<Question> candidates = questionService.getQuestionsByTopic(topicId);
         
-        Set<String> currentTags = new HashSet<>(Arrays.asList(current.getTags().split(",")));
+        Set<String> currentTags = current.getTags();
         int currentDifficulty = current.getDifficulty() != null ? current.getDifficulty() : 1;
 
         return candidates.stream()
@@ -180,9 +180,8 @@ public class RecommendService {
         return all.isEmpty() ? null : all.get(new Random().nextInt(all.size()));
     }
 
-    private boolean hasSharedTags(Set<String> tags1, String tags2) {
-        if (tags2 == null) return false;
-        Set<String> set2 = new HashSet<>(Arrays.asList(tags2.split(",")));
-        return !Collections.disjoint(tags1, set2);
+    private boolean hasSharedTags(Set<String> tags1, Set<String> tags2) {
+        if (tags2 == null || tags2.isEmpty()) return false;
+        return !Collections.disjoint(tags1, tags2);
     }
 }

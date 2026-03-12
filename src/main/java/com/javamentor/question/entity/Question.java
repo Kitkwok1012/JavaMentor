@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Question Entity - with normalized options
+ * Question Entity - with normalized tags
  */
 @Entity
 @Table(name = "questions", indexes = {
@@ -35,6 +37,13 @@ public class Question {
     @Builder.Default
     private List<QuestionOption> options = new ArrayList<>();
     
+    // Normalized tags - searchable with index
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "tag")
+    @Builder.Default
+    private Set<String> tags = new HashSet<>();
+    
     @Column(columnDefinition = "TEXT")
     private String explanation;
     
@@ -47,8 +56,6 @@ public class Question {
     private Integer difficulty;
     
     private Integer displayOrder;
-    
-    private String tags;
     
     /**
      * Helper method to add an option
@@ -80,5 +87,12 @@ public class Question {
     public Boolean getMultiSelect() {
         long correctCount = options.stream().filter(QuestionOption::getIsCorrect).count();
         return correctCount > 1;
+    }
+    
+    /**
+     * Add a tag
+     */
+    public void addTag(String tag) {
+        this.tags.add(tag);
     }
 }
