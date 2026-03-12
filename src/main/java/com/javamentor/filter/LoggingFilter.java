@@ -1,4 +1,4 @@
-package com.javamentor.config;
+package com.javamentor.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.javamentor.config;
+package com.javamentor.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -93,21 +93,33 @@ public class RateLimitFilter implements Filter {
     }
 
     private String getClientIp(HttpServletRequest request) {
-        // Check X-Real-IP first (set by reverse proxy, harder to spoof)
+        // Check X-Real-IP first (set by reverse proxy, most reliable)
         String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
+        if (xRealIp != null && !xRealIp.isEmpty() && isValidIp(xRealIp)) {
             return xRealIp.trim();
         }
         
-        // Fallback to X-Forwarded-For but only use last proxy (most trusted)
+        // Fallback to X-Forwarded-For - use FIRST IP (original client)
+        // Format: "client, proxy1, proxy2" - first is always original client
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            // Use last IP in chain (original client after all proxies)
-            String[] ips = xForwardedFor.split(",");
-            return ips[ips.length - 1].trim();
+            String firstIp = xForwardedFor.split(",")[0].trim();
+            if (isValidIp(firstIp)) {
+                return firstIp;
+            }
         }
         
+        // Final fallback to remote address
         return request.getRemoteAddr();
+    }
+    
+    /**
+     * Validate IP is not obviously spoofed (private range or empty)
+     */
+    private boolean isValidIp(String ip) {
+        if (ip == null || ip.isEmpty()) return false;
+        // Reject obviously invalid patterns
+        return !ip.contains(" ") && ip.length() < 50;
     }
 
     /**

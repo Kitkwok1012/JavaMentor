@@ -112,14 +112,6 @@ public class MockTestService {
         
         return questionService.toDto(question);
     }
-    
-    /**
-     * Submit answer for current question
-     */
-    public boolean submitAnswer(String sessionId, String answer) {
-        return submitAnswerWithFeedback(sessionId, answer) != null;
-    }
-    
     /**
      * Submit answer and return result with correct answer for frontend feedback
      */
