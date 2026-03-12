@@ -5,6 +5,8 @@ import com.javamentor.question.entity.Question;
 import com.javamentor.question.entity.Topic;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.repository.TopicRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,8 @@ import java.util.*;
 
 @Component
 public class QuestionDataLoader implements CommandLineRunner {
+    
+    private static final Logger log = LoggerFactory.getLogger(QuestionDataLoader.class);
     
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
@@ -28,7 +32,7 @@ public class QuestionDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws IOException {
         if (topicRepository.count() > 0) {
-            System.out.println("Topics already loaded, skipping...");
+            log.info("Topics already loaded, skipping...");
             return;
         }
         
@@ -51,7 +55,7 @@ public class QuestionDataLoader implements CommandLineRunner {
             topicMap.put(topicId, topic);
         }
         topicRepository.saveAll(topicMap.values());
-        System.out.println("Loaded " + topicMap.size() + " topics!");
+        log.info("Loaded {} topics!", topicMap.size());
         
         // Create questions with normalized options and tags
         List<Question> questions = new ArrayList<>();
@@ -110,6 +114,6 @@ public class QuestionDataLoader implements CommandLineRunner {
         }
         
         questionRepository.saveAll(questions);
-        System.out.println("Loaded " + questions.size() + " questions from JSON!");
+        log.info("Loaded {} questions from JSON!", questions.size());
     }
 }
