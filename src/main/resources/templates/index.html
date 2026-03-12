@@ -70,7 +70,7 @@
                         <span class="font-medium">[[${p.answeredQuestions}]]/[[${p.totalQuestions}]]</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full" th:style="'width: ' + (${p.totalQuestions > 0} ? ${p.answeredQuestions * 100 / p.totalQuestions} : 0) + '%'"></div>
+                        <div class="bg-blue-600 h-2 rounded-full" th:style="'width: ' + (${p.totalQuestions > 0} ? ${p.answeredQuestions * 100.0 / p.totalQuestions} : 0) + '%'"></div>
                     </div>
                 </div>
                 
