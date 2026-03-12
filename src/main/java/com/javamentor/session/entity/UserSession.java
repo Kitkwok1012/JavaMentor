@@ -1,11 +1,16 @@
 package com.javamentor.session.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
+/**
+ * UserSession Entity - with Lombok
+ */
 @Entity
 @Table(name = "user_sessions", 
        uniqueConstraints = @UniqueConstraint(columnNames = {"session_id", "topic_id"}))
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserSession {
 
     @Id
@@ -13,13 +18,13 @@ public class UserSession {
     private Long id;
 
     @Column(nullable = false)
-    private String sessionId;  // Cookie value (UUID) - no longer unique
+    private String sessionId;
 
     @Column(nullable = false)
     private String topicId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String questionOrder;  // JSON array of question IDs in order
+    private String questionOrder;
 
     private Integer currentIndex;
 
@@ -37,23 +42,4 @@ public class UserSession {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getSessionId() { return sessionId; }
-    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
-
-    public String getTopicId() { return topicId; }
-    public void setTopicId(String topicId) { this.topicId = topicId; }
-
-    public String getQuestionOrder() { return questionOrder; }
-    public void setQuestionOrder(String questionOrder) { this.questionOrder = questionOrder; }
-
-    public Integer getCurrentIndex() { return currentIndex; }
-    public void setCurrentIndex(Integer currentIndex) { this.currentIndex = currentIndex; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
