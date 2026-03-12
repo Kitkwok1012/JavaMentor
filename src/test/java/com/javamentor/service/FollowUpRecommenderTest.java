@@ -111,12 +111,21 @@ class FollowUpRecommenderTest {
     }
 
     private Question createQuestion(Long id, Topic topic, String correct, int difficulty) {
-        Question q = new Question();
-        q.setId(id);
-        q.setTopic(topic);
-        q.setCorrectAnswer(correct);
-        q.setDifficulty(difficulty);
-        q.setQuestion("Test question " + id);
+        Question q = Question.builder()
+                .id(id)
+                .topic(topic)
+                .difficulty(difficulty)
+                .question("Test question " + id)
+                .build();
+        
+        // Add options (simplified for test)
+        if (correct != null) {
+            q.addOption("A", "Option A", correct.equals("A"));
+            q.addOption("B", "Option B", correct.equals("B"));
+            q.addOption("C", "Option C", correct.equals("C"));
+            q.addOption("D", "Option D", correct.equals("D"));
+        }
+        
         return q;
     }
 }

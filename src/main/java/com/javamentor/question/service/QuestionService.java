@@ -74,13 +74,16 @@ public class QuestionService {
         QuestionDto dto = new QuestionDto();
         dto.setId(question.getId());
         dto.setQuestion(question.getQuestion());
-        dto.setOptionA(question.getOptionA());
-        dto.setOptionB(question.getOptionB());
-        dto.setOptionC(question.getOptionC());
-        dto.setOptionD(question.getOptionD());
-        dto.setOptionE(question.getOptionE());
         dto.setMultiSelect(question.getMultiSelect());
         dto.setDifficulty(question.getDifficulty());
+        
+        // Normalized options
+        dto.setOptions(question.getOptions().stream()
+                .map(opt -> QuestionDto.OptionDto.builder()
+                        .label(opt.getLabel())
+                        .content(opt.getContent())
+                        .build())
+                .toList());
         
         if (question.getTopic() != null) {
             dto.setTopicId(question.getTopic().getTopicId());

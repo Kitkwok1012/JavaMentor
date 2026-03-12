@@ -2,8 +2,10 @@ package com.javamentor.question.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 /**
- * Question DTO - with Lombok
+ * Question DTO - with normalized options
  */
 @Data @NoArgsConstructor @AllArgsConstructor
 public class QuestionDto {
@@ -11,11 +13,13 @@ public class QuestionDto {
     private String topicId;
     private String topicName;
     private String question;
-    private String optionA;
-    private String optionB;
-    private String optionC;
-    private String optionD;
-    private String optionE;
+    private List<OptionDto> options;
     private Boolean multiSelect;
     private Integer difficulty;
+    
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class OptionDto {
+        private String label;
+        private String content;
+    }
 }

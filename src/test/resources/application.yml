@@ -1,0 +1,11 @@
+# Test configuration
+# Use update for tests to auto-create schema
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+# Disable data loader in tests
+app:
+  load-data-on-startup: false

@@ -1,7 +1,8 @@
-package com.javamentor.config;
+package com.javamentor.config.init;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javamentor.question.entity.Question;
+import com.javamentor.question.entity.QuestionOption;
 import com.javamentor.question.entity.Topic;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.repository.TopicRepository;
@@ -32,7 +33,7 @@ public class QuestionDataLoader implements CommandLineRunner {
             return;
         }
         
-        // Load questions from JSON (new format: data/questions.json)
+        // Load questions from JSON
         ClassPathResource resource = new ClassPathResource("data/questions.json");
         Map<String, Object> data = objectMapper.readValue(resource.getInputStream(), Map.class);
         
@@ -57,7 +58,7 @@ public class QuestionDataLoader implements CommandLineRunner {
         topicRepository.saveAll(topicMap.values());
         System.out.println("Loaded " + topicMap.size() + " topics!");
         
-        // Create questions
+        // Create questions with normalized options
         List<Question> questions = new ArrayList<>();
         int order = 1;
         
@@ -73,12 +74,6 @@ public class QuestionDataLoader implements CommandLineRunner {
                 Question question = new Question();
                 question.setTopic(topic);
                 question.setQuestion((String) q.get("question"));
-                question.setOptionA((String) q.get("optionA"));
-                question.setOptionB((String) q.get("optionB"));
-                question.setOptionC((String) q.get("optionC"));
-                question.setOptionD((String) q.get("optionD"));
-                question.setOptionE((String) q.get("optionE"));
-                question.setCorrectAnswer((String) q.get("correct"));
                 question.setExplanation((String) q.get("explanation"));
                 question.setTags((String) q.get("tags"));
                 
@@ -92,17 +87,21 @@ public class QuestionDataLoader implements CommandLineRunner {
                     question.setDifficulty(2);
                 }
                 
-                // Handle multiSelect
-                Object multi = q.get("multiSelect");
-                if (multi instanceof Boolean) {
-                    question.setMultiSelect((Boolean) multi);
-                } else if (multi instanceof String) {
-                    question.setMultiSelect(Boolean.parseBoolean((String) multi));
-                } else {
-                    question.setMultiSelect(false);
+                question.setDisplayOrder(order++);
+                
+                // Create normalized options (A, B, C, D, E)
+                String[] labels = {"A", "B", "C", "D", "E"};
+                String correctAnswer = (String) q.get("correct");
+                
+                for (String label : labels) {
+                    String optionKey = "option" + label;
+                    String content = (String) q.get(optionKey);
+                    if (content != null && !content.isEmpty()) {
+                        boolean isCorrect = correctAnswer != null && correctAnswer.contains(label);
+                        question.addOption(label, content, isCorrect);
+                    }
                 }
                 
-                question.setDisplayOrder(order++);
                 questions.add(question);
             }
         }

@@ -5,9 +5,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.javamentor.mocktest.dto.MockTestDto;
 import com.javamentor.question.dto.QuestionDto;
-import com.javamentor.question.dto.QuestionMapper;
 import com.javamentor.question.entity.Question;
 import com.javamentor.question.repository.QuestionRepository;
+import com.javamentor.question.service.QuestionService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class MockTestService {
     
     private final QuestionRepository questionRepository;
-    private final QuestionMapper questionMapper;
+    private final QuestionService questionService;
     
     // Wrapper class to hold both MockTestDto and answers together
     private static class MockTestSession {
@@ -41,9 +41,9 @@ public class MockTestService {
             .maximumSize(10_000)
             .build();
     
-    public MockTestService(QuestionRepository questionRepository, QuestionMapper questionMapper) {
+    public MockTestService(QuestionRepository questionRepository, QuestionService questionService) {
         this.questionRepository = questionRepository;
-        this.questionMapper = questionMapper;
+        this.questionService = questionService;
     }
     
     /**
@@ -108,7 +108,7 @@ public class MockTestService {
         Long questionId = mockTest.getQuestionIds().get(index);
         Question question = questionRepository.findById(questionId).orElse(null);
         
-        return questionMapper.toDto(question);
+        return questionService.toDto(question);
     }
     
     /**
