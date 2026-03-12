@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Session Service - 負責用戶會話管理
@@ -52,7 +54,7 @@ public class SessionService {
         
         List<Long> questionIds = questions.stream()
                 .map(Question::getId)
-                .toList();
+                .collect(Collectors.toList());
         Collections.shuffle(questionIds);
 
         UserSession session = new UserSession();
