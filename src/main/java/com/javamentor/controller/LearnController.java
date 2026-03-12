@@ -1,6 +1,6 @@
 package com.javamentor.controller;
 
-import com.javamentor.config.SessionFilter;
+import com.javamentor.filter.SessionFilter;
 import com.javamentor.mocktest.dto.AnswerResponseDto;
 import com.javamentor.progress.dto.TopicProgressDto;
 import com.javamentor.progress.service.ProgressService;

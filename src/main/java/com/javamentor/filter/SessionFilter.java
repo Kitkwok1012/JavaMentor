@@ -1,5 +1,6 @@
-package com.javamentor.config;
+package com.javamentor.filter;
 
+import com.javamentor.config.AppConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,6 @@ import java.util.UUID;
 @Component
 public class SessionFilter implements Filter {
 
-    public static final String SESSION_COOKIE_NAME = "JAVAMENTOR_SESSION";
     public static final String SESSION_ATTRIBUTE = "userSessionId";
 
     @Override
@@ -27,7 +27,7 @@ public class SessionFilter implements Filter {
         Cookie[] cookies = httpRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (SESSION_COOKIE_NAME.equals(cookie.getName())) {
+                if (AppConstants.SESSION_COOKIE_NAME.equals(cookie.getName())) {
                     sessionId = cookie.getValue();
                     break;
                 }
@@ -37,7 +37,7 @@ public class SessionFilter implements Filter {
         // If no session cookie, create new one
         if (sessionId == null || sessionId.isEmpty()) {
             sessionId = UUID.randomUUID().toString();
-            Cookie cookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
+            Cookie cookie = new Cookie(AppConstants.SESSION_COOKIE_NAME, sessionId);
             cookie.setPath("/");
             cookie.setHttpOnly(true);
             cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year

@@ -1,6 +1,6 @@
 package com.javamentor.controller;
 
-import com.javamentor.config.SessionFilter;
+import com.javamentor.filter.SessionFilter;
 import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.recommend.RecommendService;
 import io.swagger.v3.oas.annotations.Operation;
