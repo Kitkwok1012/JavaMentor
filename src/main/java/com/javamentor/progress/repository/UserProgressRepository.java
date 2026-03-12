@@ -3,6 +3,7 @@ package com.javamentor.progress.repository;
 import com.javamentor.progress.entity.UserProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,21 +11,21 @@ import java.util.List;
 @Repository
 public interface UserProgressRepository extends JpaRepository<UserProgress, Long> {
 
-    List<UserProgress> findBySessionIdOrderByAnsweredAtDesc(String sessionId);
+    List<UserProgress> findBySessionIdOrderByAnsweredAtDesc(@Param("sessionId") String sessionId);
 
-    List<UserProgress> findBySessionIdAndIsCorrectFalseOrderByAnsweredAtDesc(String sessionId);
+    List<UserProgress> findBySessionIdAndIsCorrectFalseOrderByAnsweredAtDesc(@Param("sessionId") String sessionId);
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId")
-    Long countBySessionId(String sessionId);
+    Long countBySessionId(@Param("sessionId") String sessionId);
     
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.isCorrect = true")
-    Long countCorrectBySessionId(String sessionId);
+    Long countCorrectBySessionId(@Param("sessionId") String sessionId);
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId")
-    Long countBySessionIdAndTopicId(String sessionId, String topicId);
+    Long countBySessionIdAndTopicId(@Param("sessionId") String sessionId, @Param("topicId") String topicId);
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId AND p.isCorrect = true")
-    Long countCorrectBySessionIdAndTopicId(String sessionId, String topicId);
+    Long countCorrectBySessionIdAndTopicId(@Param("sessionId") String sessionId, @Param("topicId") String topicId);
 
     @Query("SELECT p.question.topic.topicId, " +
            "COUNT(p), " +
@@ -32,7 +33,7 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
            "FROM UserProgress p " +
            "WHERE p.sessionId = :sessionId " +
            "GROUP BY p.question.topic.topicId")
-    List<Object[]> getTopicStatsGrouped(String sessionId);
+    List<Object[]> getTopicStatsGrouped(@Param("sessionId") String sessionId);
 
-    void deleteBySessionId(String sessionId);
+    void deleteBySessionId(@Param("sessionId") String sessionId);
 }
