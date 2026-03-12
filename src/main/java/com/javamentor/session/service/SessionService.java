@@ -110,10 +110,18 @@ public class SessionService {
     }
 
     /**
-     * 重置會話
+     * 重置會話 (先刪除舊既，再創建新的)
      */
     @Transactional
     public void resetSession(String sessionId, String topicId) {
+        // Delete old session first to avoid unique constraint conflict
+        userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
+                .ifPresent(session -> {
+                    userSessionRepository.delete(session);
+                    log.info("Deleted old session for topic {} in session {}", topicId, sessionId);
+                });
+        
+        // Create new session
         createNewSession(sessionId, topicId);
         log.info("Reset session for topic {} in session {}", topicId, sessionId);
     }
