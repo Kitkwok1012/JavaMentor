@@ -200,7 +200,8 @@
           "tags": "oop,coupling",
           "explanation": "Observer Pattern降低类之间的耦合度。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "java-basics"
     },
     {
       "topicId": "collection",
@@ -389,7 +390,8 @@
           "tags": "Arrays,asList",
           "explanation": "Arrays.asList()返回固定大小的List。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "collections"
     },
     {
       "topicId": "thread",
@@ -552,7 +554,8 @@
           "tags": "producer-consumer,blockingqueue",
           "explanation": "BlockingQueue是实现生产消费者模式的常用组件。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "concurrency"
     },
     {
       "topicId": "jvm",
@@ -689,7 +692,8 @@
           "tags": "jvm,classloader",
           "explanation": "双亲委派模型：类加载请求先向上委托给父类加载器处理。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "jvm"
     },
     {
       "topicId": "spring",
@@ -826,7 +830,8 @@
           "tags": "spring,scheduled",
           "explanation": "@EnableScheduling启用定时任务，@Scheduled标记方法。"
         }
-      ]
+      ],
+      "category": "spring"
     },
     {
       "topicId": "mysql",
@@ -963,7 +968,8 @@
           "tags": "mysql,count",
           "explanation": "COUNT(*)同COUNT(1)性能几乎一样，InnoDB会优化。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "scenario",
@@ -1165,7 +1171,8 @@
           "tags": "scenario,api-version",
           "explanation": "API版本控制常見方式：URL Path(/v1/users)、Header(X-API-Version)、Query Param(?v=1)。"
         }
-      ]
+      ],
+      "category": "interview"
     },
     {
       "topicId": "exception",
@@ -1302,7 +1309,8 @@
           "tags": "exception,spring",
           "explanation": "@ControllerAdvice可以統一處理全局異常，是Spring Boot的最佳實踐。"
         }
-      ]
+      ],
+      "category": "java-basics"
     },
     {
       "topicId": "design-pattern",
@@ -1439,7 +1447,8 @@
           "tags": "strategy,pattern",
           "explanation": "Strategy模式定義一系列算法，並讓他/她/它地可以相互替換。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "redis",
@@ -1576,7 +1585,8 @@
           "tags": "redis,lock",
           "explanation": "Redis分布式鎖要用SET key value NX EX(原子設置+過期時間)。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "microservice",
@@ -1713,7 +1723,8 @@
           "tags": "microservice,tracing",
           "explanation": "Distributed Tracing(如Jaeger、Zipkin)追踪請求的完整調用鏈。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "network",
@@ -1850,7 +1861,8 @@
           "tags": "network,lb",
           "explanation": "Load Balancer分發請求到多個服務器，支持健康檢查。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "git",
@@ -1987,7 +1999,8 @@
           "tags": "git,remote",
           "explanation": "git remote -v顯示所有遠程倉庫的名稱同URL。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "security",
@@ -2124,7 +2137,8 @@
           "tags": "security,rate-limit",
           "explanation": "Rate Limiting限制請求頻率，防止暴力破解同DDoS攻擊。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "datastructure",
@@ -2261,7 +2275,8 @@
           "tags": "ds,graph",
           "explanation": "DFS同BFS的時間複雜度都是O(V + E)，V是頂點數，E是邊數。"
         }
-      ]
+      ],
+      "category": "data-structures"
     },
     {
       "topicId": "springboot",
@@ -2398,7 +2413,8 @@
           "tags": "springboot,devtools",
           "explanation": "Spring Boot DevTools實現熱部署，修改代碼後自動重啟。"
         }
-      ]
+      ],
+      "category": "spring"
     },
     {
       "topicId": "java8",
@@ -2535,7 +2551,8 @@
           "tags": "java8,parallel",
           "explanation": "Parallel Stream適合CPU密集型同大量數據的處理，IO密集型不適合。"
         }
-      ]
+      ],
+      "category": "java-basics"
     },
     {
       "topicId": "docker",
@@ -2672,7 +2689,8 @@
           "tags": "docker,advantage",
           "explanation": "Container優點：輕量、快速啟動、可移植、隔離性好。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "kafka",
@@ -2809,7 +2827,8 @@
           "tags": "kafka,best-practice",
           "explanation": "Kafka最佳實踐：Partition數=Consumer數、壓縮消息、監控Lag、設置合理的retention。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "mysql-advanced",
@@ -2946,7 +2965,8 @@
           "tags": "mysql,deadlock",
           "explanation": "處理Deadlock：減少事務大小、固定順序獲取鎖、設置較短的超時時間。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "testing",
@@ -3083,7 +3103,8 @@
           "tags": "testing,e2e",
           "explanation": "E2E Test模擬真實用戶行為，從頭到尾測試成個系統。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "cicd",
@@ -3220,7 +3241,8 @@
           "tags": "cicd,canary",
           "explanation": "Canary Release小範圍部署新版本，降低全量上線的風險。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "api-design",
@@ -3357,7 +3379,8 @@
           "tags": "api,hateoas",
           "explanation": "HATEOAS(Hypermedia as the Engine of Application State)通過返回相關的API链接黎實現自描述的API。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "elasticsearch",
@@ -3494,7 +3517,8 @@
           "tags": "es,beats",
           "explanation": "Beats是輕量級數據收集器：Filebeat(日誌)、Metricbeat(指標)、Heartbeat(心跳)。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "system-design",
@@ -3631,7 +3655,8 @@
           "tags": "system,design",
           "explanation": "搶紅包系統挑戰：高並發搶、限流、防止超賣、數據一致性。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "linux",
@@ -3768,7 +3793,8 @@
           "tags": "linux,systemd",
           "explanation": "systemctl管理systemd服務，如systemctl start/status/restart nginx。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "hashmap-deep",
@@ -3898,7 +3924,8 @@
           "correct": "A",
           "explanation": "相比B樹，紅黑樹實現較簡單，插入刪除成本適中，查找效率同樣是O(log n)。"
         }
-      ]
+      ],
+      "category": "collections"
     },
     {
       "topicId": "synchronized-deep",
@@ -4025,7 +4052,8 @@
           "correct": "A",
           "explanation": "synchronized的可重入性指同一線程可以多次獲取同一把鎖，例如同一線程的同步方法入面調用另一個同步方法。"
         }
-      ]
+      ],
+      "category": "concurrency"
     },
     {
       "topicId": "jvm-deep",
@@ -4152,7 +4180,8 @@
           "correct": "A",
           "explanation": "jstack打印Java堆棧信息，用於排查死鎖、超時、線程阻塞等問題。"
         }
-      ]
+      ],
+      "category": "other"
     },
     {
       "topicId": "string-deep",
@@ -4279,7 +4308,8 @@
           "correct": "A",
           "explanation": "JDK1.6時substring()會共享原數組導致內存洩漏。JDK1.7後會copy整個數組，但都可能造成內存浪費。"
         }
-      ]
+      ],
+      "category": "java-basics"
     },
     {
       "topicId": "thread-deep",
@@ -4416,7 +4446,8 @@
           "tags": "thread,pool-flow",
           "explanation": "線程池流程：1)core未滿，創建core執行 2)core滿咗，入queue排隊 3)queue滿咗，創建max執行 4)max滿咗，執行拒絕策略。"
         }
-      ]
+      ],
+      "category": "concurrency"
     },
     {
       "topicId": "spring-deep",
@@ -4553,7 +4584,8 @@
           "tags": "springboot,auto",
           "explanation": "Spring Boot自動配置：@EnableAutoConfiguration利用META-INF/spring.factories同spring-autoconfigure-metadata.properties實現自動配置。"
         }
-      ]
+      ],
+      "category": "spring"
     },
     {
       "topicId": "mysql-lock",
@@ -4690,7 +4722,8 @@
           "tags": "mysql,select-optimize",
           "explanation": "SELECT優化：1)減少IO(用Index) 2)Covering Index 3)控制返回量(LIMIT) 4)避免SELECT * 5)用EXPLAIN分析。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "distributed",
@@ -4814,7 +4847,8 @@
           "tags": "distributed,session",
           "explanation": "分佈式Session方案：1)Redis集中存儲 2)Sticky Session(同一請求路由到同一Server) 3)JWT(Token化，無Session)。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "java-core-adv",
@@ -4951,7 +4985,8 @@
           "tags": "java,arrays",
           "explanation": "Arrays.asList()返回的是Arrays的內部類ArrayList，固定大小，底層仲是數組，無法add/remove。"
         }
-      ]
+      ],
+      "category": "java-basics"
     },
     {
       "topicId": "redis-adv",
@@ -5075,7 +5110,8 @@
           "tags": "redis,transaction",
           "explanation": "Redis事務用MULTI/EXEC/WATCH，保證原子性，但不支持回滾(如果命令失敗繼續執行)。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "mq-adv",
@@ -5212,7 +5248,8 @@
           "tags": "mq,why",
           "explanation": "用MQ的原因：1)解耦(生產者同消費者無直接依賴) 2)異步 3)削峰 4)保護下游系統。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "performance",
@@ -5349,7 +5386,8 @@
           "tags": "code,tune",
           "explanation": "代碼優化：1)減少重複計算(緩存) 2)異步處理非核心流程 3)減少synchronized範圍 4)StringBuilder代替String+。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "spring-cloud",
@@ -5486,7 +5524,8 @@
           "tags": "springcloud,alibaba",
           "explanation": "Spring Cloud Alibaba：Nacos(服務發現+配置)、Sentinel(熔斷)、Seata(事務)、RocketMQ(消息)。"
         }
-      ]
+      ],
+      "category": "spring"
     },
     {
       "topicId": "design-gof",
@@ -5623,7 +5662,8 @@
           "tags": "pattern,observer",
           "explanation": "Observer模式定義對象間的一對多依賴關是，當主題對象狀態改變時，所有依賴的觀察者都會收到通知。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "dsa",
@@ -5760,7 +5800,8 @@
           "tags": "algo,greedy",
           "explanation": "貪心算法每一步都選擇當前最優解，但最終結果未必是全局最優。用於分數背包、活動選擇等問題。"
         }
-      ]
+      ],
+      "category": "data-structures"
     },
     {
       "topicId": "real-scenario",
@@ -5897,7 +5938,8 @@
           "tags": "scenario,idempotent",
           "explanation": "冪等性：相同輸入必定相同輸出。實現：1)唯一Token 2)Version版本號 3)數據庫唯一約束。"
         }
-      ]
+      ],
+      "category": "interview"
     },
     {
       "topicId": "rocketmq",
@@ -6034,7 +6076,8 @@
           "tags": "rocketmq,vs-kafka",
           "explanation": "RocketMQ：功能完善(順序/延遲/事務消息)、Java開發。Kafka：吞吐量更高、生態更成熟、日誌場景首選。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "mybatis",
@@ -6171,7 +6214,8 @@
           "tags": "mybatis,dao",
           "explanation": "MyBatis Dao實現：1)XML映射文件 2)註解(@Select/@Insert) 3)Mapper接口(推薦)。"
         }
-      ]
+      ],
+      "category": "database"
     },
     {
       "topicId": "os",
@@ -6308,7 +6352,8 @@
           "tags": "os,cache",
           "explanation": "緩存作用：提高磁盤IO速度、減少CPU等待時間、作為內存同CPU之間的緩衝。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "network-cs",
@@ -6432,7 +6477,8 @@
           "tags": "network,websocket",
           "explanation": "WebSocket提供全雙工通信，連接建立後，服務器可以主動push消息給客戶端，適合實時應用。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "microservice-adv",
@@ -6569,7 +6615,8 @@
           "tags": "ms,deploy",
           "explanation": "部署策略：Blue-Green(雙環境)、Canary(金絲雀)、A/B Testing(流量分配)。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "zookeeper",
@@ -6706,7 +6753,8 @@
           "tags": "zk,cap",
           "explanation": "Zookeeper保證CP，犧牲可用性(選舉期間不可用)。 這個是面試常見問題，需要深入理解。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "docker-k8s",
@@ -6843,7 +6891,8 @@
           "tags": "k8s,hpa",
           "explanation": "K8s HPA(Horizontal Pod Autoscaler)根據CPU、內存或自定義指標自動調整Pod數量。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "security-adv",
@@ -6980,7 +7029,8 @@
           "tags": "security,auth",
           "explanation": "水平越權：用戶訪問同級別其他用戶的資源。垂直越權：用戶訪問更高權限的資源。"
         }
-      ]
+      ],
+      "category": "system-basics"
     },
     {
       "topicId": "system-design-case",
@@ -7117,7 +7167,8 @@
           "tags": "system,design",
           "explanation": "排行榜：Redis ZSet(有序集合)、跳錶(Redisearch)、數據庫ORDER BY。"
         }
-      ]
+      ],
+      "category": "system-design"
     },
     {
       "topicId": "tools-devops-adv",
@@ -7241,7 +7292,8 @@
           "tags": "devops,vault",
           "explanation": "HashiCorp Vault：企業級Secrets管理、API Key、數據庫憑證、PKI證書。"
         }
-      ]
+      ],
+      "category": "devops"
     },
     {
       "topicId": "gap-fill",
@@ -7378,7 +7430,8 @@
           "tags": "network,http3",
           "explanation": "HTTP/3基於QUIC(UDP)，解決TCP的HOL阻塞問題，實現0-RTT連接。"
         }
-      ]
+      ],
+      "category": "review"
     },
     {
       "topicId": "final-fill",
@@ -7567,7 +7620,8 @@
           "tags": "thread,reject-policy",
           "explanation": "ThreadPoolExecutor拒絕策略：AbortPolicy(拋異常)、CallerRunsPolicy(調用者執行)、DiscardPolicy(拋棄)。"
         }
-      ]
+      ],
+      "category": "review"
     },
     {
       "topicId": "bonus-java",
@@ -7938,7 +7992,8 @@
           "tags": "scheduled,rate-delay",
           "explanation": "scheduleAtFixedRate固定頻率，scheduleWithFixedDelay固定延遲(等任務完成後)。"
         }
-      ]
+      ],
+      "category": "review"
     },
     {
       "topicId": "last-12",
@@ -8101,7 +8156,8 @@
           "tags": "arrays,parallel-sort",
           "explanation": "Arrays.parallelSort()適用於大數組多核CPU環境，小數組可能更慢。"
         }
-      ]
+      ],
+      "category": "review"
     }
   ]
 }

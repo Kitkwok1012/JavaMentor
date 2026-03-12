@@ -1,24 +1,26 @@
-# JavaMentor - Java面試互動學習平台
+# JavaMentor - Java面試知識庫
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-17+-blue.svg" alt="Java">
   <img src="https://img.shields.io/badge/Spring%20Boot-3.2-blue.svg" alt="Spring Boot">
   <img src="https://img.shields.io/badge/Docker-Ready-blue.svg" alt="Docker">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/Tests-28%20Passing-green.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-19%20Passing-green.svg" alt="Tests">
 </p>
 
-一個互動式 Java 面試題庫學習平台，支持題目練習、智能推薦、進度追蹤等功能。
+## 📚 關於
 
-## ✨ 功能特點
+**JavaMentor** 係一個類似 Tutorial Dojo 風格既 Java 面試選擇題學習平台。
 
-- **題目練習** - 596+ 高質量 Java 面試題目
-- **智能推薦** - 根據答題情況智能推薦相關題目 (7-Rule Algorithm)
-- **進度追蹤** - 記錄學習進度與正確率
+> 一個互動式 Java 面試題庫學習平台，支持題目練習、智能推薦、進度追蹤等功能。
+
+### 學習模式
+
+- **Topic 練習** - 按知識領域逐一學習
+- **Mock Test** - 30/60/90 題計時模擬面試
+- **智能推薦** - 根據答題情況推薦相關題目
 - **錯題複習** - 自動收集錯題供複習
-- **模擬面試** - 計時練習模式 (30/60/90 題)
-- **題目搜尋** - 關鍵字搜尋題目
-- **Structured Logging** - JSON 格式日誌，便於監控分析
+- **進度追蹤** - 記錄學習進度與正確率
 
 ## 🏗️ 系統架構
 
