@@ -9,6 +9,7 @@ import com.javamentor.question.entity.Question;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.service.QuestionService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -97,6 +98,7 @@ public class MockTestService {
     /**
      * Get current question for the session (returns DTO, not Entity)
      */
+    @Transactional(readOnly = true)
     public QuestionDto getCurrentQuestion(String sessionId) {
         MockTestSession session = mockTestCache.getIfPresent(sessionId);
         if (session == null) return null;
@@ -121,6 +123,7 @@ public class MockTestService {
     /**
      * Submit answer and return result with correct answer for frontend feedback
      */
+    @Transactional
     public Map<String, Object> submitAnswerWithFeedback(String sessionId, String answer) {
         MockTestSession session = mockTestCache.getIfPresent(sessionId);
         if (session == null) return null;

@@ -19,8 +19,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     
     List<Question> findByTopicTopicIdAndDifficulty(String topicId, Integer difficulty);
     
-    List<Question> findByTopicTopicIdAndDifficultyLessThanEqual(String topicId, Integer difficulty);
-    
     @Query("SELECT COUNT(q) FROM Question q WHERE q.topic.topicId = :topicId")
     Long countByTopicId(@Param("topicId") String topicId);
     

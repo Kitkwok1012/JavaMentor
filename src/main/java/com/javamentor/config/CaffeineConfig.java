@@ -13,12 +13,14 @@ import java.util.concurrent.TimeUnit;
  * Caffeine Cache Configuration
  * 
  * Cache Strategy:
- * | Cache Name       | TTL        | Description                    |
- * |------------------|------------|--------------------------------|
- * | topics           | 24 hours   | All topics list                |
- * | questions        | 1 hour     | Questions by topic             |
- * | questionDetails  | 30 mins    | Individual question details    |
+ * | Cache Name       | TTL                  | Description                    |
+ * |------------------|----------------------|--------------------------------|
+ * | topics           | 30 mins access       | All topics list                |
+ * | questions        | 30 mins access       | Questions by topic             |
+ * | questionDetails  | 30 mins access       | Individual question details    |
+ * | Global           | 30 mins access       | Max 10000 entries             |
  * 
+ * Note: All caches use expireAfterAccess(30 minutes).
  * For local/dev use only. For production with multiple instances, use Redis.
  */
 @Configuration

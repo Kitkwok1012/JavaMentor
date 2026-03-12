@@ -93,10 +93,20 @@ public class RateLimitFilter implements Filter {
     }
 
     private String getClientIp(HttpServletRequest request) {
+        // Check X-Real-IP first (set by reverse proxy, harder to spoof)
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp.trim();
+        }
+        
+        // Fallback to X-Forwarded-For but only use last proxy (most trusted)
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
+            // Use last IP in chain (original client after all proxies)
+            String[] ips = xForwardedFor.split(",");
+            return ips[ips.length - 1].trim();
         }
+        
         return request.getRemoteAddr();
     }
 
