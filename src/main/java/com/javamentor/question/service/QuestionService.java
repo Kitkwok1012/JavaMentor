@@ -51,6 +51,11 @@ public class QuestionService {
         return questionRepository.findByTopicTopicIdOrderByDisplayOrder(topicId);
     }
 
+    @Transactional(readOnly = true)
+    public List<Question> getAllQuestions() {
+        return questionRepository.findAll();
+    }
+
     // ==================== Question Methods ====================
 
     @Transactional(readOnly = true)
