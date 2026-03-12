@@ -3,6 +3,7 @@ package com.javamentor.filter;
 import com.javamentor.config.AppConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,8 +20,6 @@ public class SessionFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        HttpSession session = httpRequest.getSession(true);
 
         // Check if user already has session cookie
         String sessionId = null;
