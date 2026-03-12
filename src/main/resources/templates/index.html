@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - Java面試互動學習</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind CSS (CDN for dev only - replace with built CSS in prod) -->
+    <th:block th:if="${@environment.getProperty('spring.profiles.active', 'dev') == 'dev'}">
+        <script src="https://cdn.tailwindcss.com"></script>
+    </th:block>
+    <th:block th:unless="${@environment.getProperty('spring.profiles.active', 'dev') == 'dev'}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+    </th:block>
+    
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
