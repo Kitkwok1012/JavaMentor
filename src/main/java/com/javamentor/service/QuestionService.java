@@ -3,6 +3,7 @@ package com.javamentor.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javamentor.config.AppConstants;
+import com.javamentor.config.CaffeineConfig;
 import com.javamentor.exception.*;
 import com.javamentor.mocktest.dto.AnswerResponseDto;
 import com.javamentor.progress.dto.TopicProgressDto;
