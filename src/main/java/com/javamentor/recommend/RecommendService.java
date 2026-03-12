@@ -143,10 +143,7 @@ public class RecommendService {
     }
 
     private long getRecentCountInTopic(String sessionId, String topicId) {
-        return userProgressRepository.findBySessionIdOrderByAnsweredAtDesc(sessionId)
-                .stream()
-                .filter(p -> p.getQuestion().getTopic().getTopicId().equals(topicId))
-                .count();
+        return userProgressRepository.countBySessionIdAndTopicId(sessionId, topicId);
     }
 
     private Question findQuestionSameTopic(String topicId, int maxDifficulty, 
