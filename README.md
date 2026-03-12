@@ -301,18 +301,74 @@ JavaMentor/
 
 ---
 
-## 📝 題目 Topics
+## 📝 題目 Topics 知識索引
 
-| Category | Topics |
-|----------|--------|
-| **Core** | OOP, Java Collections, Multi-threading, JVM |
-| **Framework** | Spring, Spring Boot, Spring Cloud |
-| **Database** | MySQL, MySQL Advanced, Redis |
-| **Architecture** | Microservices, Distributed System |
-| **DevOps** | Docker, Kubernetes, CI/CD |
-| **System** | Network, OS, Linux |
+本項目涵蓋以下 Java 面試知識領域：
 
-共 55+ Topics，596+ 題目
+### Java 基礎 (Basics)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| oop | 30+ | 面向對象編程原則與設計模式基礎 |
+| java-basic | 25+ | Java 基礎語法與概念 |
+| java8 | 20+ | Java 8+ 新特性 (Lambda, Stream, Optional) |
+
+### Java 集合 (Collections)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| collection | 40+ | Collection 框架與常用集合 |
+| list | 15+ | ArrayList, LinkedList 原理與選擇 |
+| map | 20+ | HashMap, ConcurrentHashMap 底層原理 |
+| set | 10+ | HashSet, TreeSet 使用場景 |
+
+### 並發編程 (Concurrency)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| thread | 30+ | 多線程基礎與 Thread 生命周期 |
+| concurrent | 25+ | 並發包 (Executor, Callable, Future) |
+| synchronized | 15+ | synchronized 與 lock 機制 |
+| volatile | 10+ | volatile 與 atomic 原子類 |
+
+### JVM
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| jvm | 20+ | JVM 內存結構與垃圾回收 |
+| jmm | 10+ | Java 內存模型與併發可見性 |
+| classloader | 10+ | 類加載機制與雙親委派 |
+
+### Spring 框架
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| spring | 30+ | Spring 核心概念與 IOC/AOP |
+| springboot | 25+ | Spring Boot 自動配置與starter |
+| spring-mvc | 15+ | Spring MVC 請求處理流程 |
+| spring-transaction | 15+ | 事務管理與傳播行為 |
+
+### 數據庫 (Database)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| mysql | 40+ | MySQL 索引、事務、鎖 |
+| mysql-advanced | 20+ | MySQL 優化與執行計劃 |
+| redis | 25+ | Redis 數據結構與緩存策略 |
+
+### 系統設計 (System Design)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| distributed | 20+ | 分佈式系統基礎理論 |
+| microservices | 15+ | 微服務架構與 Spring Cloud |
+| cache | 15+ | 緩存設計與雪崩防護 |
+| high-concurrency | 20+ | 高並發設計與性能優化 |
+
+### 開發運維 (DevOps)
+| Topic | 題數 | 描述 |
+|-------|------|------|
+| docker | 15+ | Docker 容器化基礎 |
+| linux | 20+ | Linux 常用命令與運維 |
+
+---
+
+**共 55+ Topics，596+ 題目**
+
+每個 Topic 支援獨立練習與混合模擬考試。
 
 ---
 
