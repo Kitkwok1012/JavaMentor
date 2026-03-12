@@ -16,6 +16,13 @@
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
+                <!-- Language Selector -->
+                <select onchange="window.location.href=this.value" class="text-sm border rounded px-2 py-1">
+                    <option value="?lang=en" th:selected="${#locale.language == 'en'}">English</option>
+                    <option value="?lang=zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">简体中文</option>
+                    <option value="?lang=zh_TW" th:selected="${#locale.country == 'TW'}">繁體中文</option>
+                </select>
+                
                 <span th:if="${stats}" class="text-sm text-gray-500">
                     總答題: <span class="font-medium text-gray-700" th:text="${stats.totalAnswered}">0</span> | 
                     正確率: <span class="font-medium text-green-600" th:text="${stats.accuracy}">0</span>%
