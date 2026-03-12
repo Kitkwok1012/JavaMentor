@@ -11,6 +11,6 @@ import lombok.*;
 public class AnswerRequest {
     
     @NotBlank(message = "Answer cannot be empty")
-    @Pattern(regexp = "^[A-Da-d]$", message = "Answer must be A, B, C, or D")
+    @Pattern(regexp = "^([A-Ea-e](,[A-Ea-e])*)$", message = "Answer must be A-E, comma-separated for multi-select (e.g., A,C)")
     private String answer;
 }
