@@ -5,7 +5,6 @@ import com.javamentor.question.entity.Question;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.service.QuestionService;
 import com.javamentor.progress.repository.UserProgressRepository;
-import com.javamentor.session.service.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,16 +24,13 @@ public class RecommendService {
     private final QuestionService questionService;
     private final QuestionRepository questionRepository;
     private final UserProgressRepository userProgressRepository;
-    private final SessionService sessionService;
 
     public RecommendService(QuestionService questionService,
                         QuestionRepository questionRepository,
-                        UserProgressRepository userProgressRepository,
-                        SessionService sessionService) {
+                        UserProgressRepository userProgressRepository) {
         this.questionService = questionService;
         this.questionRepository = questionRepository;
         this.userProgressRepository = userProgressRepository;
-        this.sessionService = sessionService;
     }
 
     /**
