@@ -4,7 +4,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,18 +14,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${app.title:JavaMentor}")
-    private String appTitle;
+    private final AppConfig appConfig;
 
-    @Value("${app.version:1.0.0}")
-    private String appVersion;
+    public OpenApiConfig(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }
 
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title(appTitle)
-                .version(appVersion)
+                .title(appConfig.getTitle())
+                .version(appConfig.getVersion())
                 .description("Java面試題庫學習平台 API\n\n功能：\n- 獲取題目\n- 提交答案\n- 查看進度\n- 模擬測試\n\n注意：所有需要登入既操作都通過 Cookie Session 自動處理")
                 .contact(new Contact()
                     .name("JavaMentor Team")
