@@ -3,9 +3,7 @@ package com.javamentor.service;
 import com.javamentor.question.entity.Topic;
 import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.repository.TopicRepository;
-import com.javamentor.progress.repository.UserProgressRepository;
-import com.javamentor.session.repository.UserSessionRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javamentor.question.service.QuestionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,34 +26,12 @@ class QuestionServiceTest {
     @Mock
     private QuestionRepository questionRepository;
     
-    @Mock
-    private UserProgressRepository userProgressRepository;
-    
-    @Mock
-    private UserSessionRepository userSessionRepository;
-    
-    // Use manual instantiation to avoid Mockito issues
+    // Use manual instantiation
     private QuestionService questionService;
     
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        // Create real instances for dependencies
-        FollowUpRecommender followUpRecommender = new FollowUpRecommender(
-            questionRepository, 
-            userProgressRepository
-        );
-        
-        // Use real ObjectMapper
-        ObjectMapper objectMapper = new ObjectMapper();
-        
-        questionService = new QuestionService(
-            questionRepository,
-            topicRepository,
-            userProgressRepository,
-            userSessionRepository,
-            followUpRecommender,
-            objectMapper
-        );
+        questionService = new QuestionService(questionRepository, topicRepository);
     }
     
     // ========== Topic Tests ==========

@@ -3,11 +3,12 @@ package com.javamentor.controller;
 import com.javamentor.config.SessionFilter;
 import com.javamentor.mocktest.dto.AnswerResponseDto;
 import com.javamentor.progress.dto.TopicProgressDto;
-import com.javamentor.progress.entity.UserProgress;
+import com.javamentor.progress.service.ProgressService;
 import com.javamentor.question.dto.QuestionDto;
-import com.javamentor.question.entity.Question;
-import com.javamentor.question.entity.Topic;
-import com.javamentor.service.QuestionService;
+import com.javamentor.question.service.QuestionService;
+import com.javamentor.recommend.RecommendService;
+import com.javamentor.session.service.SessionService;
+import com.javamentor.service.AnswerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,9 +29,21 @@ public class LearnController {
     private static final Logger log = LoggerFactory.getLogger(LearnController.class);
 
     private final QuestionService questionService;
+    private final SessionService sessionService;
+    private final ProgressService progressService;
+    private final AnswerService answerService;
+    private final RecommendService recommendService;
 
-    public LearnController(QuestionService questionService) {
+    public LearnController(QuestionService questionService,
+                        SessionService sessionService,
+                        ProgressService progressService,
+                        AnswerService answerService,
+                        RecommendService recommendService) {
         this.questionService = questionService;
+        this.sessionService = sessionService;
+        this.progressService = progressService;
+        this.answerService = answerService;
+        this.recommendService = recommendService;
     }
 
     private String getSessionId(HttpServletRequest request) {
@@ -41,8 +54,8 @@ public class LearnController {
     @GetMapping("/")
     public String index(Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        List<TopicProgressDto> progress = questionService.getTopicProgress(sessionId);
-        Map<String, Object> stats = questionService.getUserStats(sessionId);
+        List<TopicProgressDto> progress = progressService.getTopicProgress(sessionId);
+        Map<String, Object> stats = progressService.getUserStats(sessionId);
         
         model.addAttribute("progress", progress);
         model.addAttribute("stats", stats);
@@ -56,38 +69,43 @@ public class LearnController {
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
         
-        Topic topic;
-        try {
-            topic = questionService.getTopicById(topicId);
-        } catch (Exception e) {
-            log.warn("Topic not found: {}", topicId);
-            return "redirect:/";
+        var topic = questionService.getTopicById(topicId);
+        
+        // Get next question ID from session
+        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+        
+        QuestionDto question = null;
+        if (questionIdOpt.isPresent()) {
+            question = questionService.getQuestionById(questionIdOpt.get());
         }
-
-        QuestionDto question = questionService.getNextQuestion(sessionId, topicId);
 
         model.addAttribute("topic", topic);
         model.addAttribute("question", question);
 
         if (question == null) {
             model.addAttribute("completed", true);
-            return "learn";
         }
 
         return "learn";
     }
 
-    @Operation(summary = "下一題", description = "移動到 Topic 既下一題")
+    @Operation(summary = "下一題", description = "移動到下一題")
     @GetMapping("/question/next")
     public String getNextQuestion(
             @Parameter(description = "Topic ID") @RequestParam String topicId, 
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
         
-        questionService.moveToNextQuestion(sessionId, topicId);
+        sessionService.moveToNextQuestion(sessionId, topicId);
 
-        QuestionDto question = questionService.getNextQuestion(sessionId, topicId);
-        Topic topic = questionService.getTopicById(topicId);
+        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+        
+        QuestionDto question = null;
+        if (questionIdOpt.isPresent()) {
+            question = questionService.getQuestionById(questionIdOpt.get());
+        }
+        
+        var topic = questionService.getTopicById(topicId);
 
         model.addAttribute("topic", topic);
         model.addAttribute("question", question);
@@ -114,9 +132,9 @@ public class LearnController {
                 sessionId, questionId, answer, topicId);
 
         try {
-            QuestionDto question = questionService.getQuestionById(questionId);
-            AnswerResponseDto response = questionService.submitAnswer(sessionId, questionId, answer);
-            Topic topic = questionService.getTopicById(topicId);
+            var question = questionService.getQuestionById(questionId);
+            AnswerResponseDto response = answerService.submitAnswer(sessionId, questionId, answer);
+            var topic = questionService.getTopicById(topicId);
 
             model.addAttribute("topic", topic);
             model.addAttribute("question", question);
@@ -137,7 +155,7 @@ public class LearnController {
     @GetMapping("/wrong")
     public String wrongQuestions(Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        List<UserProgress> wrongQuestions = questionService.getWrongQuestions(sessionId);
+        var wrongQuestions = progressService.getWrongQuestions(sessionId);
         model.addAttribute("wrongQuestions", wrongQuestions);
         return "wrong";
     }
@@ -146,8 +164,8 @@ public class LearnController {
     @GetMapping("/progress")
     public String progress(Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        List<TopicProgressDto> progress = questionService.getTopicProgress(sessionId);
-        Map<String, Object> stats = questionService.getUserStats(sessionId);
+        List<TopicProgressDto> progress = progressService.getTopicProgress(sessionId);
+        Map<String, Object> stats = progressService.getUserStats(sessionId);
         
         model.addAttribute("progress", progress);
         model.addAttribute("stats", stats);
@@ -160,7 +178,7 @@ public class LearnController {
             @Parameter(description = "Topic ID") @PathVariable String topicId, 
             HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        questionService.resetTopic(sessionId, topicId);
+        sessionService.resetSession(sessionId, topicId);
         return "redirect:/learn/" + topicId;
     }
 
@@ -168,7 +186,8 @@ public class LearnController {
     @PostMapping("/reset-all")
     public String resetAllProgress(HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        questionService.resetAllProgress(sessionId);
+        sessionService.deleteSession(sessionId);
+        progressService.resetAllProgress(sessionId);
         return "redirect:/";
     }
 
@@ -178,7 +197,7 @@ public class LearnController {
     public List<QuestionDto> getRelatedQuestions(
             @Parameter(description = "Question ID") @RequestParam Long questionId,
             @Parameter(description = "是否答啱") @RequestParam boolean correct) {
-        return questionService.findRelatedQuestions(questionId, correct);
+        return recommendService.findRelatedQuestions(questionId, correct);
     }
 
     @Operation(summary = "智能推薦", description = "根據當前答題情況推薦下一題")
@@ -189,6 +208,6 @@ public class LearnController {
             @Parameter(description = "是否答啱") @RequestParam boolean correct,
             HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        return questionService.recommendNextQuestion(sessionId, questionId, correct);
+        return recommendService.recommendNextQuestion(sessionId, questionId, correct);
     }
 }

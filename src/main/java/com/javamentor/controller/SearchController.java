@@ -2,7 +2,7 @@ package com.javamentor.controller;
 
 import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.question.dto.SearchResultDto;
-import com.javamentor.service.QuestionService;
+import com.javamentor.search.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,15 +16,14 @@ import java.util.List;
 @Tag(name = "Search API", description = "題目搜尋 API")
 public class SearchController {
     
-    private final QuestionService questionService;
+    private final SearchService searchService;
     
-    public SearchController(QuestionService questionService) {
-        this.questionService = questionService;
+    public SearchController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     /**
      * GET /api/search?keyword=xxx
-     * 搜尋題目（包含題目同埋解釋）
      */
     @GetMapping
     @Operation(summary = "搜尋題目", description = "用關鍵字搜尋題目同解釋")
@@ -32,18 +31,12 @@ public class SearchController {
             @Parameter(description = "搜尋關鍵字") 
             @RequestParam String keyword) {
         
-        List<QuestionDto> results = questionService.search(keyword);
-        
-        if (results.isEmpty()) {
-            return ResponseEntity.ok(new SearchResultDto(keyword, results));
-        }
-        
+        List<QuestionDto> results = searchService.search(keyword);
         return ResponseEntity.ok(new SearchResultDto(keyword, results));
     }
 
     /**
-     * GET /api/search?keyword=xxx&topic=oop
-     * 喺特定 Topic 度搜尋題目
+     * GET /api/search/topic/{topicId}?keyword=xxx
      */
     @GetMapping("/topic/{topicId}")
     @Operation(summary = "喺特定 Topic 搜尋", description = "用關鍵字喺特定 Topic 度搜尋")
@@ -53,7 +46,7 @@ public class SearchController {
             @Parameter(description = "Topic ID") 
             @PathVariable String topicId) {
         
-        List<QuestionDto> results = questionService.searchByTopic(keyword, topicId);
+        List<QuestionDto> results = searchService.searchByTopic(keyword, topicId);
         return ResponseEntity.ok(new SearchResultDto(keyword, results));
     }
 }
