@@ -61,13 +61,14 @@
                 
                 <h2 class="text-xl font-medium text-gray-900 mb-8" th:text="${question.question}">Question text goes here?</h2>
                 
-                <!-- HTMX Form with loading indicator -->
+                <!-- HTMX Form with loading indicator + CSRF -->
                 <form th:action="@{/answer}" method="post" 
                       hx-post="/answer" 
                       hx-target="#answer-section" 
                       hx-swap="outerHTML"
                       hx-indicator=".loading"
                       id="answerForm">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <input type="hidden" name="questionId" th:value="${question.id}">
                     <input type="hidden" name="topicId" th:value="${question.topicId}">
                     

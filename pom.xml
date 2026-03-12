@@ -73,6 +73,12 @@
             <artifactId>caffeine</artifactId>
         </dependency>
         
+        <!-- Spring Security (for CSRF protection) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        
         <!-- Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
