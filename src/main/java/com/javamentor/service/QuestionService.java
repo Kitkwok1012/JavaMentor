@@ -3,10 +3,18 @@ package com.javamentor.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javamentor.config.AppConstants;
-import com.javamentor.dto.*;
-import com.javamentor.entity.*;
 import com.javamentor.exception.*;
-import com.javamentor.repository.*;
+import com.javamentor.mocktest.dto.AnswerResponseDto;
+import com.javamentor.progress.dto.TopicProgressDto;
+import com.javamentor.progress.entity.UserProgress;
+import com.javamentor.progress.repository.UserProgressRepository;
+import com.javamentor.question.dto.QuestionDto;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.entity.Topic;
+import com.javamentor.question.repository.QuestionRepository;
+import com.javamentor.question.repository.TopicRepository;
+import com.javamentor.session.entity.UserSession;
+import com.javamentor.session.repository.UserSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -295,8 +303,8 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionDto> findRelatedQuestions(Long currentQuestionId, boolean answeredCorrect) {
-        Question current = questionRepository.findById(currentQuestionId).orElse(null);
+    public List<QuestionDto> findRelatedQuestions(Long currentQuestionID, boolean answeredCorrect) {
+        Question current = questionRepository.findById(currentQuestionID).orElse(null);
         if (current == null || current.getTags() == null) {
             return Collections.emptyList();
         }
@@ -307,7 +315,7 @@ public class QuestionService {
         int currentDifficulty = current.getDifficulty() != null ? current.getDifficulty() : 1;
 
         List<Question> related = candidates.stream()
-                .filter(q -> !q.getId().equals(currentQuestionId))
+                .filter(q -> !q.getId().equals(currentQuestionID))
                 .filter(q -> q.getTags() != null && hasSharedTags(currentTags, q.getTags()))
                 .filter(q -> {
                     int qDifficulty = q.getDifficulty() != null ? q.getDifficulty() : 1;
@@ -354,6 +362,36 @@ public class QuestionService {
         Question recommended = followUpRecommender.recommend(sessionId, currentQuestionId, correct);
         if (recommended == null) return null;
         return mapToDto(recommended);
+    }
+
+    // ========== Search Methods ==========
+
+    /**
+     * Search questions by keyword
+     */
+    @Transactional(readOnly = true)
+    public List<QuestionDto> search(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        log.info("Searching questions with keyword: {}", keyword);
+        List<Question> results = questionRepository.searchByKeyword(keyword.trim());
+        return results.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+    /**
+     * Search questions by keyword in specific topic
+     */
+    @Transactional(readOnly = true)
+    public List<QuestionDto> searchByTopic(String keyword, String topicId) {
+        if (keyword == null || keyword.trim().isEmpty() || topicId == null) {
+            return Collections.emptyList();
+        }
+        
+        log.info("Searching questions with keyword: {} in topic: {}", keyword, topicId);
+        List<Question> results = questionRepository.searchByKeywordAndTopic(keyword.trim(), topicId);
+        return results.stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     private QuestionDto mapToDto(Question question) {

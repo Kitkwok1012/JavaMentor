@@ -1,5 +1,6 @@
-package com.javamentor.entity;
+package com.javamentor.progress.entity;
 
+import com.javamentor.question.entity.Question;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

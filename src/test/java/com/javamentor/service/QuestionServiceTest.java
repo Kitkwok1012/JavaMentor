@@ -1,10 +1,10 @@
 package com.javamentor.service;
 
-import com.javamentor.entity.Topic;
-import com.javamentor.repository.QuestionRepository;
-import com.javamentor.repository.TopicRepository;
-import com.javamentor.repository.UserProgressRepository;
-import com.javamentor.repository.UserSessionRepository;
+import com.javamentor.question.entity.Topic;
+import com.javamentor.question.repository.QuestionRepository;
+import com.javamentor.question.repository.TopicRepository;
+import com.javamentor.progress.repository.UserProgressRepository;
+import com.javamentor.session.repository.UserSessionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

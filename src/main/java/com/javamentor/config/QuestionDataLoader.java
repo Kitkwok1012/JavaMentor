@@ -1,8 +1,10 @@
 package com.javamentor.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javamentor.entity.*;
-import com.javamentor.repository.*;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.entity.Topic;
+import com.javamentor.question.repository.QuestionRepository;
+import com.javamentor.question.repository.TopicRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;

@@ -1,10 +1,10 @@
 package com.javamentor.service;
 
-import com.javamentor.entity.Question;
-import com.javamentor.entity.Topic;
-import com.javamentor.entity.UserProgress;
-import com.javamentor.repository.QuestionRepository;
-import com.javamentor.repository.UserProgressRepository;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.entity.Topic;
+import com.javamentor.progress.entity.UserProgress;
+import com.javamentor.question.repository.QuestionRepository;
+import com.javamentor.progress.repository.UserProgressRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

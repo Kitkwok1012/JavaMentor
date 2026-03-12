@@ -1,7 +1,7 @@
 package com.javamentor.validator;
 
-import com.javamentor.entity.Question;
-import com.javamentor.repository.QuestionRepository;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.repository.QuestionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

@@ -1,9 +1,13 @@
 package com.javamentor.controller;
 
 import com.javamentor.config.SessionFilter;
-import com.javamentor.dto.*;
-import com.javamentor.entity.*;
-import com.javamentor.service.*;
+import com.javamentor.mocktest.dto.AnswerResponseDto;
+import com.javamentor.progress.dto.TopicProgressDto;
+import com.javamentor.progress.entity.UserProgress;
+import com.javamentor.question.dto.QuestionDto;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.entity.Topic;
+import com.javamentor.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

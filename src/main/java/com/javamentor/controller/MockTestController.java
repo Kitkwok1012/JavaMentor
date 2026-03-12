@@ -1,14 +1,13 @@
 package com.javamentor.controller;
 
-import com.javamentor.dto.MockTestDto;
-import com.javamentor.dto.StartMockTestRequest;
-import com.javamentor.dto.AnswerRequest;
-import com.javamentor.entity.Question;
+import com.javamentor.mocktest.dto.AnswerRequest;
+import com.javamentor.mocktest.dto.MockTestDto;
+import com.javamentor.mocktest.dto.StartMockTestRequest;
+import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.service.MockTestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.validation.Valid;
@@ -38,26 +37,17 @@ public class MockTestController {
     
     /**
      * GET /api/mock/{sessionId}/question - Get current question
+     * Returns QuestionDto instead of Entity
      */
     @GetMapping("/{sessionId}/question")
     public ResponseEntity<?> getCurrentQuestion(@PathVariable String sessionId) {
-        Question question = mockTestService.getCurrentQuestion(sessionId);
+        QuestionDto question = mockTestService.getCurrentQuestion(sessionId);
         if (question == null) {
             return ResponseEntity.ok(Map.of("completed", true));
         }
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", question.getId());
-        response.put("question", question.getQuestion());
-        response.put("optionA", question.getOptionA());
-        response.put("optionB", question.getOptionB());
-        response.put("optionC", question.getOptionC());
-        response.put("optionD", question.getOptionD());
-        response.put("optionE", question.getOptionE());
-        response.put("multiSelect", question.getMultiSelect());
-        response.put("difficulty", question.getDifficulty());
-        
-        return ResponseEntity.ok(response);
+        // Return DTO directly - no exposure of internal entity fields
+        return ResponseEntity.ok(question);
     }
     
     /**
@@ -71,10 +61,7 @@ public class MockTestController {
         String answer = request.getAnswer();
         boolean isCorrect = mockTestService.submitAnswer(sessionId, answer);
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("correct", isCorrect);
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("correct", isCorrect));
     }
     
     /**

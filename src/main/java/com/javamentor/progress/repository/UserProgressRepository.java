@@ -1,6 +1,6 @@
-package com.javamentor.repository;
+package com.javamentor.progress.repository;
 
-import com.javamentor.entity.UserProgress;
+import com.javamentor.progress.entity.UserProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

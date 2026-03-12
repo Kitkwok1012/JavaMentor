@@ -1,4 +1,4 @@
-package com.javamentor.dto;
+package com.javamentor.mocktest.dto;
 
 import java.util.List;
 

@@ -2,9 +2,11 @@ package com.javamentor.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.javamentor.dto.MockTestDto;
-import com.javamentor.entity.Question;
-import com.javamentor.repository.QuestionRepository;
+import com.javamentor.mocktest.dto.MockTestDto;
+import com.javamentor.question.dto.QuestionDto;
+import com.javamentor.question.dto.QuestionMapper;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class MockTestService {
     
     private final QuestionRepository questionRepository;
+    private final QuestionMapper questionMapper;
     
     // Wrapper class to hold both MockTestDto and answers together
     private static class MockTestSession {
@@ -37,8 +40,9 @@ public class MockTestService {
             .maximumSize(10_000)
             .build();
     
-    public MockTestService(QuestionRepository questionRepository) {
+    public MockTestService(QuestionRepository questionRepository, QuestionMapper questionMapper) {
         this.questionRepository = questionRepository;
+        this.questionMapper = questionMapper;
     }
     
     /**
@@ -90,9 +94,9 @@ public class MockTestService {
     }
     
     /**
-     * Get current question for the session
+     * Get current question for the session (returns DTO, not Entity)
      */
-    public Question getCurrentQuestion(String sessionId) {
+    public QuestionDto getCurrentQuestion(String sessionId) {
         MockTestSession session = mockTestCache.getIfPresent(sessionId);
         if (session == null) return null;
         
@@ -101,7 +105,9 @@ public class MockTestService {
         if (index >= mockTest.getQuestionIds().size()) return null;
         
         Long questionId = mockTest.getQuestionIds().get(index);
-        return questionRepository.findById(questionId).orElse(null);
+        Question question = questionRepository.findById(questionId).orElse(null);
+        
+        return questionMapper.toDto(question);
     }
     
     /**
@@ -113,7 +119,13 @@ public class MockTestService {
         
         MockTestDto mockTest = session.mockTest;
         
-        Question question = getCurrentQuestion(sessionId);
+        // Get current question ID from cache
+        int index = mockTest.getCurrentIndex();
+        if (index >= mockTest.getQuestionIds().size()) return false;
+        
+        Long questionId = mockTest.getQuestionIds().get(index);
+        Question question = questionRepository.findById(questionId).orElse(null);
+        
         if (question == null) return false;
         
         String correctAnswer = question.getCorrectAnswer();

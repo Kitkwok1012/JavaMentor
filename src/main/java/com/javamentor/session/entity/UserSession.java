@@ -1,4 +1,4 @@
-package com.javamentor.entity;
+package com.javamentor.session.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

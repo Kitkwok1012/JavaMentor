@@ -1,6 +1,6 @@
-package com.javamentor.repository;
+package com.javamentor.session.repository;
 
-import com.javamentor.entity.UserSession;
+import com.javamentor.session.entity.UserSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

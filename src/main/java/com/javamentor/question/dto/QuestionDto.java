@@ -1,4 +1,4 @@
-package com.javamentor.dto;
+package com.javamentor.question.dto;
 
 public class QuestionDto {
     private Long id;

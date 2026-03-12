@@ -1,6 +1,6 @@
-package com.javamentor.repository;
+package com.javamentor.question.repository;
 
-import com.javamentor.entity.Topic;
+import com.javamentor.question.entity.Topic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;

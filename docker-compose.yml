@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # JavaMentor Application
+  # JavaMentor Application (H2 Database)
   javamentor:
     build:
       context: .
@@ -13,9 +13,9 @@ services:
       - PORT=8080
       - DB_PATH=file:/app/data/javamentor
       - H2_CONSOLE_ENABLED=true
-      - SHOW_SQL=true
+      - SHOW_SQL=false
       - THYMELEAF_CACHE=false
-      - LOG_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
     volumes:
       - javamentor-data:/app/data
     restart: unless-stopped

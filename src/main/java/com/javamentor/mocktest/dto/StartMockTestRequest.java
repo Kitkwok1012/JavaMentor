@@ -1,4 +1,4 @@
-package com.javamentor.dto;
+package com.javamentor.mocktest.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

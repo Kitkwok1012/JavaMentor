@@ -1,4 +1,4 @@
-package com.javamentor.entity;
+package com.javamentor.question.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

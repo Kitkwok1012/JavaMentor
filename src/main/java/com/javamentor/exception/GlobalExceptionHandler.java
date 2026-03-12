@@ -1,5 +1,7 @@
 package com.javamentor.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,54 +13,98 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+/**
+ * Global Exception Handler
+ * Provides consistent API error responses across all endpoints
+ */
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // ========== Custom Exceptions ==========
+
     @ExceptionHandler(QuestionNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleQuestionNotFound(QuestionNotFoundException ex) {
-        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleQuestionNotFound(QuestionNotFoundException ex) {
+        log.warn("Question not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("QUESTION_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(TopicNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleTopicNotFound(TopicNotFoundException ex) {
-        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleTopicNotFound(TopicNotFoundException ex) {
+        log.warn("Topic not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("TOPIC_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidAnswerException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidAnswer(InvalidAnswerException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleInvalidAnswer(InvalidAnswerException ex) {
+        log.warn("Invalid answer: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("INVALID_ANSWER", ex.getMessage()));
     }
 
+    // ========== Validation Exceptions ==========
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         String message = String.format("參數 '%s' 類型錯誤: %s", ex.getName(), ex.getMessage());
-        return buildError(HttpStatus.BAD_REQUEST, message);
+        log.warn("Type mismatch: {}", message);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("TYPE_MISMATCH", message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        return buildError(HttpStatus.BAD_REQUEST, message);
+        log.warn("Validation error: {}", message);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("VALIDATION_ERROR", message));
     }
+
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
+        log.warn("Missing parameter: {}", ex.getParameterName());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("MISSING_PARAMETER", "缺少參數: " + ex.getParameterName()));
+    }
+
+    // ========== Fallback ==========
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "系統錯誤，請稍後再試");
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Unexpected error", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("INTERNAL_ERROR", "系統錯誤，請稍後再試"));
     }
 
-    private ResponseEntity<Map<String, Object>> buildError(HttpStatus status, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now().toString());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-        return new ResponseEntity<>(body, status);
+    // ========== Error Response DTO ==========
+
+    public record ErrorResponse(
+        String code,
+        String message,
+        LocalDateTime timestamp
+    ) {
+        public ErrorResponse(String code, String message) {
+            this(code, message, LocalDateTime.now());
+        }
     }
 }

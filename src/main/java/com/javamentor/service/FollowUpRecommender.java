@@ -1,10 +1,10 @@
 package com.javamentor.service;
 
 import com.javamentor.config.AppConstants;
-import com.javamentor.entity.Question;
-import com.javamentor.entity.UserProgress;
-import com.javamentor.repository.QuestionRepository;
-import com.javamentor.repository.UserProgressRepository;
+import com.javamentor.progress.entity.UserProgress;
+import com.javamentor.progress.repository.UserProgressRepository;
+import com.javamentor.question.entity.Question;
+import com.javamentor.question.repository.QuestionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

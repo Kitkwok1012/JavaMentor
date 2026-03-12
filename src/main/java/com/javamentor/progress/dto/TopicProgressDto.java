@@ -1,4 +1,4 @@
-package com.javamentor.dto;
+package com.javamentor.progress.dto;
 
 public class TopicProgressDto {
     private String topicId;
