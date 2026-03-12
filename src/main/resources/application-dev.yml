@@ -1,0 +1,45 @@
+# ===================================================================
+# Development Profile
+# ===================================================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  # Enable dev features
+  h2:
+    console:
+      enabled: true
+  
+  jpa:
+    hibernate:
+      ddl-auto: update  # Dev can use update for convenience
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  thymeleaf:
+    cache: false  # Hot reload in dev
+  
+  devtools:
+    restart:
+      enabled: true
+
+# Enable Swagger in dev
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+# Relaxed logging in dev
+logging:
+  level:
+    root: INFO
+    com.javamentor: DEBUG
+    org.springframework.web: DEBUG
+
+# Dev profile marker for templates
+app:
+  profile: dev

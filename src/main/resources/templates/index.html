@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - Java面試互動學習</title>
     
-    <!-- Tailwind CSS (CDN for dev only - replace with built CSS in prod) -->
-    <th:block th:if="${@environment.getProperty('spring.profiles.active', 'dev') == 'dev'}">
+    <!-- Tailwind CSS - CDN for dev only -->
+    <th:block th:if="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <script src="https://cdn.tailwindcss.com"></script>
     </th:block>
-    <th:block th:unless="${@environment.getProperty('spring.profiles.active', 'dev') == 'dev'}">
+    <th:block th:unless="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <link rel="stylesheet" th:href="@{/css/main.css}">
     </th:block>
     

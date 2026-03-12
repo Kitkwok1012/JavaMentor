@@ -10,39 +10,39 @@ spring:
   
   h2:
     console:
-      enabled: ${H2_CONSOLE_ENABLED:false}
+      enabled: ${H2_CONSOLE_ENABLED:false}  # Default: disabled (security)
       path: /h2-console
   
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:validate}  # validate (safe) / update (dev only) / none (production with migrations)
+      ddl-auto: ${DDL_AUTO:validate}  # Default: validate (safe for prod)
     show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: ${FORMAT_SQL:false}
   
   thymeleaf:
-    cache: ${THYMELEAF_CACHE:true}
+    cache: ${THYMELEAF_CACHE:true}  # Default: true (prod)
     mode: HTML
 
 server:
   port: ${PORT:8080}
 
-# SpringDoc OpenAPI Configuration
+# SpringDoc OpenAPI - disabled in production by default
 springdoc:
   api-docs:
-    enabled: ${API_DOCS_ENABLED:true}
+    enabled: ${API_DOCS_ENABLED:false}  # Default: false (prod)
     path: /v3/api-docs
   swagger-ui:
-    enabled: ${SWAGGER_UI_ENABLED:false}
+    enabled: ${SWAGGER_UI_ENABLED:false}  # Default: false (prod)
     path: /swagger-ui.html
 
-# Rate limiting config
+# Rate limiting - enabled in production by default
 ratelimit:
-  enabled: ${RATE_LIMIT_ENABLED:true}
+  enabled: ${RATE_LIMIT_ENABLED:true}  # Default: true (prod)
   requests-per-minute: ${RATE_LIMIT_RPM:60}
 
-# Logging config  
+# Logging - WARN in production, INFO in dev  
 logging:
   level:
     root: ${LOG_LEVEL:WARN}
@@ -50,7 +50,27 @@ logging:
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
 
-# App constants
+# App config
 app:
   title: JavaMentor - Java面試學習平台
   version: 1.0.0
+  # i18n
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+# ===================================================================
+# DEVELOPMENT OVERRIDES (use --spring.profiles.active=dev)
+# ===================================================================
+# To run in development mode:
+#   mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=dev
+#   OR
+#   java -jar javamentor.jar --spring.profiles.active=dev
+#
+# Dev mode enables:
+#   - Tailwind CDN (instead of local CSS)
+#   - H2 Console
+#   - Swagger UI
+#   - Debug logging
+#   - Thymeleaf cache: false
+# ===================================================================
