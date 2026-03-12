@@ -2,6 +2,7 @@ package com.javamentor.recommend;
 
 import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.question.entity.Question;
+import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.service.QuestionService;
 import com.javamentor.progress.repository.UserProgressRepository;
 import com.javamentor.session.service.SessionService;
@@ -22,13 +23,16 @@ public class RecommendService {
     private static final Logger log = LoggerFactory.getLogger(RecommendService.class);
 
     private final QuestionService questionService;
+    private final QuestionRepository questionRepository;
     private final UserProgressRepository userProgressRepository;
     private final SessionService sessionService;
 
     public RecommendService(QuestionService questionService,
+                        QuestionRepository questionRepository,
                         UserProgressRepository userProgressRepository,
                         SessionService sessionService) {
         this.questionService = questionService;
+        this.questionRepository = questionRepository;
         this.userProgressRepository = userProgressRepository;
         this.sessionService = sessionService;
     }
@@ -171,13 +175,12 @@ public class RecommendService {
     }
 
     private Question getRandomQuestion(Set<Long> excludeIds) {
-        List<Question> all = questionService.getAllTopics()
-                .stream()
-                .flatMap(t -> questionService.getQuestionsByTopic(t.getTopicId()).stream())
-                .filter(q -> !excludeIds.contains(q.getId()))
-                .toList();
+        // Handle empty excludeIds to avoid JPQL error with empty IN clause
+        Set<Long> safeExcludeIds = excludeIds.isEmpty() ? Set.of(-1L) : excludeIds;
         
-        return all.isEmpty() ? null : all.get(new Random().nextInt(all.size()));
+        List<Question> candidates = questionRepository.findExcluding(safeExcludeIds);
+        
+        return candidates.isEmpty() ? null : candidates.get(new Random().nextInt(candidates.size()));
     }
 
     private boolean hasSharedTags(Set<String> tags1, Set<String> tags2) {
