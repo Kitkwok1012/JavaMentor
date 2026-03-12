@@ -71,7 +71,12 @@ public class Question {
     }
     
     /**
-     * Get correct answer as string (e.g., "A,C")
+     * Get correct answer as string.
+     * Derived from QuestionOption.isCorrect - no stored field.
+     * 
+     * Format: "A" (single) or "A,C" (multi-select)
+     * 
+     * @return comma-separated labels of correct options
      */
     public String getCorrectAnswer() {
         return options.stream()
