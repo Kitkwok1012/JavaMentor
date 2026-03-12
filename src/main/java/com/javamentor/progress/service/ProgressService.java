@@ -57,19 +57,19 @@ public class ProgressService {
     }
 
     /**
-     * 獲取 topic 進度 (optimized - no N+1)
+     * 獲取 topic 進度 (optimized - uses single GROUP BY query)
      */
     @Transactional(readOnly = true)
     public List<TopicProgressDto> getTopicProgress(String sessionId) {
         List<Topic> topics = questionService.getAllTopics();
         
-        // Get ALL questions once, then group by topicId (no N+1)
-        List<Question> allQuestions = questionService.getAllQuestions();
-        
+        // Use COUNT with GROUP BY - single query, no N+1
         Map<String, Long> questionCountMap = new HashMap<>();
-        for (Question q : allQuestions) {
-            String topicId = q.getTopic().getTopicId();
-            questionCountMap.merge(topicId, 1L, Long::sum);
+        List<Object[]> questionCounts = questionService.getQuestionCountByTopic();
+        for (Object[] row : questionCounts) {
+            String topicId = (String) row[0];
+            long count = ((Number) row[1]).longValue();
+            questionCountMap.put(topicId, count);
         }
         
         // Get user progress stats per topic

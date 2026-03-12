@@ -56,6 +56,11 @@ public class QuestionService {
         return questionRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Object[]> getQuestionCountByTopic() {
+        return questionRepository.countAllGroupedByTopic();
+    }
+
     // ==================== Question Methods ====================
 
     @Transactional(readOnly = true)
