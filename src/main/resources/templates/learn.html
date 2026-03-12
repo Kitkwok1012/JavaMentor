@@ -43,7 +43,7 @@
             </div>
         </div>
         
-        <!-- Question -->
+        <!-- Question - Dynamic Options -->
         <div th:if="${question != null and (completed == null or not completed)}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <span class="text-sm text-gray-500">問題</span>
@@ -56,58 +56,28 @@
                 <input type="hidden" name="questionId" th:value="${question.id}">
                 <input type="hidden" name="topicId" th:value="${question.topicId}">
                 
-                <!-- Single Select: Radio buttons -->
-                <div th:if="${question.multiSelect == null or not question.multiSelect}" class="space-y-4 mb-8">
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="A" class="mt-1 mr-3" required>
-                        <span class="font-medium mr-2">A.</span>
-                        <span th:text="${question.optionA}">Option A</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="B" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">B.</span>
-                        <span th:text="${question.optionB}">Option B</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="C" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">C.</span>
-                        <span th:text="${question.optionC}">Option C</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="D" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">D.</span>
-                        <span th:text="${question.optionD}">Option D</span>
-                    </label>
-                </div>
-                
-                <!-- Multi Select: Checkboxes -->
-                <div th:if="${question.multiSelect}" class="space-y-4 mb-8">
-                    <p class="text-sm text-gray-500 mb-4">請選擇所有正確答案（可多選）</p>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="A" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">A.</span>
-                        <span th:text="${question.optionA}">Option A</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="B" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">B.</span>
-                        <span th:text="${question.optionB}">Option B</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="C" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">C.</span>
-                        <span th:text="${question.optionC}">Option C</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="D" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">D.</span>
-                        <span th:text="${question.optionD}">Option D</span>
-                    </label>
-                    <label th:if="${question.optionE != null}" class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="E" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">E.</span>
-                        <span th:text="${question.optionE}">Option E</span>
-                    </label>
+                <!-- Dynamic Options - supports any number of options -->
+                <div class="space-y-4 mb-8">
+                    <!-- Single Select: Radio buttons -->
+                    <th:block th:if="${question.multiSelect == null or not question.multiSelect}">
+                        <label th:each="opt : ${question.options}" 
+                               class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                            <input type="radio" name="answer" th:value="${opt.label}" class="mt-1 mr-3" required>
+                            <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                            <span th:text="${opt.content}">Option content</span>
+                        </label>
+                    </th:block>
+                    
+                    <!-- Multi Select: Checkboxes -->
+                    <th:block th:if="${question.multiSelect}">
+                        <p class="text-sm text-gray-500 mb-4">請選擇所有正確答案（可多選）</p>
+                        <label th:each="opt : ${question.options}" 
+                               class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                            <input type="checkbox" name="answer" th:value="${opt.label}" class="mt-1 mr-3">
+                            <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                            <span th:text="${opt.content}">Option content</span>
+                        </label>
+                    </th:block>
                 </div>
                 
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
