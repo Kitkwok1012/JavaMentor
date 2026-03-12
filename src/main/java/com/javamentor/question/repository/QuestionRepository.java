@@ -14,13 +14,19 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     
     List<Question> findByTopicTopicId(String topicId);
     
+    /**
+     * Find questions by multiple topic IDs - avoids N+1 query
+     */
+    List<Question> findByTopicTopicIdIn(List<String> topicIds);
+    
     @Query("SELECT q.topic.topicId, COUNT(q) FROM Question q GROUP BY q.topic.topicId")
     List<Object[]> countAllGroupedByTopic();
     
     @Query("SELECT q FROM Question q WHERE q.id NOT IN :excludeIds")
     List<Question> findExcluding(@Param("excludeIds") java.util.Set<Long> excludeIds);
     
-    List<Question> findByTopicTopicIdNotNull();
+    @Query("SELECT q FROM Question q WHERE q.topic IS NOT NULL")
+    List<Question> findAllQuestionsWithTopic();
     
     // ========== Search Methods ==========
     

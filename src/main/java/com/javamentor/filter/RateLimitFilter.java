@@ -17,6 +17,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Rate Limiting Filter - Caffeine-based rate limiting
  * Prevents memory leaks from unbounded ConcurrentHashMap
+ * 
+ * Configuration:
+ * - ratelimit.enabled: true/false
+ * - ratelimit.requests-per-minute: default 60
+ * - ratelimit.trust-proxy: true/false (default false)
+ *   When true, trusts X-Real-IP and X-Forwarded-For headers.
+ *   Set to true ONLY when behind a trusted reverse proxy.
  */
 @Component
 public class RateLimitFilter implements Filter {
@@ -26,6 +33,9 @@ public class RateLimitFilter implements Filter {
 
     @Value("${ratelimit.requests-per-minute:60}")
     private int requestsPerMinute;
+
+    @Value("${ratelimit.trust-proxy:false}")
+    private boolean trustProxy;
 
     private final ObjectMapper objectMapper;
 
@@ -93,28 +103,30 @@ public class RateLimitFilter implements Filter {
     }
 
     private String getClientIp(HttpServletRequest request) {
-        // Check X-Real-IP first (set by reverse proxy, most reliable)
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty() && isValidIp(xRealIp)) {
-            return xRealIp.trim();
-        }
-        
-        // Fallback to X-Forwarded-For - use FIRST IP (original client)
-        // Format: "client, proxy1, proxy2" - first is always original client
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            String firstIp = xForwardedFor.split(",")[0].trim();
-            if (isValidIp(firstIp)) {
-                return firstIp;
+        // Only trust proxy headers if explicitly enabled
+        if (trustProxy) {
+            // Check X-Real-IP first (set by reverse proxy, most reliable)
+            String xRealIp = request.getHeader("X-Real-IP");
+            if (isValidIp(xRealIp)) {
+                return xRealIp.trim();
+            }
+            
+            // Fallback to X-Forwarded-For - use FIRST IP (original client)
+            String xForwardedFor = request.getHeader("X-Forwarded-For");
+            if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+                String firstIp = xForwardedFor.split(",")[0].trim();
+                if (isValidIp(firstIp)) {
+                    return firstIp;
+                }
             }
         }
         
-        // Final fallback to remote address
+        // Default: always use remote address (most secure)
         return request.getRemoteAddr();
     }
     
     /**
-     * Validate IP is not obviously spoofed (private range or empty)
+     * Validate IP is not obviously spoofed
      */
     private boolean isValidIp(String ip) {
         if (ip == null || ip.isEmpty()) return false;

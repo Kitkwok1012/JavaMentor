@@ -58,13 +58,11 @@ public class MockTestService {
         
         List<Question> allQuestions;
         if (topics == null || topics.isEmpty()) {
-            // All topics - use repository query instead of findAll()
-            allQuestions = questionRepository.findByTopicTopicIdNotNull();
+            // All topics
+            allQuestions = questionRepository.findAllQuestionsWithTopic();
         } else {
-            // Specific topics
-            allQuestions = topics.stream()
-                .flatMap(topicId -> questionRepository.findByTopicTopicId(topicId).stream())
-                .collect(Collectors.toList());
+            // Specific topics - single query, no N+1
+            allQuestions = questionRepository.findByTopicTopicIdIn(topics);
         }
         
         // Shuffle and select - operate directly on Question objects
