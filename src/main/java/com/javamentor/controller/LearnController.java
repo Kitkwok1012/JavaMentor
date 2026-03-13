@@ -101,6 +101,34 @@ public class LearnController {
         return "learn";
     }
 
+    @Operation(summary = "題目詳情", description = "根據 Question ID 獲取題目詳情")
+    @GetMapping("/question/{questionId}")
+    public String questionDetail(
+            @Parameter(description = "Question ID") @PathVariable Long questionId,
+            @Parameter(description = "Topic ID (optional)") @RequestParam(required = false) String topicId,
+            Model model, HttpServletRequest request) {
+        
+        QuestionDto question = questionService.getQuestionById(questionId);
+        
+        if (question == null) {
+            model.addAttribute("error", "Question not found");
+            return "error";
+        }
+        
+        model.addAttribute("question", question);
+        
+        // If topicId provided, get topic info
+        if (topicId != null) {
+            var topic = questionService.getTopicById(topicId);
+            model.addAttribute("topic", topic);
+        } else if (question.getTopicId() != null) {
+            var topic = questionService.getTopicById(question.getTopicId());
+            model.addAttribute("topic", topic);
+        }
+        
+        return "question-detail";
+    }
+
     @Operation(summary = "下一題", description = "移動到下一題")
     @GetMapping("/question/next")
     public String getNextQuestion(

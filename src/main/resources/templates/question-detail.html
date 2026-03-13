@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaMentor - 題目詳情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+    <script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
+            <div class="space-x-4 flex items-center">
+                <form th:action="@{/search}" method="get" class="flex">
+                    <input type="text" name="keyword" 
+                           placeholder="搜尋題目..."
+                           class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
+                </form>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">學習進度</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Back Link -->
+        <a href="javascript:history.back()" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回</a>
+        
+        <!-- Error State -->
+        <div th:if="${error}" class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-6 text-center">
+            <p class="text-red-600 dark:text-red-400 text-lg" th:text="${error}">Error</p>
+            <a href="/" class="text-blue-600 hover:underline mt-4 inline-block">返回首頁</a>
+        </div>
+        
+        <!-- Question Detail -->
+        <div th:if="${question}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-sm bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded" 
+                      th:text="${question.topicName}">Topic</span>
+                <span class="text-xs px-2 py-1 rounded"
+                      th:classappend="${question.difficulty == 1} ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' : (${question.difficulty == 2} ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400' : 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400')"
+                      th:text="${question.difficulty == 1} ? '簡單' : (${question.difficulty == 2} ? '中等' : '困難')">難度</span>
+            </div>
+            
+            <!-- Question -->
+            <h1 class="text-xl font-medium text-gray-900 dark:text-white mb-8" th:text="${question.question}">Question</h1>
+            
+            <!-- Options -->
+            <div class="space-y-4 mb-8">
+                <!-- Single Select -->
+                <th:block th:if="${question.multiSelect == null or not question.multiSelect}">
+                    <div th:each="opt : ${question.options}" 
+                         class="flex items-start p-4 border dark:border-gray-600 rounded-lg">
+                        <span class="font-medium mr-3 text-gray-700 dark:text-gray-300" th:text="${opt.label + '.'}">A.</span>
+                        <span class="text-gray-700 dark:text-gray-300" th:text="${opt.content}">Option content</span>
+                    </div>
+                </th:block>
+                
+                <!-- Multi Select -->
+                <th:block th:if="${question.multiSelect}">
+                    <div th:each="opt : ${question.options}" 
+                         class="flex items-start p-4 border dark:border-gray-600 rounded-lg">
+                        <input type="checkbox" disabled class="mt-1 mr-3">
+                        <span class="font-medium mr-3 text-gray-700 dark:text-gray-300" th:text="${opt.label + '.'}">A.</span>
+                        <span class="text-gray-700 dark:text-gray-300" th:text="${opt.content}">Option content</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">呢題可以選擇多個答案</p>
+                </th:block>
+            </div>
+            
+            <!-- Multi-select indicator -->
+            <div th:if="${question.multiSelect}" class="mb-4">
+                <span class="text-sm bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400 px-2 py-1 rounded">多選題</span>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-4 mt-8">
+                <a th:href="@{/learn/{topicId}(topicId=${question.topicId})}" 
+                   class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    開始練習
+                </a>
+                <a href="/" class="text-gray-600 dark:text-gray-300 px-6 py-2 hover:text-blue-600">
+                    返回首頁
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="text-center text-gray-500 dark:text-gray-400 text-sm py-8">
+        Java面試互動學習平台
+    </footer>
+</body>
+</html>
