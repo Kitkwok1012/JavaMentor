@@ -3,6 +3,8 @@ spring:
     name: javamentor
   jpa:
     open-in-view: false  # Disable to prevent N+1 in view layer
+    hibernate:
+      ddl-auto: ${DDL_AUTO:validate}  # Default: validate (safe for prod)
   
   datasource:
     url: jdbc:h2:${DB_PATH:-file:./data/javamentor};DB_CLOSE_ON_EXIT=FALSE
@@ -14,10 +16,6 @@ spring:
     console:
       enabled: ${H2_CONSOLE_ENABLED:false}  # Default: disabled (security)
       path: /h2-console
-  
-  jpa:
-    hibernate:
-      ddl-auto: ${DDL_AUTO:validate}  # Default: validate (safe for prod)
     show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
