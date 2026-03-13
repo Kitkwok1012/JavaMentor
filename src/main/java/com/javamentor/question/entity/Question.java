@@ -15,7 +15,9 @@ import java.util.Set;
 @Table(name = "questions", indexes = {
     @Index(name = "idx_question_topic_id", columnList = "topic_id"),
     @Index(name = "idx_question_difficulty", columnList = "difficulty"),
-    @Index(name = "idx_question_display_order", columnList = "display_order")
+    @Index(name = "idx_question_display_order", columnList = "display_order"),
+    @Index(name = "idx_question_text", columnList = "question"),
+    @Index(name = "idx_question_explanation", columnList = "explanation")
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Question {
