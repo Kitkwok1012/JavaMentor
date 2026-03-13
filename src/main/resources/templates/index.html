@@ -45,6 +45,12 @@
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         }
+        
+        // Language change - preserves current page
+        function changeLang(lang) {
+            var path = window.location.pathname;
+            window.location.href = path + '?lang=' + lang;
+        }
     </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
@@ -63,10 +69,10 @@
             </form>
             
             <!-- Language -->
-            <select onchange="window.location.href=this.value" class="w-full border rounded-lg px-3 py-2 dark:bg-gray-700 dark:text-white text-sm mb-4">
-                <option value="?lang=en" th:selected="${#locale.language == 'en'}">English</option>
-                <option value="?lang=zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">简体中文</option>
-                <option value="?lang=zh_TW" th:selected="${#locale.country == 'TW'}">繁體中文</option>
+            <select onchange="changeLang(this.value)" class="w-full border rounded-lg px-3 py-2 dark:bg-gray-700 dark:text-white text-sm mb-4">
+                <option value="en" th:selected="${#locale.language == 'en'}">English</option>
+                <option value="zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">简体中文</option>
+                <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁體中文</option>
             </select>
             
             <!-- Stats -->
@@ -105,10 +111,10 @@
                     </form>
                     
                     <!-- Language -->
-                    <select onchange="window.location.href=this.value" class="text-xs md:text-sm border rounded px-1 md:px-2 py-1 dark:bg-gray-700 dark:text-white">
-                        <option value="?lang=en" th:selected="${#locale.language == 'en'}">EN</option>
-                        <option value="?lang=zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">簡</option>
-                        <option value="?lang=zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
+                    <select onchange="changeLang(this.value)" class="text-xs md:text-sm border rounded px-1 md:px-2 py-1 dark:bg-gray-700 dark:text-white">
+                        <option value="en" th:selected="${#locale.language == 'en'}">EN</option>
+                        <option value="zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">簡</option>
+                        <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
                     </select>
                     
                     <!-- Dark Mode -->
