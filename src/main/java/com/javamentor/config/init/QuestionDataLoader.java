@@ -36,16 +36,18 @@ public class QuestionDataLoader implements CommandLineRunner {
             return;
         }
         
-        // Load questions from JSON
-        ClassPathResource resource = new ClassPathResource("data/questions.json");
-        Map<String, Object> data = objectMapper.readValue(resource.getInputStream(), Map.class);
+        // Load questions from both JSON files
+        List<Map<String, Object>> allTopicsData = new ArrayList<>();
         
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> topicsData = (List<Map<String, Object>>) data.get("topics");
+        // Load main questions
+        allTopicsData.addAll(loadTopicsFromJson("data/questions.json"));
+        
+        // Load senior questions
+        allTopicsData.addAll(loadTopicsFromJson("data/questions-senior.json"));
         
         // Create topics
         Map<String, Topic> topicMap = new HashMap<>();
-        for (Map<String, Object> t : topicsData) {
+        for (Map<String, Object> t : allTopicsData) {
             Topic topic = new Topic();
             String topicId = (String) t.get("topicId");
             topic.setTopicId(topicId);
@@ -57,11 +59,11 @@ public class QuestionDataLoader implements CommandLineRunner {
         topicRepository.saveAll(topicMap.values());
         log.info("Loaded {} topics!", topicMap.size());
         
-        // Create questions with normalized options and tags
+        // Create questions
         List<Question> questions = new ArrayList<>();
         int order = 1;
         
-        for (Map<String, Object> t : topicsData) {
+        for (Map<String, Object> t : allTopicsData) {
             String topicId = (String) t.get("topicId");
             Topic topic = topicMap.get(topicId);
             
@@ -75,7 +77,7 @@ public class QuestionDataLoader implements CommandLineRunner {
                 question.setQuestion((String) q.get("question"));
                 question.setExplanation((String) q.get("explanation"));
                 
-                // Handle tags (comma-separated string to Set<String>)
+                // Handle tags
                 Object tagsObj = q.get("tags");
                 if (tagsObj instanceof String tagsStr && !tagsStr.isEmpty()) {
                     String[] tagArray = tagsStr.split(",");
@@ -96,10 +98,12 @@ public class QuestionDataLoader implements CommandLineRunner {
                 
                 question.setDisplayOrder(order++);
                 
-                // Create normalized options (A, B, C, D, E)
-                String[] labels = {"A", "B", "C", "D", "E"};
+                // Handle multi-select - automatically based on correct answer count
                 String correctAnswer = (String) q.get("correct");
+                // Just store the correct answer - getMultiSelect() is computed automatically
                 
+                // Create options
+                String[] labels = {"A", "B", "C", "D", "E"};
                 for (String label : labels) {
                     String optionKey = "option" + label;
                     String content = (String) q.get(optionKey);
@@ -115,5 +119,23 @@ public class QuestionDataLoader implements CommandLineRunner {
         
         questionRepository.saveAll(questions);
         log.info("Loaded {} questions from JSON!", questions.size());
+    }
+    
+    private List<Map<String, Object>> loadTopicsFromJson(String path) {
+        try {
+            ClassPathResource resource = new ClassPathResource(path);
+            if (!resource.exists()) {
+                log.warn("Resource {} not found, skipping...", path);
+                return Collections.emptyList();
+            }
+            Map<String, Object> data = objectMapper.readValue(resource.getInputStream(), Map.class);
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> topicsData = (List<Map<String, Object>>) data.get("topics");
+            log.info("Loaded {} topics from {}", topicsData != null ? topicsData.size() : 0, path);
+            return topicsData != null ? topicsData : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Failed to load {}: {}", path, e.getMessage());
+            return Collections.emptyList();
+        }
     }
 }
