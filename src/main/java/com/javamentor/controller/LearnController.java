@@ -207,15 +207,31 @@ public class LearnController {
             @Parameter(description = "每頁數量") @RequestParam(defaultValue = "10") int size,
             Model model) {
         
+        // Validate page - must be non-negative
+        if (page < 0) {
+            page = 0;
+        }
+        
         // Validate size - only allow 10, 50, 100
         if (size != 10 && size != 50 && size != 100) {
             size = 10;
         }
         
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<QuestionDto> results = searchService.search(keyword, pageable);
+        // Validate and sanitize keyword
+        String sanitizedKeyword = keyword;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            sanitizedKeyword = "";
+        } else {
+            sanitizedKeyword = keyword.trim();
+            if (sanitizedKeyword.length() > 100) {
+                sanitizedKeyword = sanitizedKeyword.substring(0, 100);
+            }
+        }
         
-        model.addAttribute("keyword", keyword);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<QuestionDto> results = searchService.search(sanitizedKeyword, pageable);
+        
+        model.addAttribute("keyword", sanitizedKeyword);
         model.addAttribute("results", results.getContent());
         model.addAttribute("currentPage", results.getNumber());
         model.addAttribute("totalPages", results.getTotalPages());
