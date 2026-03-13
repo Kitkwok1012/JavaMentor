@@ -54,6 +54,9 @@ public class QuestionDataLoader implements CommandLineRunner {
         // Load big tech interview questions
         allTopicsData.addAll(loadTopicsFromJson("data/questions-big-tech.json"));
         
+        // Load learning roadmap questions
+        allTopicsData.addAll(loadTopicsFromJson("data/questions-learning-roadmap.json"));
+        
         // Create topics
         Map<String, Topic> topicMap = new HashMap<>();
         for (Map<String, Object> t : allTopicsData) {
