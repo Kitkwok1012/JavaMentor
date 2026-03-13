@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,12 +24,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @Controller
+@Validated
 @Tag(name = "Learn Controller", description = "題目學習與答題 API")
 public class LearnController {
 
@@ -100,7 +104,7 @@ public class LearnController {
     @Operation(summary = "下一題", description = "移動到下一題")
     @GetMapping("/question/next")
     public String getNextQuestion(
-            @Parameter(description = "Topic ID") @RequestParam String topicId, 
+            @Parameter(description = "Topic ID") @RequestParam @NotBlank String topicId, 
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
         
@@ -128,9 +132,9 @@ public class LearnController {
     @Operation(summary = "提交答案", description = "提交問題答案並獲取結果")
     @PostMapping("/answer")
     public String submitAnswer(
-            @Parameter(description = "Question ID") @RequestParam Long questionId,
-            @Parameter(description = "答案 (A/B/C/D)") @RequestParam String answer,
-            @Parameter(description = "Topic ID") @RequestParam String topicId,
+            @Parameter(description = "Question ID") @RequestParam @NotNull Long questionId,
+            @Parameter(description = "答案 (A/B/C/D)") @RequestParam @NotBlank String answer,
+            @Parameter(description = "Topic ID") @RequestParam @NotBlank String topicId,
             Model model,
             HttpServletRequest request) {
 
