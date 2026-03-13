@@ -8,6 +8,11 @@
     <!-- Tailwind CSS - CDN for dev only -->
     <th:block th:if="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+            }
+        </script>
     </th:block>
     <th:block th:unless="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <link rel="stylesheet" th:href="@{/css/main.css}">
@@ -18,9 +23,20 @@
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
@@ -33,18 +49,24 @@
                 </form>
                 
                 <!-- Language Selector -->
-                <select onchange="window.location.href=this.value" class="text-sm border rounded px-2 py-1">
+                <select onchange="window.location.href=this.value" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:text-white">
                     <option value="?lang=en" th:selected="${#locale.language == 'en'}">English</option>
                     <option value="?lang=zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">简体中文</option>
                     <option value="?lang=zh_TW" th:selected="${#locale.country == 'TW'}">繁體中文</option>
                 </select>
                 
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
+                
                 <span th:if="${stats}" class="text-sm text-gray-500">
                     總答題: <span class="font-medium text-gray-700" th:text="${stats.totalAnswered}">0</span> | 
                     正確率: <span class="font-medium text-green-600" th:text="${stats.accuracy}">0</span>%
                 </span>
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">學習進度</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
                 <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？此操作不可復原。')" style="display:inline;">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="text-red-500 hover:text-red-700 text-sm">清除進度</button>
@@ -62,7 +84,7 @@
         
         <!-- Topics Grid -->
         <div class="grid md:grid-cols-2 gap-6 mb-12">
-            <div th:each="p : ${progress}" class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition">
+            <div th:each="p : ${progress}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 hover:shadow-md transition">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900" th:text="${p.topicName}">Topic Name</h3>
@@ -74,7 +96,7 @@
                 <!-- Progress Bar -->
                 <div class="mb-4">
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-500">完成度</span>
+                        <span class="text-gray-500 dark:text-gray-400">完成度</span>
                         <span class="font-medium">[[${p.answeredQuestions}]]/[[${p.totalQuestions}]]</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">

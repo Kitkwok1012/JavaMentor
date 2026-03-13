@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - 錯題簿 | Wrong Answers</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     </style>
+<script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
@@ -22,7 +34,11 @@
                     <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
                 </form>
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -35,11 +51,11 @@
         <div th:if="${#lists.isEmpty(wrongQuestions)}" class="text-center py-12">
             <div class="text-6xl mb-4">🎉</div>
             <h2 class="text-xl font-semibold text-gray-900 mb-2">沒有錯題！</h2>
-            <p class="text-gray-500">您的表現非常出色！</p>
+            <p class="text-gray-500 dark:text-gray-400">您的表現非常出色！</p>
         </div>
         
         <div class="space-y-4">
-            <div th:each="wp : ${wrongQuestions}" class="bg-white rounded-lg shadow-sm border p-6">
+            <div th:each="wp : ${wrongQuestions}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
                 <div class="flex justify-between items-start mb-4">
                     <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded" th:text="${wp.question.topic.name}">Topic</span>
                     <span class="text-xs text-gray-400" th:text="${#temporals.format(wp.answeredAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>

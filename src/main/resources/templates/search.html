@@ -8,6 +8,9 @@
     <!-- Tailwind CSS -->
     <th:block th:if="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     </th:block>
     <th:block th:unless="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
         <link rel="stylesheet" th:href="@{/css/main.css}">
@@ -16,9 +19,18 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     </style>
+<script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="flex items-center space-x-4">
@@ -50,7 +62,7 @@
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
                     搜尋結果
                 </h1>
-                <p class="text-gray-600">
+                <p class="text-gray-600 dark:text-gray-300">
                     關鍵字: "<span th:text="${keyword}" class="font-medium text-blue-600">-</span>"
                     | 總共 <span th:text="${totalElements}" class="font-medium">0</span> 個結果
                     | 第 <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> 頁
@@ -72,7 +84,7 @@
         <!-- Search Results -->
         <div class="space-y-4 mb-8">
             <div th:if="${results.empty}" class="bg-white rounded-lg border p-8 text-center">
-                <p class="text-gray-500">未找到相關題目</p>
+                <p class="text-gray-500 dark:text-gray-400">未找到相關題目</p>
                 <a href="/" class="text-blue-600 hover:underline mt-2 inline-block">返回首頁</a>
             </div>
             

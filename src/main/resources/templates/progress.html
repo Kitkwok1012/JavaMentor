@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - 學習進度 | Learning Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     </style>
+<script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
@@ -22,7 +34,11 @@
                     <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
                 </form>
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
                 <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？此操作不可復原。')" style="display:inline;">
                     <button type="submit" class="text-red-500 hover:text-red-700 text-sm">清除進度</button>
                 </form>
@@ -58,7 +74,7 @@
         </div>
         
         <div class="space-y-6">
-            <div th:each="p : ${progress}" class="bg-white rounded-lg shadow-sm border p-6">
+            <div th:each="p : ${progress}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-semibold text-lg" th:text="${p.topicName}">Topic Name</h3>
                     <span class="text-sm text-gray-500" th:text="${p.answeredQuestions} + '/' + ${p.totalQuestions} + ' 題'">5/10</span>
@@ -71,7 +87,7 @@
                 </div>
                 
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">準確率 | Accuracy</span>
+                    <span class="text-gray-500 dark:text-gray-400">準確率 | Accuracy</span>
                     <span th:class="${p.accuracy >= 80 ? 'text-green-600' : p.accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'}"
                           class="font-medium"
                           th:text="${#numbers.formatDecimal(p.accuracy, 1, 1)} + '%'">80%</span>

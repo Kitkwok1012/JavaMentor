@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaMentor - 學習</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
@@ -17,9 +20,53 @@
         .htmx-request .htmx-indicator { opacity: 1; }
         .htmx-request.htmx-indicator { opacity: 1; }
     </style>
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ignore if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // Number keys 1-9 for selecting options
+            if (e.key >= '1' && e.key <= '9') {
+                const index = parseInt(e.key) - 1;
+                const options = document.querySelectorAll('input[name="answer"]');
+                if (options[index]) {
+                    options[index].checked = true;
+                    e.preventDefault();
+                }
+            }
+            // Enter to submit
+            if (e.key === 'Enter') {
+                const form = document.getElementById('answerForm');
+                if (form) {
+                    // Let HTMX handle it
+                }
+            }
+            // N for next question (when showing result)
+            if (e.key === 'n' || e.key === 'N') {
+                const nextBtn = document.querySelector('a[href*="next"]');
+                if (nextBtn) {
+                    nextBtn.click();
+                }
+            }
+            // D for dark mode toggle
+            if (e.key === 'd' || e.key === 'D') {
+                toggleDarkMode();
+            }
+        });
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
@@ -30,8 +77,13 @@
                            class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
                 </form>
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">學習進度</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式 (D)">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -43,7 +95,7 @@
         <!-- Topic Header -->
         <div class="mb-8">
             <h1 class="text-2xl font-bold text-gray-900" th:text="${topic.name}">Topic Name</h1>
-            <p class="text-gray-500" th:text="${topic.description}">Description</p>
+            <p class="text-gray-500 dark:text-gray-400" th:text="${topic.description}">Description</p>
         </div>
         
         <!-- Completed State -->
@@ -60,7 +112,7 @@
         <!-- Question Section (HTMX target) -->
         <div id="answer-section" th:fragment="questionSection">
             <!-- Question - Dynamic Options -->
-            <div th:if="${question != null and (completed == null or not completed)}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
+            <div th:if="${question != null and (completed == null or not completed)}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
                 <div class="flex justify-between items-center mb-6">
                     <span class="text-sm text-gray-500">問題</span>
                     <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1" th:text="${question.difficulty == 1 ? '簡單' : question.difficulty == 2 ? '中等' : '困難'}">中等</span>
@@ -106,16 +158,21 @@
                     <!-- Submit with loading indicator -->
                     <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition relative">
                         <span class="htmx-indicator">提交中...</span>
-                        <span class="htmx-inverse">提交答案 | Submit Answer</span>
+                        <span class="htmx-inverse">提交答案 | Submit Answer (Enter)</span>
                     </button>
+                    
+                    <!-- Keyboard Shortcuts Hint -->
+                    <div class="mt-4 text-xs text-gray-400 dark:text-gray-500 text-center">
+                        快捷鍵: 1-9 選擇選項 | Enter 提交 | N 下一題 | D 深色模式
+                    </div>
                 </form>
             </div>
             
             <!-- Answer Result -->
-            <div th:if="${response}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
+            <div th:if="${response}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
                 <!-- Correct/Wrong Banner -->
                 <div th:class="${response.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}" 
-                     class="border rounded-lg p-4 mb-6">
+                     class="border dark:border-gray-600 rounded-lg p-4 mb-6 bg-gray-50 dark:bg-gray-700">
                     <div class="flex items-center">
                         <span class="text-2xl mr-3" th:text="${response.correct ? '✅' : '❌'}">✅</span>
                         <span th:class="${response.correct ? 'text-green-700' : 'text-red-700'}" 
