@@ -3,6 +3,7 @@ package com.javamentor.question.repository;
 import com.javamentor.question.entity.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,21 +13,26 @@ import java.util.List;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     
+    @EntityGraph(attributePaths = {"topic", "options"})
     List<Question> findByTopicTopicIdOrderByDisplayOrder(String topicId);
     
+    @EntityGraph(attributePaths = {"topic", "options"})
     List<Question> findByTopicTopicId(String topicId);
     
     /**
      * Find questions by multiple topic IDs - avoids N+1 query
      */
+    @EntityGraph(attributePaths = {"topic", "options"})
     List<Question> findByTopicTopicIdIn(List<String> topicIds);
     
     @Query("SELECT q.topic.topicId, COUNT(q) FROM Question q GROUP BY q.topic.topicId")
     List<Object[]> countAllGroupedByTopic();
     
+    @EntityGraph(attributePaths = {"topic", "options"})
     @Query("SELECT q FROM Question q WHERE q.id NOT IN :excludeIds")
     List<Question> findExcluding(@Param("excludeIds") java.util.Set<Long> excludeIds);
     
+    @EntityGraph(attributePaths = {"topic", "options"})
     @Query("SELECT q FROM Question q WHERE q.topic IS NOT NULL")
     List<Question> findAllQuestionsWithTopic();
     
@@ -34,14 +40,16 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     
     /**
      * Search questions by keyword in question text or explanation
-     * Case-insensitive search
+     * Case-insensitive search - with entity graph to avoid N+1
      */
+    @EntityGraph(attributePaths = {"topic", "options"})
     @Query("SELECT q FROM Question q WHERE LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Question> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
     
     /**
      * Search questions by keyword in specific topic
      */
+    @EntityGraph(attributePaths = {"topic", "options"})
     @Query("SELECT q FROM Question q WHERE q.topic.topicId = :topicId AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Question> searchByKeywordAndTopic(@Param("keyword") String keyword, @Param("topicId") String topicId, Pageable pageable);
 }
