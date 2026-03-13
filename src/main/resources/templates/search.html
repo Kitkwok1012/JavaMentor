@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜尋結果 - JavaMentor</title>
+    
+    <!-- Tailwind CSS -->
+    <th:block th:if="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
+        <script src="https://cdn.tailwindcss.com"></script>
+    </th:block>
+    <th:block th:unless="${@environment.getProperty('app.profile', 'prod') == 'dev'}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+    </th:block>
+    
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
+            <div class="flex items-center space-x-4">
+                <!-- Search Form -->
+                <form th:action="@{/search}" method="get" class="flex">
+                    <input type="text" name="keyword" th:value="${keyword}" 
+                           placeholder="搜尋題目..."
+                           class="border rounded-l px-3 py-1 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
+                </form>
+                
+                <!-- Language Selector -->
+                <select onchange="window.location.href=this.value" class="text-sm border rounded px-2 py-1">
+                    <option value="?lang=en" th:selected="${#locale.language == 'en'}">English</option>
+                    <option value="?lang=zh" th:selected="${#locale.language == 'zh' && #locale.country != 'TW'}">简体中文</option>
+                    <option value="?lang=zh_TW" th:selected="${#locale.country == 'TW'}">繁體中文</option>
+                </select>
+                
+                <a href="/progress" class="text-gray-600 hover:text-blue-600 text-sm">學習進度</a>
+                <a href="/wrong" class="text-gray-600 hover:text-blue-600 text-sm">錯題簿</a>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Search Header -->
+        <div class="mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                    搜尋結果
+                </h1>
+                <p class="text-gray-600">
+                    關鍵字: "<span th:text="${keyword}" class="font-medium text-blue-600">-</span>"
+                    | 總共 <span th:text="${totalElements}" class="font-medium">0</span> 個結果
+                    | 第 <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> 頁
+                </p>
+            </div>
+            <!-- Page Size Selector -->
+            <form th:action="@{/search}" method="get" class="flex items-center gap-2">
+                <input type="hidden" name="keyword" th:value="${keyword}">
+                <label class="text-sm text-gray-600">每頁:</label>
+                <select name="size" onchange="this.form.submit()" 
+                        class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="10" th:selected="${pageSize == 10 || pageSize == null}">10</option>
+                    <option value="50" th:selected="${pageSize == 50}">50</option>
+                    <option value="100" th:selected="${pageSize == 100}">100</option>
+                </select>
+            </form>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="space-y-4 mb-8">
+            <div th:if="${results.empty}" class="bg-white rounded-lg border p-8 text-center">
+                <p class="text-gray-500">未找到相關題目</p>
+                <a href="/" class="text-blue-600 hover:underline mt-2 inline-block">返回首頁</a>
+            </div>
+            
+            <div th:each="q : ${results}" class="bg-white rounded-lg border p-6 hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded" th:text="${q.topicName}">Topic</span>
+                        <span class="text-xs ml-2 text-gray-400" th:text="'#' + ${q.id}">#1</span>
+                        <span class="text-xs ml-2" th:classappend="${q.difficulty == 1} ? 'bg-green-100 text-green-600' : (${q.difficulty == 2} ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600')" 
+                              th:text="${q.difficulty == 1} ? '簡單' : (${q.difficulty == 2} ? '中等' : '困難')">難度</span>
+                    </div>
+                </div>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-2" th:text="${q.question}">Question</h3>
+                
+                <div class="flex items-center justify-end">
+                    <a th:href="@{/learn/{topicId}(topicId=${q.topicId})}" 
+                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        開始練習
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div th:if="${totalPages > 1}" class="flex justify-center items-center space-x-2">
+            <!-- Previous -->
+            <a th:if="${hasPrevious}" 
+               th:href="@{/search(keyword=${keyword}, page=${currentPage - 1}, size=${pageSize})}"
+               class="px-3 py-1 border rounded hover:bg-gray-50">上一頁</a>
+            <span th:unless="${hasPrevious}" class="px-3 py-1 text-gray-400">上一頁</span>
+            
+            <!-- Page Numbers -->
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i == currentPage}" 
+                   class="px-3 py-1 bg-blue-600 text-white rounded" 
+                   th:text="${i + 1}">1</a>
+                <a th:unless="${i == currentPage}" 
+                   th:href="@{/search(keyword=${keyword}, page=${i}, size=${pageSize})}"
+                   class="px-3 py-1 border rounded hover:bg-gray-50"
+                   th:text="${i + 1}">1</a>
+            </th:block>
+            
+            <!-- Next -->
+            <a th:if="${hasNext}" 
+               th:href="@{/search(keyword=${keyword}, page=${currentPage + 1}, size=${pageSize})}"
+               class="px-3 py-1 border rounded hover:bg-gray-50">下一頁</a>
+            <span th:unless="${hasNext}" class="px-3 py-1 text-gray-400">下一頁</span>
+        </div>
+    </main>
+    
+    <footer class="text-center text-gray-500 text-sm py-8">
+        Java面試互動學習平台
+    </footer>
+</body>
+</html>

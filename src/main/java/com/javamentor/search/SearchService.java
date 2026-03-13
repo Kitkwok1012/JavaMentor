@@ -6,6 +6,8 @@ import com.javamentor.question.repository.QuestionRepository;
 import com.javamentor.question.service.QuestionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,38 +32,34 @@ public class SearchService {
     }
 
     /**
-     * 搜尋題目 by keyword
+     * 搜尋題目 by keyword with pagination
      */
     @Transactional(readOnly = true)
-    public List<QuestionDto> search(String keyword) {
+    public Page<QuestionDto> search(String keyword, Pageable pageable) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return Collections.emptyList();
+            return Page.empty(pageable);
         }
         
-        log.info("Searching questions with keyword: {}", keyword);
+        log.info("Searching questions with keyword: {}, page: {}, size: {}", keyword, pageable.getPageNumber(), pageable.getPageSize());
         
-        List<Question> results = questionRepository.searchByKeyword(keyword.trim());
+        Page<Question> results = questionRepository.searchByKeyword(keyword.trim(), pageable);
         
-        return results.stream()
-                .map(questionService::toDto)
-                .collect(Collectors.toList());
+        return results.map(questionService::toDto);
     }
 
     /**
-     * 搜尋題目 by keyword in specific topic
+     * 搜尋題目 by keyword in specific topic with pagination
      */
     @Transactional(readOnly = true)
-    public List<QuestionDto> searchByTopic(String keyword, String topicId) {
+    public Page<QuestionDto> searchByTopic(String keyword, String topicId, Pageable pageable) {
         if (keyword == null || keyword.trim().isEmpty() || topicId == null) {
-            return Collections.emptyList();
+            return Page.empty(pageable);
         }
         
-        log.info("Searching questions with keyword: {} in topic: {}", keyword, topicId);
+        log.info("Searching questions with keyword: {} in topic: {}, page: {}, size: {}", keyword, topicId, pageable.getPageNumber(), pageable.getPageSize());
         
-        List<Question> results = questionRepository.searchByKeywordAndTopic(keyword.trim(), topicId);
+        Page<Question> results = questionRepository.searchByKeywordAndTopic(keyword.trim(), topicId, pageable);
         
-        return results.stream()
-                .map(questionService::toDto)
-                .collect(Collectors.toList());
+        return results.map(questionService::toDto);
     }
 }

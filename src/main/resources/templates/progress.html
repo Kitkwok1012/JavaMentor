@@ -13,7 +13,14 @@
     <nav class="bg-white shadow-sm border-b">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
-            <div class="space-x-4">
+            <div class="space-x-4 flex items-center">
+                <!-- Search Form -->
+                <form th:action="@{/search}" method="get" class="flex">
+                    <input type="text" name="keyword" 
+                           placeholder="搜尋題目..."
+                           class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
+                </form>
                 <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
                 <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
                 <form th:action="@{/reset-all}" method="POST" onsubmit="return confirm('確定要清除所有學習進度嗎？此操作不可復原。')" style="display:inline;">

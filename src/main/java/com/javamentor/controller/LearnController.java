@@ -7,6 +7,7 @@ import com.javamentor.progress.service.ProgressService;
 import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.question.service.QuestionService;
 import com.javamentor.recommend.RecommendService;
+import com.javamentor.search.SearchService;
 import com.javamentor.session.service.SessionService;
 import com.javamentor.service.AnswerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,17 +38,20 @@ public class LearnController {
     private final ProgressService progressService;
     private final AnswerService answerService;
     private final RecommendService recommendService;
+    private final SearchService searchService;
 
     public LearnController(QuestionService questionService,
                         SessionService sessionService,
                         ProgressService progressService,
                         AnswerService answerService,
-                        RecommendService recommendService) {
+                        RecommendService recommendService,
+                        SearchService searchService) {
         this.questionService = questionService;
         this.sessionService = sessionService;
         this.progressService = progressService;
         this.answerService = answerService;
         this.recommendService = recommendService;
+        this.searchService = searchService;
     }
 
     private String getSessionId(HttpServletRequest request) {
@@ -189,5 +197,33 @@ public class LearnController {
         sessionService.deleteSession(sessionId);
         progressService.resetAllProgress(sessionId);
         return "redirect:/";
+    }
+
+    @Operation(summary = "搜尋頁面", description = "顯示搜尋結果")
+    @GetMapping("/search")
+    public String search(
+            @Parameter(description = "搜尋關鍵字") @RequestParam String keyword,
+            @Parameter(description = "頁碼") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "每頁數量") @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        
+        // Validate size - only allow 10, 50, 100
+        if (size != 10 && size != 50 && size != 100) {
+            size = 10;
+        }
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<QuestionDto> results = searchService.search(keyword, pageable);
+        
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("results", results.getContent());
+        model.addAttribute("currentPage", results.getNumber());
+        model.addAttribute("totalPages", results.getTotalPages());
+        model.addAttribute("totalElements", results.getTotalElements());
+        model.addAttribute("hasPrevious", results.hasPrevious());
+        model.addAttribute("hasNext", results.hasNext());
+        model.addAttribute("pageSize", size);
+        
+        return "search";
     }
 }
