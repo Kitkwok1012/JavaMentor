@@ -110,7 +110,7 @@
         </div>
         
         <!-- Question Section (HTMX target) -->
-        <div id="answer-section" th:fragment="questionSection">
+        <div id="answer-section" th:fragment="questionFragment">
             <!-- Question - Dynamic Options -->
             <div th:if="${question != null and (completed == null or not completed)}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
                 <div class="flex justify-between items-center mb-6">
@@ -201,13 +201,11 @@
                 
                 <!-- Next Question Button -->
                 <div class="flex gap-4">
-                    <a th:href="@{/question/next(topicId=${topicId})}" 
-                       target="_top"
-                       rel="prefetch"
-                       class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                    <button th:attr="hx-get=@{/question/next-fragment(topicId=${topicId})}, hx-target='#answer-section', hx-swap='outerHTML'"
+                            class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
                         下一題 | Next Question
-                    </a>
-                    <a href="/" target="_top" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
+                    </button>
+                    <a href="/" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
                         退出 | Exit
                     </a>
                 </div>

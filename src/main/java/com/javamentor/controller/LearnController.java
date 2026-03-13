@@ -156,6 +156,35 @@ public class LearnController {
 
         return "learn";
     }
+    
+    /**
+     * HTMX fragment endpoint for next question - returns only the question section
+     */
+    @GetMapping("/question/next-fragment")
+    public String getNextQuestionFragment(
+            @RequestParam @NotBlank String topicId, 
+            Model model, HttpServletRequest request) {
+        String sessionId = getSessionId(request);
+        
+        sessionService.moveToNextQuestion(sessionId, topicId);
+        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+        
+        QuestionDto question = null;
+        if (questionIdOpt.isPresent()) {
+            question = questionService.getQuestionById(questionIdOpt.get());
+        }
+        
+        var topic = questionService.getTopicById(topicId);
+        model.addAttribute("topic", topic);
+        model.addAttribute("question", question);
+        model.addAttribute("topicId", topicId);
+
+        if (question == null) {
+            model.addAttribute("completed", true);
+        }
+
+        return "learn :: questionFragment";
+    }
 
     @Operation(summary = "提交答案", description = "提交問題答案並獲取結果")
     @PostMapping("/answer")
