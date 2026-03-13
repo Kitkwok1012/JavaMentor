@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
     @Index(name = "idx_progress_session_id", columnList = "session_id"),
     @Index(name = "idx_progress_question_id", columnList = "question_id"),
     @Index(name = "idx_progress_is_correct", columnList = "is_correct"),
-    @Index(name = "idx_progress_answered_at", columnList = "answered_at")
+    @Index(name = "idx_progress_answered_at", columnList = "answered_at"),
+    @Index(name = "idx_progress_session_question", columnList = "session_id, question_id", unique = true)
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserProgress {
