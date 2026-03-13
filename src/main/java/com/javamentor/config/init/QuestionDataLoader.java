@@ -51,9 +51,6 @@ public class QuestionDataLoader implements CommandLineRunner {
         // Load interview scenario deep questions
         allTopicsData.addAll(loadTopicsFromJson("data/questions-interview-scenario.json"));
         
-        // Load big tech interview questions
-        allTopicsData.addAll(loadTopicsFromJson("data/questions-big-tech.json"));
-        
         // Load learning roadmap questions
         allTopicsData.addAll(loadTopicsFromJson("data/questions-learning-roadmap.json"));
         
