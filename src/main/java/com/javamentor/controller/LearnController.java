@@ -207,9 +207,99 @@ public class LearnController {
         List<TopicProgressDto> progress = progressService.getTopicProgress(sessionId);
         Map<String, Object> stats = progressService.getUserStats(sessionId);
         
+        // Build skill tree data
+        Map<String, Object> skillTree = buildSkillTree(progress);
+        
         model.addAttribute("progress", progress);
         model.addAttribute("stats", stats);
+        model.addAttribute("skillTree", skillTree);
         return "progress";
+    }
+    
+    /**
+     * Build skill tree structure from progress data
+     */
+    private Map<String, Object> buildSkillTree(List<TopicProgressDto> progress) {
+        // Convert progress list to map for quick lookup
+        Map<String, TopicProgressDto> progressMap = new java.util.HashMap<>();
+        for (TopicProgressDto p : progress) {
+            progressMap.put(p.getTopicId(), p);
+        }
+        
+        // Define skill tree structure
+        java.util.List<java.util.Map<String, Object>> tree = java.util.List.of(
+            java.util.Map.of("id", "java-basic", "name", "Java基礎", "icon", "☕", "children", 
+                java.util.List.of(java.util.Map.of("id", "oop", "name", "OOP", "icon", "🔷"),
+                                  java.util.Map.of("id", "collection", "name", "集合", "icon", "📦"),
+                                  java.util.Map.of("id", "exception", "name", "異常", "icon", "⚠️"))),
+            java.util.Map.of("id", "java-advance", "name", "Java進階", "icon", "🚀", "children",
+                java.util.List.of(java.util.Map.of("id", "thread", "name", "多線程", "icon", "🧵"),
+                                  java.util.Map.of("id", "jvm", "name", "JVM", "icon", "⚙️"),
+                                  java.util.Map.of("id", "io", "name", "IO/NIO", "icon", "📚"))),
+            java.util.Map.of("id", "web", "name", "Web開發", "icon", "🌐", "children",
+                java.util.List.of(java.util.Map.of("id", "servlet", "name", "Servlet", "icon", "🔌"),
+                                  java.util.Map.of("id", "spring", "name", "Spring", "icon", "🌱"))),
+            java.util.Map.of("id", "database", "name", "數據庫", "icon", "🗄️", "children",
+                java.util.List.of(java.util.Map.of("id", "mysql", "name", "MySQL", "icon", "🐬"),
+                                  java.util.Map.of("id", "jdbc", "name", "JDBC", "icon", "🔗"))),
+            java.util.Map.of("id", "redis", "name", "緩存", "icon", "⚡", "children",
+                java.util.List.of(java.util.Map.of("id", "redis-basic", "name", "Redis", "icon", "🔴"))),
+            java.util.Map.of("id", "distributed", "name", "分散式", "icon", "🌍", "children",
+                java.util.List.of(java.util.Map.of("id", "microservice", "name", "微服務", "icon", "🏗️"),
+                                  java.util.Map.of("id", "distributed-senior", "name", "分散式系統", "icon", "🌐")))
+        );
+        
+        // Calculate progress for each node
+        java.util.List<java.util.Map<String, Object>> enrichedTree = new java.util.ArrayList<>();
+        for (java.util.Map<String, Object> branch : tree) {
+            java.util.Map<String, Object> enriched = new java.util.HashMap<>(branch);
+            String branchId = (String) branch.get("id");
+            enriched.put("progress", calculateBranchProgress(branchId, progressMap));
+            
+            Object childrenObj = branch.get("children");
+            if (childrenObj instanceof java.util.List) {
+                java.util.List<?> childrenList = (java.util.List<?>) childrenObj;
+                java.util.List<java.util.Map<String, Object>> enrichedChildren = new java.util.ArrayList<>();
+                for (Object childObj : childrenList) {
+                    if (childObj instanceof java.util.Map) {
+                        java.util.Map<String, Object> child = (java.util.Map<String, Object>) childObj;
+                        java.util.Map<String, Object> enrichedChild = new java.util.HashMap<>(child);
+                        String childId = (String) child.get("id");
+                        TopicProgressDto childProgress = progressMap.get(childId);
+                        if (childProgress != null && childProgress.getTotalQuestions() > 0) {
+                            enrichedChild.put("answered", childProgress.getAnsweredQuestions());
+                            enrichedChild.put("total", childProgress.getTotalQuestions());
+                            enrichedChild.put("percent", childProgress.getAnsweredQuestions() * 100 / childProgress.getTotalQuestions());
+                        } else {
+                            enrichedChild.put("answered", 0);
+                            enrichedChild.put("total", 0);
+                            enrichedChild.put("percent", 0);
+                        }
+                        enrichedChildren.add(enrichedChild);
+                    }
+                }
+                enriched.put("children", enrichedChildren);
+            }
+            enrichedTree.add(enriched);
+        }
+        
+        return java.util.Map.of("tree", enrichedTree, "totalProgress", calculateTotalProgress(progressMap));
+    }
+    
+    private int calculateBranchProgress(String branchId, Map<String, TopicProgressDto> progressMap) {
+        // Simple calculation - can be refined based on actual topic IDs
+        return 0;
+    }
+    
+    private int calculateTotalProgress(Map<String, TopicProgressDto> progressMap) {
+        long totalAnswered = 0;
+        long totalQuestions = 0;
+        for (TopicProgressDto p : progressMap.values()) {
+            totalAnswered += p.getAnsweredQuestions();
+            totalQuestions += p.getTotalQuestions();
+        }
+        if (totalQuestions == 0) return 0;
+        return (int) (totalAnswered * 100 / totalQuestions);
     }
 
     @Operation(summary = "重置 Topic 進度", description = "清除特定 Topic 既學習進度")

@@ -8,8 +8,152 @@
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* Skill Tree Styles */
+        .skill-tree {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .skill-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .skill-level-1 {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .skill-level-2 {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+        }
+        
+        .skill-node {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .skill-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .skill-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .skill-node.locked .skill-icon {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
+        
+        .skill-node.completed .skill-icon {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+        
+        .skill-node.in-progress .skill-icon {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .skill-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .dark .skill-label {
+            color: #d1d5db;
+        }
+        
+        .skill-progress {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        /* Connection Lines */
+        .skill-connector {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, #9ca3af, #d1d5db);
+            z-index: 0;
+        }
+        
+        .skill-connector-h {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, #9ca3af, #d1d5db);
+            z-index: 0;
+        }
+        
+        /* Progress Ring */
+        .progress-ring {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 76px;
+            height: 76px;
+            border-radius: 18px;
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        /* Color variants */
+        .bg-java { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .bg-web { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-db { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .bg-cache { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .bg-dist { background: linear-gradient(135deg, #10b981, #059669); }
+        
+        .dark .bg-java { background: linear-gradient(135deg, #fb923c, #f97316); }
+        .dark .bg-web { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+        .dark .bg-db { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+        .dark .bg-cache { background: linear-gradient(135deg, #f87171, #ef4444); }
+        .dark .bg-dist { background: linear-gradient(135deg, #34d399, #10b981); }
     </style>
 <script>
         function toggleDarkMode() {
@@ -69,6 +213,175 @@
                 <div>
                     <div class="text-2xl font-bold text-purple-600" th:text="${stats.accuracy}">0%</div>
                     <div class="text-sm text-gray-500">正確率 | Accuracy</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Skill Tree Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <span class="mr-2">🌳</span> 我的技能樹 | My Skill Tree
+            </h2>
+            
+            <!-- Skill Tree Visualization -->
+            <div class="skill-tree overflow-x-auto">
+                <div class="skill-level-1">
+                    <!-- Java Basic -->
+                    <div class="skill-branch">
+                        <div class="skill-node" 
+                             th:class="${progress.?[topicId == 'java-basic'].[0].answeredQuestions > 0].size() > 0 ? 'in-progress' : ''}">
+                            <div class="skill-icon bg-java">☕</div>
+                            <div class="skill-label">Java 基礎</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='oop')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'oop'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'oop'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-java">🔷</div>
+                                <div class="skill-label">OOP</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'oop'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'oop'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'oop'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                            <a th:href="@{/learn/{id}(id='collection')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'collection'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'collection'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-java">📦</div>
+                                <div class="skill-label">集合框架</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'collection'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'collection'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'collection'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                            <a th:href="@{/learn/{id}(id='exception')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'exception'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'exception'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-java">⚠️</div>
+                                <div class="skill-label">異常處理</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'exception'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'exception'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'exception'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Java Advance -->
+                    <div class="skill-branch">
+                        <div class="skill-node">
+                            <div class="skill-icon bg-java">🚀</div>
+                            <div class="skill-label">Java 進階</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='thread')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'thread'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'thread'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-java">🧵</div>
+                                <div class="skill-label">多線程</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'thread'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'thread'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'thread'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                            <a th:href="@{/learn/{id}(id='jvm')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'jvm'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'jvm'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-java">⚙️</div>
+                                <div class="skill-label">JVM</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'jvm'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'jvm'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'jvm'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Web -->
+                    <div class="skill-branch">
+                        <div class="skill-node">
+                            <div class="skill-icon bg-web">🌐</div>
+                            <div class="skill-label">Web 開發</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='servlet')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'servlet'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'servlet'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-web">🔌</div>
+                                <div class="skill-label">Servlet</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'servlet'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'servlet'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'servlet'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                            <a th:href="@{/learn/{id}(id='spring')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'spring'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'spring'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-web">🌱</div>
+                                <div class="skill-label">Spring</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'spring'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'spring'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'spring'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Database -->
+                    <div class="skill-branch">
+                        <div class="skill-node">
+                            <div class="skill-icon bg-db">🗄️</div>
+                            <div class="skill-label">數據庫</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='mysql')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'mysql'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'mysql'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-db">🐬</div>
+                                <div class="skill-label">MySQL</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'mysql'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'mysql'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'mysql'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Redis -->
+                    <div class="skill-branch">
+                        <div class="skill-node">
+                            <div class="skill-icon bg-cache">⚡</div>
+                            <div class="skill-label">緩存</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='redis-basic')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'redis-basic'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'redis-basic'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-cache">🔴</div>
+                                <div class="skill-label">Redis</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'redis-basic'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'redis-basic'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'redis-basic'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Distributed -->
+                    <div class="skill-branch">
+                        <div class="skill-node">
+                            <div class="skill-icon bg-dist">🌍</div>
+                            <div class="skill-label">分散式</div>
+                        </div>
+                        <div class="skill-level-2 mt-4">
+                            <a th:href="@{/learn/{id}(id='microservice')}" class="skill-node"
+                               th:class="${progress.?[topicId == 'microservice'].[0].answeredQuestions > 0}.size() > 0 ? (${progress.?[topicId == 'microservice'].[0].accuracy} >= 80 ? 'completed' : 'in-progress') : ''">
+                                <div class="skill-icon bg-dist">🏗️</div>
+                                <div class="skill-label">微服務</div>
+                                <div class="skill-progress" th:if="${progress.?[topicId == 'microservice'].[0]}">
+                                    <span th:text="${progress.?[topicId == 'microservice'].[0].answeredQuestions}">0</span>/<span th:text="${progress.?[topicId == 'microservice'].[0].totalQuestions}">0</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="flex justify-center gap-6 mt-6 pt-4 border-t dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #f97316, #ea580c);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">未開始</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">進行中</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">已完成</span>
                 </div>
             </div>
         </div>
