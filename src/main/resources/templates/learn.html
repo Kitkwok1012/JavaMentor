@@ -201,7 +201,9 @@
                 
                 <!-- Next Question Button -->
                 <div class="flex gap-4">
-                    <a th:href="@{/question/next(topicId=${topicId})}" target="_top"
+                    <a th:href="@{/question/next(topicId=${topicId})}" 
+                       target="_top"
+                       rel="prefetch"
                        class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
                         下一題 | Next Question
                     </a>
