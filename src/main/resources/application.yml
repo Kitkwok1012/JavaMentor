@@ -1,6 +1,8 @@
 spring:
   application:
     name: javamentor
+  jpa:
+    open-in-view: false  # Disable to prevent N+1 in view layer
   
   datasource:
     url: jdbc:h2:${DB_PATH:-file:./data/javamentor};DB_CLOSE_ON_EXIT=FALSE

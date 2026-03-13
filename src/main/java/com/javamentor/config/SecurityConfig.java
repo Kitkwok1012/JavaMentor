@@ -10,7 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
  * Security Configuration
  * 
  * Features:
- * - CSRF protection enabled (recommended for production)
+ * - CSRF protection enabled for web endpoints
+ * - CSRF disabled for REST API endpoints (/api/**)
  * - No authentication (personal use)
  * - All endpoints accessible
  */
@@ -21,9 +22,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Enable CSRF (recommended for production)
+            // CSRF: enable for web, disable for API
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/h2-console/**")  // Ignore H2 console
+                .ignoringRequestMatchers("/api/**")  // REST APIs use token/session auth
             )
             // Allow all requests (personal use, no authentication)
             .authorizeHttpRequests(auth -> auth

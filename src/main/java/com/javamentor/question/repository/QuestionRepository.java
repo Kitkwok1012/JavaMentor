@@ -40,16 +40,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     
     /**
      * Search questions by keyword in question text or explanation
-     * Case-insensitive search - with entity graph to avoid N+1
+     * Case-insensitive search - use JOIN FETCH instead of EntityGraph for proper pagination
      */
-    @EntityGraph(attributePaths = {"topic", "options"})
-    @Query("SELECT q FROM Question q WHERE LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Question> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
     
     /**
      * Search questions by keyword in specific topic
      */
-    @EntityGraph(attributePaths = {"topic", "options"})
-    @Query("SELECT q FROM Question q WHERE q.topic.topicId = :topicId AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE q.topic.topicId = :topicId AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Question> searchByKeywordAndTopic(@Param("keyword") String keyword, @Param("topicId") String topicId, Pageable pageable);
 }
