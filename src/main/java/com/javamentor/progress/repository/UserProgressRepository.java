@@ -13,6 +13,7 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
 
     List<UserProgress> findBySessionIdOrderByAnsweredAtDesc(@Param("sessionId") String sessionId);
 
+    @Query("SELECT DISTINCT p FROM UserProgress p LEFT JOIN FETCH p.question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE p.sessionId = :sessionId AND p.isCorrect = false ORDER BY p.answeredAt DESC")
     List<UserProgress> findBySessionIdAndIsCorrectFalseOrderByAnsweredAtDesc(@Param("sessionId") String sessionId);
 
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId")
