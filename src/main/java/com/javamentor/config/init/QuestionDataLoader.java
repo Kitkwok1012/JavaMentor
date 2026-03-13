@@ -45,6 +45,9 @@ public class QuestionDataLoader implements CommandLineRunner {
         // Load senior questions
         allTopicsData.addAll(loadTopicsFromJson("data/questions-senior.json"));
         
+        // Load advanced questions (more multi-select)
+        allTopicsData.addAll(loadTopicsFromJson("data/questions-advanced.json"));
+        
         // Create topics
         Map<String, Topic> topicMap = new HashMap<>();
         for (Map<String, Object> t : allTopicsData) {
