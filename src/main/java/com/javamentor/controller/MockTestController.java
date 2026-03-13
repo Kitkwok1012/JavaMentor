@@ -13,7 +13,7 @@ import java.util.Map;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/mock")
+@RequestMapping("/api/v1/mock")
 public class MockTestController {
     
     private final MockTestService mockTestService;

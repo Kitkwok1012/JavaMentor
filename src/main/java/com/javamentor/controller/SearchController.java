@@ -17,8 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/search")
-@Tag(name = "Search API", description = "題目搜尋 API")
+@RequestMapping("/api/v1/search")
+@Tag(name = "Search API", description = "題目搜尋 API (v1)")
 @Validated
 public class SearchController {
     

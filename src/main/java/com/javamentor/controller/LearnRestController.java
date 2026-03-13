@@ -17,11 +17,11 @@ import java.util.List;
  * Learn REST API Controller
  * Handles REST endpoints for learning features
  * 
- * All endpoints are under /api/learn/**
+ * All endpoints are under /api/v1/learn/**
  */
 @RestController
-@RequestMapping("/api/learn")
-@Tag(name = "Learn API", description = "學習相關 REST API")
+@RequestMapping("/api/v1/learn")
+@Tag(name = "Learn API", description = "學習相關 REST API (v1)")
 @Validated
 public class LearnRestController {
 
