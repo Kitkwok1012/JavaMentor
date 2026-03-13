@@ -27,8 +27,16 @@
         }
         
         .skill-node.locked .skill-icon { opacity: 0.4; filter: grayscale(1); }
-        .skill-node.completed .skill-icon { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
-        .skill-node.in-progress .skill-icon { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        .skill-node.completed .skill-icon, 
+        .skill-icon.completed-icon { 
+            box-shadow: 0 0 25px 5px rgba(34, 197, 94, 0.8) !important;
+            border: 3px solid #22c55e;
+        }
+        .skill-node.in-progress .skill-icon, 
+        .skill-icon.in-progress-icon { 
+            box-shadow: 0 0 25px 5px rgba(59, 130, 246, 0.8) !important;
+            border: 3px solid #3b82f6;
+        }
         
         .skill-label { margin-top: 6px; font-size: 11px; font-weight: 500; color: #374151; text-align: center; }
         .skill-progress { font-size: 9px; color: #6b7280; margin-top: 2px; }
@@ -183,6 +191,7 @@
     <script th:inline="javascript">
         // Skill tree progress from server
         var progressData = /*[[${progress}]]*/ [];
+        console.log('Progress data:', progressData);
         
         // Update skill tree nodes based on actual progress
         progressData.forEach(function(p) {
@@ -190,16 +199,21 @@
             var progId = 'prog-' + p.topicId;
             var node = document.getElementById(nodeId);
             var prog = document.getElementById(progId);
+            var icon = node ? node.querySelector('.skill-icon') : null;
             
             if (node && prog) {
                 if (p.answeredQuestions > 0 && p.totalQuestions > 0) {
                     var percent = Math.round(p.answeredQuestions * 100 / p.totalQuestions);
                     prog.textContent = p.answeredQuestions + '/' + p.totalQuestions;
                     
+                    console.log('Topic:', p.topicId, 'Percent:', percent);
+                    
                     if (percent >= 80) {
                         node.classList.add('completed');
+                        if (icon) icon.classList.add('completed-icon');
                     } else {
                         node.classList.add('in-progress');
+                        if (icon) icon.classList.add('in-progress-icon');
                     }
                 } else {
                     prog.textContent = '未開始';
