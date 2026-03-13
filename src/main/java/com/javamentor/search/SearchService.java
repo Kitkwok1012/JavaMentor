@@ -31,6 +31,8 @@ public class SearchService {
         this.questionService = questionService;
     }
 
+    private static final int MAX_LOG_LENGTH = 50;
+    
     /**
      * 搜尋題目 by keyword with pagination
      */
@@ -40,9 +42,13 @@ public class SearchService {
             return Page.empty(pageable);
         }
         
-        log.info("Searching questions with keyword: {}, page: {}, size: {}", keyword, pageable.getPageNumber(), pageable.getPageSize());
+        String sanitizedKeyword = keyword.trim();
+        log.info("Searching questions with keyword: {}, page: {}, size: {}", 
+                truncateForLog(sanitizedKeyword), 
+                pageable.getPageNumber(), 
+                pageable.getPageSize());
         
-        Page<Question> results = questionRepository.searchByKeyword(keyword.trim(), pageable);
+        Page<Question> results = questionRepository.searchByKeyword(sanitizedKeyword, pageable);
         
         return results.map(questionService::toDto);
     }
@@ -56,10 +62,27 @@ public class SearchService {
             return Page.empty(pageable);
         }
         
-        log.info("Searching questions with keyword: {} in topic: {}, page: {}, size: {}", keyword, topicId, pageable.getPageNumber(), pageable.getPageSize());
+        String sanitizedKeyword = keyword.trim();
+        log.info("Searching questions with keyword: {} in topic: {}, page: {}, size: {}", 
+                truncateForLog(sanitizedKeyword), 
+                topicId, 
+                pageable.getPageNumber(), 
+                pageable.getPageSize());
         
-        Page<Question> results = questionRepository.searchByKeywordAndTopic(keyword.trim(), topicId, pageable);
+        Page<Question> results = questionRepository.searchByKeywordAndTopic(sanitizedKeyword, topicId, pageable);
         
         return results.map(questionService::toDto);
+    }
+    
+    /**
+     * Truncate keyword for logging to avoid log bloat
+     */
+    private String truncateForLog(String input) {
+        if (input == null) {
+            return "";
+        }
+        return input.length() > MAX_LOG_LENGTH 
+            ? input.substring(0, MAX_LOG_LENGTH) + "..." 
+            : input;
     }
 }
