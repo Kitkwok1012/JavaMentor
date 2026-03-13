@@ -12,6 +12,7 @@ public final class AppConstants {
     // ==================== Session ====================
     
     public static final String SESSION_COOKIE_NAME = "JM_SESSION";
+    public static final int SESSION_COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60; // 1 year in seconds
     
     // ==================== Difficulty Levels ====================
     

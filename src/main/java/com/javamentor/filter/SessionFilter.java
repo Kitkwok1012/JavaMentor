@@ -39,7 +39,7 @@ public class SessionFilter implements Filter {
             Cookie cookie = new Cookie(AppConstants.SESSION_COOKIE_NAME, sessionId);
             cookie.setPath("/");
             cookie.setHttpOnly(true);
-            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+            cookie.setMaxAge(AppConstants.SESSION_COOKIE_MAX_AGE_SECONDS);
             httpResponse.addCookie(cookie);
         }
 
