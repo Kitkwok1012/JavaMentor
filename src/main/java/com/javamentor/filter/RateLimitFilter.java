@@ -80,17 +80,30 @@ public class RateLimitFilter implements Filter {
         int currentCount = info.count.incrementAndGet();
 
         if (currentCount > requestsPerMinute) {
-            httpResponse.setStatus(429); // Too Many Requests
-            httpResponse.setContentType("application/json");
-            httpResponse.setCharacterEncoding("UTF-8");
+            // Check if it's an HTMX request - return special response
+            String htmxRequest = httpRequest.getHeader("HX-Request");
             
-            Map<String, Object> error = Map.of(
-                "error", "Rate limit exceeded",
-                "message", "Too many requests. Please try again later.",
-                "retryAfter", 60
-            );
-            
-            objectMapper.writeValue(httpResponse.getWriter(), error);
+            if ("true".equals(htmxRequest)) {
+                // HTMX: return a redirect to trigger client-side retry
+                httpResponse.setStatus(429);
+                httpResponse.setContentType("text/html");
+                httpResponse.setCharacterEncoding("UTF-8");
+                httpResponse.setHeader("HX-Redirect", httpRequest.getRequestURI() + "?retry=1");
+                httpResponse.getWriter().write("<html><body>Rate limit exceeded. Retrying...</body></html>");
+            } else {
+                // Regular request: return JSON error
+                httpResponse.setStatus(429);
+                httpResponse.setContentType("application/json");
+                httpResponse.setCharacterEncoding("UTF-8");
+                
+                Map<String, Object> error = Map.of(
+                    "error", "Rate limit exceeded",
+                    "message", "Too many requests. Please try again later.",
+                    "retryAfter", 60
+                );
+                
+                objectMapper.writeValue(httpResponse.getWriter(), error);
+            }
             return;
         }
 

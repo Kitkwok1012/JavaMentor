@@ -21,17 +21,8 @@ public class SessionFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // Check if user already has session cookie
-        String sessionId = null;
-        Cookie[] cookies = httpRequest.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (AppConstants.SESSION_COOKIE_NAME.equals(cookie.getName())) {
-                    sessionId = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        // Check if user already has session cookie (custom session or JSESSIONID)
+        String sessionId = getExistingSessionId(httpRequest);
 
         // If no session cookie, create new one
         if (sessionId == null || sessionId.isEmpty()) {
@@ -40,6 +31,8 @@ public class SessionFilter implements Filter {
             cookie.setPath("/");
             cookie.setHttpOnly(true);
             cookie.setMaxAge(AppConstants.SESSION_COOKIE_MAX_AGE_SECONDS);
+            // Set SameSite for modern browsers
+            cookie.setAttribute("SameSite", "Lax");
             httpResponse.addCookie(cookie);
         }
 
@@ -47,5 +40,26 @@ public class SessionFilter implements Filter {
         httpRequest.setAttribute(SESSION_ATTRIBUTE, sessionId);
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Get existing session ID from cookies (custom or JSESSIONID)
+     */
+    private String getExistingSessionId(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AppConstants.SESSION_COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+            // Fallback: check for JSESSIONID (standard Servlet session)
+            for (Cookie cookie : cookies) {
+                if ("JSESSIONID".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
