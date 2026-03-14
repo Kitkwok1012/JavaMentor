@@ -142,6 +142,7 @@ public class SessionService {
     /**
      * 檢查是否最後一題
      */
+    @Transactional(readOnly = true)
     public boolean isLastQuestion(String sessionId, String topicId) {
         return userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .map(session -> {
