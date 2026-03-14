@@ -137,17 +137,19 @@
                 </configuration>
             </plugin>
             
-            <!-- SpotBugs Code Quality Check -->
+            <!-- SpotBugs Code Quality Check - Disabled due to Java 25 incompatibility -->
+            <!-- 
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.1</version>
+                <version>4.8.6.4</version>
                 <configuration>
                     <effort>Default</effort>
                     <threshold>Medium</threshold>
                     <xmlOutput>true</xmlOutput>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 </project>
