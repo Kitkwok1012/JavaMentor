@@ -30,8 +30,8 @@
           "optionD": "高層模組不應該依賴低層模組",
           "correct": "B",
           "tags": "solid,ocp",
-          "explanation": "**開放封閉原則 (Open/Closed Principle)**\n\n> 類應該對擴展開放，對修改封閉\n\n即係話你可以通過繼承/組合黎擴展功能，但唔需要改動原有既code。\n\n**實現方式：**\n- 抽象（接口/抽象類）\n- 策略模式\n- 模板方法\n\n**面試點：** 点样做到OCP？用多態、依賴注入、策略模式。",
-          "codeExample": "// 違反OCP：每次加payment都要改orderProcessor\nclass OrderProcessor {\n    void pay(String type) {\n        if (type.equals(\"credit\")) { ... }\n        if (type.equals(\"paypal\")) { ... }\n        // 加新payment要改呢度！\n    }\n}\n\n// 正確OCP：擴展開放\ninterface PaymentMethod {\n    void pay(Order order);\n}\nclass CreditCardPayment implements PaymentMethod { ... }\nclass PayPalPayment implements PaymentMethod { ... }\n\nclass OrderProcessor {\n    void pay(PaymentMethod method) {\n        method.pay(this);  // 加新payment唔洗改呢度\n    }\n}"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -497,7 +497,8 @@
           "optionD": "拒絕這個需求",
           "correct": "B",
           "tags": "scenario,design,async",
-          "explanation": "**scenario,design,async相關知識點。**\n\n呢題考核scenario,design,async既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -729,8 +730,8 @@
           "optionD": "無作用",
           "correct": "A",
           "tags": "exception,finally",
-          "explanation": "**exception,finally相關知識點。**\n\n呢題考核exception,finally既基本概念同原理。理解呢個概念對面試好重要。",
-          "codeExample": "try { } finally { \n    // 一定執行，用於資源釋放\n}"
+          "explanation": "**finally 塊既作用同特性：**\n\n1. **必定執行**：無論 try 塊係咪正常完成，或者 catch 捕获異常，finally 都會執行\n2. **資源釋放**：通常用於關閉文件、數據庫連接、網絡連接等資源\n3. **即使有 return**：即使 try 或 catch 中有 return，finally 仍會在 return 之前執行\n\n**面試點：** finally 塊既執行順序\n- try → finally（正常）\n- try → catch → finally（異常）\n- try → return → finally → return（finally 會插隊）\n\n**常見陷阱：**\n```java\ntry {\n    return 1;\n} finally {\n    return 2;  // 呢個會覆蓋 try 既 return！\n}\n```",
+          "codeExample": "// 正確既資源清理方式\npublic void readFile(String path) {\n    BufferedReader reader = null;\n    try {\n        reader = new BufferedReader(new FileReader(path));\n        // 讀取文件\n    } catch (IOException e) {\n        e.printStackTrace();\n    } finally {\n        if (reader != null) {\n            try {\n                reader.close();  // close()也可能拋異常\n            } catch (IOException e) {\n                e.printStackTrace();\n            }\n        }\n    }\n}\n\n// Java 7+ 更推薦既方式：try-with-resources\npublic void readFileBetter(String path) {\n    try (BufferedReader reader = new BufferedReader(new FileReader(path))) {\n        // 自動釋放資源，無需 finally\n        String line;\n        while ((line = reader.readLine()) != null) {\n            System.out.println(line);\n        }\n    }  // 自動調用 close()\n}"
         },
         {
           "id": 1105,
@@ -743,7 +744,7 @@
           "optionD": "無優點",
           "correct": "C",
           "tags": "exception,resource",
-          "explanation": "**exception,resource相關知識點。**\n\n呢題考核exception,resource既基本概念同原理。理解呢個概念對面試好重要。",
+          "explanation": "**try-with-resources 既優點：**\n\n1. **自動資源管理**：無需手動調用 close()，編譯器會自動生成 finally 塊\n2. **編譯器保障**：即使有異常，資源都會被正確關閉\n3. **程式碼更簡潔**：減少嵌套層級同重複既資源釋放代碼\n4. **支援多資源**：可以同時管理多個資源\n5. **suppressed exceptions**：如果 close() 拋異常，會被標記為 suppressed\n\n**面試點：** 邊個場景用 try-with-resources：\n- FileInputStream / FileOutputStream\n- Database Connection\n- HttpURLConnection\n- 任何實現 AutoCloseable 既類\n\n**與傳統 try-finally 既分別：**\n```java\n// 傳統方式 - 好易漏close()\ntry {\n    conn = DriverManager.getConnection(url);\n} finally {\n    if (conn != null) conn.close();  // 3行重複代碼\n}\n\n// try-with-resources - 一行搞掂\ntry (Connection conn = DriverManager.getConnection(url)) {\n    // 使用連接\n} // 自動close",
           "codeExample": "try (FileReader fr = new FileReader(\"file.txt\")) {\n    // 自動關閉\n}"
         }
       ],
@@ -779,8 +780,8 @@
           "optionD": "無作用",
           "correct": "C",
           "tags": "factory,pattern",
-          "explanation": "**factory,pattern相關知識點。**\n\n呢題考核factory,pattern既基本概念同原理。理解呢個概念對面試好重要。",
-          "codeExample": "interface Car {\n    void drive();\n}\nclass CarFactory {\n    public static Car create(String type) {\n        if (\"benz\".equals(type)) return new Benz();\n        if (\"bmw\".equals(type)) return new BMW();\n        throw new RuntimeException(\"Unknown type\");\n    }\n}"
+          "explanation": "**工廠模式 (Factory Pattern) 既作用：**\n\n工廠模式係一種創建型設計模式，佢提供一種創建對象既最佳方式，而唔需要指定具體既類。\n\n**三種類型：**\n1. **簡單工廠 (Simple Factory)**：一個工廠類根據參數創建不同產品\n2. **工廠方法 (Factory Method)**：定義創建對象既接口，子類決定實例化邊個類\n3. **抽象工廠 (Abstract Factory)**：創建一系列相關既對象\n\n**面試點：** 點解要用工廠模式？\n- **解耦**：客戶端唔需要知道具體既產品類\n- **單一職責**：對象創建集中喺工廠類\n- **開放到原則**：新增產品無需修改客戶端\n\n**與 new 既分別：** new 會綁定具體類，工廠模式可以動態決定",
+          "codeExample": "// 簡單工廠\nclass PizzaFactory {\n    public static Pizza createPizza(String type) {\n        if (type.equals(\"cheese\")) return new CheesePizza();\n        if (type.equals(\"pepperoni\")) return new PepperoniPizza();\n        return null;\n    }\n}\n\n// 工廠方法 - 更靈活\ninterface PizzaFactory {\n    Pizza createPizza();\n}\n\nclass CheesePizzaFactory implements PizzaFactory {\n    public Pizza createPizza() {\n        return new CheesePizza();\n    }\n}\n\n// 使用\nPizza pizza = PizzaFactory.createPizza(\"cheese\");\n// 新增 HawaiiPizza？得嘅，唔洗改客戶端代碼"
         },
         {
           "id": 1003,
@@ -793,8 +794,8 @@
           "optionD": "無關係",
           "correct": "C",
           "tags": "strategy,pattern",
-          "explanation": "**strategy,pattern相關知識點。**\n\n呢題考核strategy,pattern既基本概念同原理。理解呢個概念對面試好重要。",
-          "codeExample": "interface PaymentStrategy {\n    void pay(double amount);\n}\nclass AlipayStrategy implements PaymentStrategy { }\nclass WechatPayStrategy implements PaymentStrategy { }\n\nclass Order {\n    private PaymentStrategy strategy;\n    public void pay() {\n        strategy.pay(amount);\n    }\n}"
+          "explanation": "**單例模式 (Singleton Pattern) 既目的：**\n\n確保一個類只有一個實例，並提供一個全局既訪問點。\n\n**常見實現方式：**\n1. **飢餓式 (Eager)**：類加載時就創建實例\n2. **懶惰式 (Lazy)**：首次調用時先創建（需要同步）\n3. **Double Checked Locking (DCL)**：兼顧性能同線程安全\n4. **靜態內部類**：利用類加載機制實現懶加載\n5. **枚舉 (Enum)**：最簡單既線程安全實現\n\n**面試點：** \n- 點解要用單例？→ 全局唯一一個對象（如配置中心、連接池）\n- 邊種實現最好？→ 枚舉 or 靜態內部類\n- 序列化問題？→ 需要實現 readResolve()",
+          "codeExample": "// 方式1: 靜態內部類（推薦）\nclass Singleton {\n    private Singleton() {}\n    \n    private static class Holder {\n        private static final Singleton INSTANCE = new Singleton();\n    }\n    \n    public static Singleton getInstance() {\n        return Holder.INSTANCE;\n    }\n}\n\n// 方式2: Double Checked Locking\nclass SingletonDCL {\n    private static volatile SingletonDCL instance;\n    \n    public static SingletonDCL getInstance() {\n        if (instance == null) {\n            synchronized (SingletonDCL.class) {\n                if (instance == null) {\n                    instance = new SingletonDCL();\n                }\n            }\n        }\n        return instance;\n    }\n}\n\n// 方式3: 枚舉（最安全，防反射同序列化）\nenum SingletonEnum {\n    INSTANCE;\n    public void doSomething() {}\n}"
         },
         {
           "id": 1004,
@@ -1792,7 +1793,8 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "cicd,cd",
-          "explanation": "CD可以指Continuous Delivery(持續交付)或Continuous Deployment(持續部署)。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -2474,7 +2476,8 @@
           "optionC": "有時是",
           "optionD": "以上都不是",
           "correct": "A",
-          "explanation": "**Java相關知識點。**\n\n呢題考核Java既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -2604,7 +2607,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "thread,start",
-          "explanation": "**thread,start相關知識點。**\n\n呢題考核thread,start既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -2742,7 +2746,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "spring,bean-lifecycle",
-          "explanation": "Bean生命周期：1)實例化 2)依賴注入 3)初始化(@PostConstruct/InitializingBean) 4)使用 5)銷毀(@PreDestroy/DisposableBean)。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -2880,7 +2885,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "mysql,index-use",
-          "explanation": "導致Index失效：1)WHERE後用函數 2)LIKE %開頭 3)OR(一边有index一边无) 4)類型不一致(字符'1'=数字1)。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -3096,7 +3102,8 @@
           "optionD": "以上都不是",
           "correct": "C",
           "tags": "java,hashcode",
-          "explanation": "HashCode Contract：1)同一對象每次調用返回相同hash(除非改變影響equals的屬性) 2)equals返回true的對象，hashCode必須相同。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -3234,7 +3241,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "redis,eviction",
-          "explanation": "Redis內存淘汰：LRU(最近最少使用)、LFU(最不經常使用)、Random(隨機)、TTL(過期)、noeviction(不淘汰)。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -3359,7 +3367,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "mq,reliable",
-          "explanation": "**mq,reliable相關知識點。**\n\n呢題考核mq,reliable既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -3731,7 +3740,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "algo,binary-search",
-          "explanation": "**algo,binary-search相關知識點。**\n\n呢題考核algo,binary-search既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -3869,7 +3879,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "scenario,anti-brush",
-          "explanation": "**scenario,anti-brush相關知識點。**\n\n呢題考核scenario,anti-brush既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4007,7 +4018,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "rocketmq,msg-type",
-          "explanation": "**rocketmq,msg-type相關知識點。**\n\n呢題考核rocketmq,msg-type既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4301,7 +4313,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "network,tcp-wave",
-          "explanation": "TCP四次揮手：1)主動關閉方發送FIN 2)被動關閉方發送ACK 3)被動關閉方發送FIN 4)主動關閉方發送ACK。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4426,7 +4439,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "ms,config",
-          "explanation": "**ms,config相關知識點。**\n\n呢題考核ms,config既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4642,7 +4656,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "k8s,resource",
-          "explanation": "K8s資源：Pod(最小調度)、Service(服務發現)、Deployment(無狀態部署)、StatefulSet(有狀態)。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4780,7 +4795,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "security,jwt-pro",
-          "explanation": "**security,jwt-pro相關知識點。**\n\n呢題考核security,jwt-pro既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -4918,7 +4934,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "system,design",
-          "explanation": "**system,design相關知識點。**\n\n呢題考核system,design既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -5056,7 +5073,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "devops,review",
-          "explanation": "Code Review好處：提高代碼質量、團隊知識共享、及早發現問題、培養Coding Standard。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 4,
@@ -5181,7 +5199,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "kafka,isr",
-          "explanation": "**kafka,isr相關知識點。**\n\n呢題考核kafka,isr既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -5319,7 +5338,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "kafka,acks",
-          "explanation": "**kafka,acks相關知識點。**\n\n呢題考核kafka,acks既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -5509,7 +5529,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "java,string-builder",
-          "explanation": "**java,string-builder相關知識點。**\n\n呢題考核java,string-builder既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**呢道題考核既係：大量數據處理既系統設計能力**\n\n**面試關鍵點：**\n\n1. **首先要問既問題：**\n   - 數據量有幾大？（百萬/千萬/億級）\n   - 數據既格式同結構？\n   - 生成既頻率？（定時定點定用戶觸發）\n   - 既時性要求？\n   - 邊個睇呢個report？\n\n2. **架構設計要點：**\n   - **異步處理**：唔可以同步生成，等死系統\n   - **分頁/流式處理**：唔可以一次過load幾百萬數據\n   - **離線計算**：用Spark/Flink等大數據框架\n   - **結果存儲**：生成既file放邊？（OSS/S3/HDFS）\n\n3. **技術選型：**\n   - MQ：Kafka 用於數據傳遞\n   - 計算引擎：Spark SQL / Flink\n   - 存儲：Parquet/ORC 格式\n   - 導出：CSV/Excel/PDF\n\n**P8/Staff Engineer 級別既諗法：**",
+          "codeExample": "// 實際既實現架構\n// 1. 用戶提交 Report 請求\nPOST /api/reports/generate\n{\n    \"type\": \"sales_monthly\",\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\"\n}\n// 返回 jobId，等異步完成\n\n// 2. 後台異步生成\n@Async\npublic CompletableFuture<ReportJob> generateReport(ReportRequest request) {\n    // 寫入 MQ\n    reportMQ.send(new GenerateReportEvent(request));\n    \n    // 返回 jobId，用戶可以輪詢狀態\n    return CompletableFuture.completedFuture(job);\n}\n\n// 3. Worker 消費 MQ，Spark 離線計算\nsparkSession.read()\n    .jdbc(dbUrl, \"orders\", ...)\n    .filter(...)\n    .groupBy(...)\n    .write()\n    .parquet(\"s3://bucket/reports/xxx.parquet\")\n\n// 4. 用戶通過 SSE / WebSocket 獲取結果\nGET /api/reports/{jobId}/status"
         },
         {
           "id": 3,
@@ -5851,6 +5872,284 @@
         }
       ],
       "category": "review"
+    },
+    {
+      "topicId": "concurrency-advanced",
+      "name": "Concurrency Advanced 深入",
+      "description": "並發進階 - AQS/CAS/Disruptor",
+      "category": "concurrency",
+      "questions": [
+        {
+          "id": 1,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "AQS既核心原理係咩？",
+          "optionA": "基於CLH隊列同CAS實現既阻塞隊列",
+          "optionB": "基於synchronized既同步器",
+          "optionC": "基於Object.wait/notify",
+          "optionD": "基於Thread.sleep",
+          "correct": "A",
+          "tags": "aqs,cas,concurrent",
+          "explanation": "**AQS (AbstractQueuedSynchronizer) 核心原理：**\n\nAQS 係 Java 並發既基礎框架，包括 ReentrantLock、CountDownLatch、CyclicBarrier、Semaphore 等都用佢實現。\n\n**兩個核心部分：**\n1. **CLH 隊列**：一個FIFO既雙向隊列，用於管理等待既線程\n2. **State 變量**：表示資源既狀態（0=可用，1=被佔用）\n\n**工作流程：**\n- acquire()：先嘗試CAS改變state，成功就獲得鎖；失敗就加入CLH隊列阻塞\n- release()：釋放鎖，唤醒隊列中既下一個線程\n\n**面試點：** 點解AQS咁重要？因為佢統一了Java既同步器實現範式。",
+          "codeExample": "// AQS 內部結構示意\npublic abstract class AbstractQueuedSynchronizer {\n    // 雙向隊列頭尾\n    private volatile Node head;\n    private volatile Node tail;\n    \n    // 資源狀態\n    private volatile int state;\n    \n    // 獲取鎖 - 子類實現既模板方法\n    protected boolean tryAcquire(int arg) {\n        throw new UnsupportedOperationException();\n    }\n    \n    // 釋放鎖 - 子類實現既模板方法  \n    protected boolean tryRelease(int arg) {\n        throw new UnsupportedOperationException();\n    }\n    \n    // 公共既acquire方法\n    public final void acquire(int arg) {\n        if (!tryAcquire(arg) && \n            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))\n            selfInterrupt();\n    }\n}\n\n// ReentrantLock 內部既Sync類就係extends AQS\nclass Sync extends AbstractQueuedSynchronizer {\n    protected boolean tryAcquire(int acquires) {\n        // CAS 操作\n        while (true) {\n            int c = getState();\n            int c0 = c - acquires;\n            if (compareAndSetState(c, c0))\n                return true;\n        }\n    }\n}"
+        },
+        {
+          "id": 2,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "CAS既ABA問題點解決？",
+          "optionA": "使用版本號（Stamp）/AtomicStampedReference",
+          "optionB": "使用synchronized",
+          "optionC": "使用volatile",
+          "optionD": "無法解決",
+          "correct": "A",
+          "tags": "cas,aba,atomic",
+          "explanation": "**CAS ABA 問題：**\n\n線程A讀取內存位置為V，值為A。線程B將V改為B，再改回A。此時線程A進行CAS操作，發現值仲係A，以為冇變化，但實際上已經被其他線程修改過。\n\n**解決方案：**\n\n1. **版本號機制**：每次修改既時候增加版本號\n   - AtomicStampedReference：帶stamp既引用\n   - AtomicMarkableReference：帶mark既引用（boolean）\n\n2. **實際應用場景：**\n   - 棧既Treiber算法\n   - 隊列既Miche算法\n   - 分散式既樂觀鎖\n\n**面試點：** 實際項目中邊啲場景會遇到ABA問題？如何避免？",
+          "codeExample": "// 傳統 CAS - 有 ABA 問題\nAtomicInteger atomic = new AtomicInteger(100);\n// Thread A: 讀取 100\n// Thread B: 100 -> 101 -> 100 (ABA)\n// Thread A: CAS(100, 200) 成功！但實際已經被修改過\n\n// 使用版本號解決 ABA 問題\nAtomicStampedReference<Integer> stampedRef = \n    new AtomicStampedReference<>(100, 1);\n\n// Thread A 讀取\nint stamp = stampedRef.getStamp();\nInteger value = stampedRef.getReference();\n\n// Thread B 修改\nstampedRef.compareAndSet(value, 101, stamp, stamp + 1);\nstampedRef.compareAndSet(101, 100, stamp + 1, stamp + 2);\n\n// Thread A 再試\n// stamp 已經變左，CAS 會失敗！\nboolean success = stampedRef.compareAndSet(\n    value, 200, stamp, stamp + 2  // 失敗，因為 stamp 唔匹配\n);\n\n// 使用場景：實現無鎖棧\npublic class LockFreeStack<T> {\n    private AtomicStampedReference<Node<T>> top = \n        new AtomicStampedReference<>(null, 0);\n    \n    public void push(T item) {\n        while (true) {\n            Node<T> oldTop = top.getReference();\n            int oldStamp = top.getStamp();\n            Node<T> newNode = new Node<>(item, oldTop);\n            if (top.compareAndSet(oldTop, newNode, oldStamp, oldStamp + 1)) {\n                return;\n            }\n        }\n    }\n}"
+        },
+        {
+          "id": 3,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "Disruptor既高性能原理係咩？",
+          "optionA": "RingBuffer + 單生產者 + 緩存行填充 + 預取",
+          "optionB": "使用更多線程",
+          "optionC": "使用BlockingQueue",
+          "optionD": "使用Synchronized",
+          "correct": "A",
+          "tags": "disruptor,high-performance,ring-buffer",
+          "explanation": "**Disruptor 既高性能原理：**\n\nLMAX Disruptor 係一個高性能既消息/事件框架，比傳統既BlockingQueue快10倍+。\n\n**核心優化點：**\n\n1. **RingBuffer 數據結構：**\n   - 預分配內存，無GC壓力\n   - 覆蓋寫入，無數據搬移\n   - 利用CPU緩存既局部性\n\n2. **單生產者優化：**\n   - 生產者只需一個指針，減少競爭\n   - 寫入係內存屏障，唔需要CAS\n\n3. **緩存行填充 (Padding)：**\n   - 避免False Sharing\n   - 每個變量獨立一個緩存行\n\n4. **預取 (Pre-fetching)：**\n   - 提前將數據讀入CPU緩存\n\n5. **無鎖設計：**\n   - 所有操作都係lock-free\n\n**面試點：** 點解RingBuffer既size要設為2既n次方？→ 高效既index計算",
+          "codeExample": "// Disruptor 核心概念\n// 1. RingBuffer - 預分配既環形緩冲區\npublic class RingBuffer<E> {\n    private final int bufferSize;\n    private final E[] entries;\n    \n    // bufferSize 必須係 2 既 n 次方\n    public RingBuffer(int bufferSize) {\n        this.bufferSize = bufferSize;\n        this.entries = (E[]) new Object[bufferSize];\n    }\n    \n    // 高效既 index 計算\n    public long index(long sequence) {\n        return sequence & (bufferSize - 1);  // & 比 % 快\n    }\n}\n\n// 2. 避免 False Sharing - 緩存行填充\npublic class PaddedLong {\n    long p1, p2, p3, p4, p5, p6, p7, p8;  // 填充\n    private volatile long value;\n    long p9, p10, p11, p12, p13, p14, p15, p16;  // 填充\n}\n\n// 3. 使用 Disruptor\nDisruptor<OrderEvent> disruptor = new Disruptor<>(\n    OrderEvent::new,\n    1024 * 1024,  // RingBuffer size\n    producerFactory,\n    ProducerType.SINGLE,  // 單生產者\n    new BlockingWaitStrategy()\n);\n\n// 設置消費者\ndisruptor.handleEventsWith((event, sequence, endOfBatch) -> {\n    // 處理事件\n});\n\n// 啟動\nRingBuffer<OrderEvent> ringBuffer = disruptor.publishEvent((event, sequence) -> {\n    event.setData(order);\n});"
+        },
+        {
+          "id": 4,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "ThreadLocal既內存洩漏點解發生？",
+          "optionA": "ThreadLocalMap既Entry繼承WeakReference<ThreadLocal>",
+          "optionB": "ThreadLocal變量太大",
+          "optionC": "線程池重用線程",
+          "optionD": "A和C都正確",
+          "correct": "D",
+          "tags": "threadlocal,memory-leak",
+          "explanation": "**ThreadLocal 內存洩漏既原因：**\n\n**兩個因素：**\n\n1. **Weak Reference 設計：**\n   ThreadLocalMap 既 Entry 繼承 WeakReference<ThreadLocal>\n   ```java\n   static class Entry extends WeakReference<ThreadLocal<?>> {\n       Object value;\n       Entry(ThreadLocal<?> k, Object v) {\n           super(k);  // 弱引用 key\n           value = v;\n       }\n   }\n   ```\n\n2. **線程池既線程重用：**\n   線程係長生命周期既，會被重用。但ThreadLocal既value仲有強引用，導致：\n   - Thread → ThreadLocalMap → Entry → value\n   - 即使ThreadLocal key被GC，但value仲係存在\n\n**真正既問題：**\n- 正常情況：ThreadLocal出Scope會被GC，Entry既key變null，value可以GC\n- 問題：如果Thread既生命周期好長，Entry既key變null後，value因為仲有其他強引用所以唔會被GC\n\n**點解決：** 使用完ThreadLocal後手動調用 remove()",
+          "codeExample": "// ThreadLocal 內存洩漏既示意圖\n// ThreadLocalMap 結構:\n// Thread -> threadLocals (強引用) -> ThreadLocalMap (強引用)\n//   -> table[] -> Entry(key=弱引用ThreadLocal, value=強引用)\n\n// 正常情況：\nThreadLocal<String> local = new ThreadLocal<>();\nlocal.set(\"hello\");\n// local 變null可以被GC，但 value 仲被 Entry 引用\n\n// 問題場景：線程池\nExecutorService pool = Executors.newFixedThreadPool(1);\npool.submit(() -> {\n    ThreadLocal<byte[]> buffer = new ThreadLocal<>();\n    buffer.set(new byte[1024 * 1024 * 10]);  // 10MB\n    // 方法結束，但 ThreadLocal 對象出Scope\n    // ThreadLocal 被GC，key變null\n    // 但 value (10MB) 因為線程重用而不斷累積！\n});\n\n// 正確既使用方式：\npublic class UserContext {\n    private static final ThreadLocal<User> contextHolder = \n        new ThreadLocal<>();\n    \n    public static void set(User user) {\n        contextHolder.set(user);\n    }\n    \n    public static User get() {\n        return contextHolder.get();\n    }\n    \n    // 必須調用！\n    public static void clear() {\n        contextHolder.remove();  // 防止內存洩漏\n    }\n}\n\n// Spring @Async 既解決方案：\n@Async\npublic void asyncMethod() {\n    try {\n        // 使用 ThreadLocal\n    } finally {\n        UserContext.clear();  // 一定要clean！\n    }\n}"
+        },
+        {
+          "id": 5,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "Synchronized既偏向鎖/輕量級鎖/重量級鎖既升級過程？",
+          "optionA": "偏向鎖->輕量級鎖->重量級鎖",
+          "optionB": "重量級鎖->輕量級鎖->偏向鎖",
+          "optionC": "直接重量級鎖",
+          "optionD": "只會用偏向鎖",
+          "correct": "A",
+          "tags": "synchronized,biased-lock,lightweight-lock",
+          "explanation": "**Synchronized 鎖既升級過程：**\n\n**JVM 既鎖優化策略：**\n\n1. **偏向鎖 (Biased Lock) - 默認延遲4秒**\n   - 對象頭Mark Word既最低三位為101\n   - 第一次獲取鎖既線程，Mark Word會記錄線程ID\n   - 同一線程再次進入，只需要檢查Mark Word既線程ID\n   - **優點：** 零成本（無任何CAS操作）\n\n2. **輕量級鎖 (Lightweight Lock) - 自旋鎖**\n   - 當有其他線程嘗試獲取鎖，但偏向鎖既線程仲活躍\n   - 升級為輕量級鎖\n   - 對象頭既Mark Word拷貝到線程既Stack Frame既Lock Record\n   - 使用CAS自旋等待獲取鎖\n   - **優點：** 避免用戶態/內核態切換\n   - **缺點：** 自旋浪費CPU\n\n3. **重量級鎖 (Heavyweight Lock)**\n   - 自旋超過10次 / 自旋線程>CPU核數既一半\n   - 升級為重量級鎖\n   - 使用ObjectMonitor，依賴操作系統既Mutex\n   - **缺點：** 線程阻塞，有用戶態/內核態切換開銷\n\n**面試點：** 點解要有呢個升級過程？→ 根據實際競爭情況動態調整，減少無必要既開銷",
+          "codeExample": "// 偏向鎖 Mark Word 結構 (64位):\n// [unused:1 bit][偏向鎖標志:1 bit][分代年齡:2 bits][對象頭類型:2 bits][hashcode:25 bits][thread:54 bits][epoch:2 bits]\n\n// 偏向鎖獲取過程：\n// 1. 訪問對象既Mark Word\n// 2. 如果係未偏向狀態：用CAS將線程ID設置入Mark Word\n// 3. 如果係已偏向狀態：檢查Mark Word既線程ID\n//    - 如果相同：直接進入同步塊\n//    - 如果不同：嘗試CAS偏向鎖升級為輕量級鎖\n\n// 輕量級鎖獲取過程：\n// 1. 在線程既Stack Frame創建Lock Record\n// 2. 將對象頭既Mark Word拷貝到Lock Record既Displaced Mark Word\n// 3. 用CAS將對象頭既Mark Word更新為指向Lock Record既指針\n// 4. 如果成功：獲得輕量級鎖\n// 5. 如果失敗：自旋重試（默認10次）\n\n// JVM 啟動參數：\n-XX:+UseBiasedLocking           // 啟用偏向鎖（默認）\n-XX:BiasedLockingStartupDelay=0 // 禁用延遲\n-XX:+UseHeavyMonitors            // 直接使用重量級鎖\n-XX:PreBlockSpin=20              // 自旋次數\n\n// 實際代碼觀察：\nsynchronized(obj) {\n    // 第一次：偏向鎖\n    // 有競爭：輕量級鎖\n    // 競爭激烈：重量級鎖\n}"
+        }
+      ]
+    },
+    {
+      "topicId": "jvm-deep-internals",
+      "name": "JVM 深入原理",
+      "description": "JVM 內存模型、GC、類加載",
+      "category": "jvm",
+      "questions": [
+        {
+          "id": 1,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "JVM既類加載器層次結構？",
+          "optionA": "Bootstrap -> Extension -> Application -> Custom",
+          "optionB": "Application -> Extension -> Bootstrap -> Custom",
+          "optionC": "Custom -> Application -> Extension -> Bootstrap",
+          "optionD": "無層次結構",
+          "correct": "A",
+          "tags": "jvm,classloader,hierarchy",
+          "explanation": "**JVM 類加載器層次結構（雙親委託機制）：**\n\n1. **Bootstrap ClassLoader (啟動類加載器)**\n   - C++實現，JVM自身一部分\n   - 加載 %JAVA_HOME%/lib 下既核心類庫\n   - 無法被Java代碼直接引用\n\n2. **Extension ClassLoader (擴展類加載器)**\n   - Java實現，sun.misc.Launcher$ExtClassLoader\n   - 加載 %JAVA_HOME%/lib/ext 下既類\n\n3. **Application ClassLoader (應用類加載器)**\n   - Java實現，sun.misc.Launcher$AppClassLoader\n   - 加載classpath下既類\n\n4. **Custom ClassLoader (自定義類加載器**\n   - 開發者自己實現\n   - 常見場景：熱部署、隔離、加密\n\n**雙親委託機制：**\n- 每個類加載器收到加載請求，先委託父加載器\n- 只有父加載器無法完成既時候，先自己加載\n- **目的：** 確保類既唯一性同安全性",
+          "codeExample": "// 查看類加載器層次\npublic class ClassLoaderDemo {\n    public static void main(String[] args) {\n        // Bootstrap ClassLoader - C++實現，輸出null\n        System.out.println(\"Bootstrap: \" + \n            String.class.getClassLoader());  // null\n        \n        // Extension ClassLoader\n        System.out.println(\"Extension: \" + \n            com.sun.crypto.provider.AESCrypto.class.getClassLoader());\n        \n        // Application ClassLoader\n        System.out.println(\"Application: \" + \n            ClassLoaderDemo.class.getClassLoader());\n        \n        // 查看層次關係\n        ClassLoader loader = ClassLoaderDemo.class.getClassLoader();\n        while (loader != null) {\n            System.out.println(loader);\n            loader = loader.getParent();\n        }\n    }\n}\n\n// 自定義類加載器示例\npublic class MyClassLoader extends ClassLoader {\n    @Override\n    protected Class<?> findClass(String name) throws ClassNotFoundException {\n        String path = \"classes/\" + name.replace('.', '/') + \".class\";\n        try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {\n            byte[] bytes = IOUtils.toByteArray(is);\n            return defineClass(name, bytes, 0, bytes.length);\n        } catch (IOException e) {\n            throw new ClassNotFoundException(name, e);\n        }\n    }\n}"
+        },
+        {
+          "id": 2,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "G1 GC既Young GC同Mixed GC既分別？",
+          "optionA": "Young GC只收集年輕代，Mixed GC收集年輕代+部分老年代",
+          "optionB": "一樣既野",
+          "optionC": "Mixed GC只收集老年代",
+          "optionD": "G1只有Young GC",
+          "correct": "A",
+          "tags": "g1,gc,young,mixed",
+          "explanation": "**G1 GC 既 Young GC 同 Mixed GC：**\n\n**Young GC (Young Generation Collection)：**\n- 發生時機：當年輕代 Eden 區滿咗\n- 收集範圍：**只收集年輕代**\n- 過程：\n  1. 計算 Eden 同 Survivor 既大小\n  2. 將 Eden 中既存活對象複制到 Survivor\n  3. _age 達到閾值既進入 Old Generation\n  4. 清理 Eden\n\n**Mixed GC (Mixed Generation Collection)：**\n- 發生時機：老年代佔用超過 InitiatingHeapOccupancyPercent (默認45%)\n- 收集範圍：**年輕代 + 部分老年代**\n- 過程：\n  1. 先收集年輕代（同Young GC一樣）\n  2. 選擇收集價值最高既 Region（根據預設停頓時間）\n  3. 將選中既 Old Region 中既存活對象複制到空 Region\n  4. 清理被收集既 Old Region\n\n**面試關鍵點：**\n- G1 既設計目標：可控既停頓時間 (-XX:MaxGCPauseMillis)\n- 通過 Region 既方式實現咗邏輯上既分代\n- Mixed GC 係 G1 既特色，\"Mixed\"體現咗對老年代既部分收集",
+          "codeExample": "// G1 GC 相關 JVM 參數\n-XX:+UseG1GC                    // 啟用 G1\n-XX:MaxGCPauseMillis=200        // 目標停頓時間\n-XX:G1HeapRegionSize=16m        // Region 大小 (1MB-32MB)\n-XX:InitiatingHeapOccupancyPercent=45  // 觸發Mixed GC既閾值\n-XX:G1NewSizePercent=5          // 年輕代最小比例\n-XX:G1MaxNewSizePercent=60      // 年輕代最大比例\n\n// Mixed GC 既觸發過程\n// 1. 進入 Mixed GC 條件：\n//    old region 佔用 > 45% (IHOP)\n// 2. 收集計劃：\n//    - 收集所有 young region\n//    - 收集 n 個 old region (根據停頓時間動態調整)\n// 3. 收集策略：\n//    - CSet (Collection Set) = 要收集既 Region 集合\n//    - 選擇回收價值最高既 Region (存活對象最少)\n// 4. 複制過程：\n//    - 類似 Copying GC\n//    - 將存活對象從 old region 拷貝到 survivor region\n//    - 更新引用\n\n// 監控 G1 GC\njstat -gcutil <pid> 1000\n// 重點關注：\n// - S0/S1/E: Survivor 使用率\n// - O: Old 區使用率\n// - M: Metaspace 使用率\n// - CC: 壓縮次數"
+        },
+        {
+          "id": 3,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "JVM既對象頭包含咩信息？",
+          "optionA": "Mark Word + Class Pointer + Array Length",
+          "optionB": "只包含hashcode",
+          "optionC": "只包含鎖信息",
+          "optionD": "只包含GC信息",
+          "correct": "A",
+          "tags": "jvm,object-header,mark-word",
+          "explanation": "**JVM 對象頭結構 (64位 HotSpot VM)：**\n\n**對象頭由三部分組成：**\n\n1. **Mark Word (64位 = 8字節)**\n   - 存儲對象自身既runtime數據\n   - 包含：hashcode、GC年齡、偏向鎖線程ID、鎖狀態標志等\n   - 狀態唔同，Mark Word既內容唔同：\n   ```\n   無鎖：    [hashcode:25][age:4][biased_lock:1][lock:2]\n   偏向鎖：  [thread:54][epoch:2][age:4][biased_lock:1][lock:2]\n   輕量級鎖：[ptr to lock record:62][lock:2]\n   重量級鎖：[ptr to monitor:62][lock:2]\n   ```\n\n2. **Class Pointer (Klass Pointer, 64位 = 8字節)**\n   - 指向對象既類元數據既指針\n   - 通過呢個可以知道對象既類型\n\n3. **Array Length (32位 = 4字節, 只有數組有)**\n   - 數組既長度\n\n**總結：**\n- 普通對象：Mark Word(8) + Class Pointer(8) = 16字節\n- 數組對象：Mark Word(8) + Class Pointer(8) + Length(4) = 20字節 (對齊到24)",
+          "codeExample": "// 可以通過 OpenJDK 既 tools.jar 看到內部結構\n// 或使用 JOL (Java Object Layout) 庫\n<dependency>\n    <groupId>org.openjdk.jol</groupId>\n    <artifactId>jol-core</artifactId>\n    <version>0.17</version>\n</dependency>\n\n// 查看對象佈局\npublic class ObjectLayout {\n    public static void main(String[] args) {\n        Object o = new Object();\n        \n        // 輸出內存佈局\n        System.out.println(ClassLayout.parseInstance(o).toPrintable());\n        \n        // [B byte[] = new byte[1024];\n        // System.out.println(ClassLayout.parseInstance(byte[1024]).toPrintable());\n    }\n}\n\n// 輸出示例：\n// [Ljava.lang.Object; object internals:\n//  OFF  SZ               TYPE DESCRIPTION\n//   0   8                    (object header: mark)\n//   8   4                    (object header: class)\n//  12   4                    (array length)\n//  16   8                    (array data)\n//  24   0                    (object boundary)\n// Instance size: 24 bytes\n\n// 對齊：Object 16字節，但需要對齊到8字節倍數，所以實際24字節\n// (包括4字節既數組長度 + 16字節既header + padding)"
+        }
+      ]
+    },
+    {
+      "topicId": "redis-deep",
+      "name": "Redis 深入原理",
+      "description": "Redis 內部數據結構、集群、持久化",
+      "category": "database",
+      "questions": [
+        {
+          "id": 1,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Redis既String底層實現係咩？",
+          "optionA": "SDS (Simple Dynamic String)",
+          "optionB": "char[]",
+          "optionC": "StringBuilder",
+          "optionD": "byte[]",
+          "correct": "A",
+          "tags": "redis,sds,string",
+          "explanation": "**Redis String 既底層實現：SDS (Simple Dynamic String)**\n\n**SDS 結構：**\n```c\nstruct sdshdr {\n    int len;      // 已使用長度\n    int free;     // 剩餘長度\n    char buf[];   // 柔性數組\n};\n```\n\n**與 C String 既分別：**\n\n1. **O(1) 獲取長度** - 有 len 字段，唔洗strlen\n2. **杜絕緩冲區溢出** - free 記錄剩餘空間，自動擴容\n3. **減少內存分配次數** - 預分配 + 惰性釋放\n4. **二進制安全** - 用 len 唔係 \\0 判斷結束\n\n**面試點：** Redis 點解要用自己既 SDS 而唔用 C String？",
+          "codeExample": "// Redis SDS 源碼結構\n// http://github.com/redis/redis/blob/unstable/src/sds.h\n\ntypedef char *sds;\n\n// 實際結構\nstruct sdshdr {\n    unsigned int len;    // 4 bytes\n    unsigned int free;  // 4 bytes\n    char buf[];         //柔性數組，長度 = len + free + 1\n};\n\n// C String vs SDS\n// C String: \"hello\\0\" 需要 6 bytes\n// SDS:      len=5, free=0, buf=\"hello\" 需要 10 bytes (結構開銷)\n\n// SDS 既空間預分配策略：\n// - 如果 len < 1MB：free = len\n// - 如果 len >= 1MB：free = 1MB\n// 呢個設計減少內存分配次數\n\n// Redis String 既編碼：\n// - embstr: <= 44 bytes 使用 embstr 編碼（一次內存分配）\n// - raw:    > 44 bytes 使用 raw 編碼（兩次內存分配）\n// - int:    如果可以轉為整數，直接存儲"
+        },
+        {
+          "id": 2,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Redis既Hash底層實現？",
+          "optionA": "ziplist (小於512) 或 hashtable (大於512)",
+          "optionB": "只有hashtable",
+          "optionC": "只有ziplist",
+          "optionD": "B+樹",
+          "correct": "A",
+          "tags": "redis,hash,ziplist,hashtable",
+          "explanation": "**Redis Hash 既底層實現：**\n\n根據 field 既數量同 value 既大小動態選擇：\n\n1. **ziplist (壓縮列表) - 細規模**\n   - 條件：field < 512 且 每個 value < 64 bytes\n   - 內存連續，節省空間\n   - 查詢 O(n)\n\n2. **hashtable - 大規模**\n   - 條件：超過上述閾值\n   - 查詢 O(1)\n   - 需要更多內存\n\n**設計理念：** \n- 少量數據：用ziplist省空間\n- 大量數據：用hashtable保證性能\n\n**面試點：** Redis既壓縮列表係咩？",
+          "codeExample": "// Hash 內部實現\n// hash-max-ziplist-entries: 512 (默認)\n// hash-max-ziplist-value: 64 (bytes)\n\n// 當 field 數量 > 512，自動轉換\nredis> HSET myhash f1 v1\nredis> HSET myhash f2 v2\n...\nredis> HSET myhash f513 v513  // 觸發轉換！\n\n// ziplist 結構\n// zlbytes | zltail | zllen | entry1 | entry2 | ... | zlend\n// 每個 entry: previous_entry_length | encoding | content\n\n// 轉換過程：\n// 1. 創建新既 hashtable\n// 2. 遍歷 ziplist 既所有 field-value\n// 3. 插入 hashtable\n// 4. 釋放 ziplist\n\n// 可以用 DEBUG OBJECT 查看內部編碼\nredis> DEBUG OBJECT myhash\n# Hash既encoding: hashtable\n\n// Redis Object 結構\ntypedef struct redisObject {\n    unsigned type:4;      // REDIS_STRING = 1\n    unsigned encoding:4;   // REDIS_ENCODING_EMBSTR = 5\n    void *ptr;             // 指向 SDS\n} robj;"
+        },
+        {
+          "id": 3,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "Redis既Cluster Slots分佈？",
+          "optionA": "16384個slots，分散到16384個masters",
+          "optionB": "只有一個slot",
+          "optionC": "無上限",
+          "optionD": "根據key既hash分佈",
+          "correct": "A",
+          "tags": "redis,cluster,slots,hash",
+          "explanation": "**Redis Cluster 既 Slots 機制：**\n\n**核心概念：**\n- **16384 個 Slots** (2^14)\n- 每個 Master 節點負責一部分 Slots\n- 客戶端根據 CRC16(key) % 16384 計算 key 既 slot\n\n**點解係 16384？**\n\n1. 每次心跳/FAIL 信息既 包大小考慮\n2. 16384 既 bytes = 16KB，足以容納所有 slots 既 bitmap\n3. 建議最多 1000 個masters (16KB * 8 bits = 16384)\n\n**數據分佈邏輯：**\n```\nslot = CRC16(key) % 16384\nnode = slots[slot]\n```\n\n**常見問題：**\n- MOVED：如果訪問既 node 唔係目標 node，會返回 MOVED \n- ASK：如果目標 node 正在做 rehash，會返回 ASK\n\n**面試點：** 點解16384？",
+          "codeExample": "// CRC16 計算 key 既 slot\n#define CLUSTER_SLOTS 16384\n\nunsigned int CRC16(const char *key, int len) {\n    // Redis 既 CRC16 實現\n}\n\nunsigned int keyHashSlot(char *key, int keylen) {\n    int s = -1;\n    char *e;\n    \n    // 如果 key 包含 {，只用 { } 既部分計算 hash\n    // 呢個係 tag 既機制\n    e = strchr(key, '{');\n    if (e) {\n        key = e + 1;\n        e = strchr(key, '}');\n        if (e && e > key) keylen = e - key;\n    }\n    \n    s = CRC16(key, keylen) % CLUSTER_SLOTS;\n    return s;\n}\n\n// 例子：\n// key \"user:1001\" -> CRC16 -> 12345 -> slot 12345\n// key \"user:{1001}\" -> 用 1001 既 hash -> slot 67890\n\n// 查看 cluster 狀態\nredis-cli cluster nodes\n// 6e3d542a634c6e3d... 127.0.0.1:7001 myself,master - 0 0 1 connected 0-5460\n// 6e3d542a634c6e3d... 127.0.0.1:7002 master - 0 0 2 connected 5461-10922\n// 6e3d542a634c6e3d... 127.0.0.1:7003 master - 0 0 3 connected 10923-16383"
+        }
+      ]
+    },
+    {
+      "topicId": "mysql-innodb-deep",
+      "name": "MySQL InnoDB 深入原理",
+      "description": "InnoDB 索引、鎖、事務、MVCC",
+      "category": "database",
+      "questions": [
+        {
+          "id": 1,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "InnoDB既MVCC實現原理？",
+          "optionA": "Undo Log + Read View",
+          "optionB": "只靠鎖",
+          "optionC": "樂觀鎖",
+          "optionD": "悲觀鎖",
+          "correct": "A",
+          "tags": "mysql,innodb,mvcc,undo",
+          "explanation": "**InnoDB MVCC (Multi-Version Concurrency Control) 實現原理：**\n\n**兩個核心組件：**\n\n1. **Undo Log (回滾日志)**\n   - 每條記錄都有兩個隱藏既字段：\n     - `DB_ROW_ID`：6字節，既row ID\n     - `DB_TRX_ID`：6字節，最後修改呢條記錄既事務ID\n     - `DB_ROLL_PTR`：7字節，回滾指針\n   - 每次修改都會產生 Undo Log，形成版本鏈\n\n2. **Read View (讀取視圖)**\n   - 包含：\n     - `m_ids`：活躍既事務ID列表\n     - `min_trx_id`：最小活躍事務ID\n     - `max_trx_id`：創建Read View時最大既事務ID\n     - `creator_trx_id`：創建者既事務ID\n\n**讀取過程：**\n- 如果記錄既 trx_id < min_trx_id：可見\n- 如果 trx_id >= max_trx_id：不可見（其他事務開始之後）\n- 如果 trx_id 在 m_ids 中：不可見（仲未提交）\n- 其他情況：可見\n\n**面試點：** MVCC 點解可以實現非阻塞讀？",
+          "codeExample": "// InnoDB 記錄既隱藏字段\n// /storage/innobase/include/dict0mem.h\nstruct dict_row_t {\n    trx_id_t trx_id;      // 最後修改既事務ID\n    roll_ptr_t roll_ptr; // 指向 undo log 既指針\n};\n\n// Read View 結構\n// /storage/innobase/include/read0read.h\nclass ReadView {\n    trx_id_t m_low_limit_id;   // max_trx_id\n    trx_id_t m_up_limit_id;   // min_trx_id  \n    trx_id_t m_creator_trx_id; // 自己既trx_id\n    std::vector<trx_id_t> m_ids; // 活躍事務列表\n};\n\n// MVCC 讀取流程\nrow_search_for_mysql() {\n    // 1. 獲取 Read View\n    ReadView *view = trx_assign_read_view();\n    \n    // 2. 遍歷版本鏈\n    for (rec = page_get_first(); rec; rec = page_get_next(rec)) {\n        trx_id = rec->trx_id;\n        \n        // 3. 判斷可見性\n        if (trx_id < view->m_up_limit_id) {\n            // 可以讀！\n            return rec;\n        } else if (trx_id >= view->m_low_limit_id) {\n            // 喺我之後開始既，唔可以讀\n            continue;\n        } else if (trx_id_in_array(trx_id, view->m_ids)) {\n            // 我自己既未提交，唔可以讀\n            continue;\n        } else {\n            // 可以讀\n            return rec;\n        }\n    }\n}\n\n// 例子：\n// T1: begin; select (獲得read view, m_ids=[1])\n// T2: begin; update set x=2 where id=1; commit\n// T1: select -> 睇到既係舊值 x=1 (因為T2既trx_id在m_ids中)"
+        },
+        {
+          "id": 2,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "InnoDB既Next-Key Lock點解可以解決Phantom Problem？",
+          "optionA": "鎖定記錄本身 + 記錄既區間（前一個記錄到呢個記錄）",
+          "optionB": "只鎖定記錄",
+          "optionC": "只鎖定區間",
+          "optionD": "用樂觀鎖",
+          "correct": "A",
+          "tags": "innodb,next-key-lock,phantom",
+          "explanation": "**Next-Key Lock 既原理：**\n\n**Phantom Problem (幻讀問題)：**\n- T1: SELECT * FROM users WHERE age > 10  -> 獲得 2 rows\n- T2: INSERT INTO users VALUES (100, 20)  -> 新增一行\n- T1: SELECT * FROM users WHERE age > 10  -> 獲得 3 rows (Phantom!)\n\n**解決方案：Next-Key Lock = Record Lock + Gap Lock**\n\n**Lock 既類型：**\n1. **Record Lock (記錄鎖)**：鎖定某一條記錄\n2. **Gap Lock (間隙鎖)**：鎖定某個區間\n3. **Next-Key Lock**：Record Lock + Gap Lock 既組合\n\n**例子：**\n```\n索引: 10, 20, 30, 40\n\n如果 WHERE age = 20 既時候：\n- Record Lock: 鎖定 20 呢條記錄\n- Gap Lock: 鎖定 (10, 20) 和 (20, 30) 既區間\n- Next-Key Lock: 鎖定 [10, 20) 和 [20, 30) 既範圍\n```\n\n**咁樣就可以防止其他事務插入新既記錄！**\n\n**面試點：** 點解RR級別可以解決幻讀？",
+          "codeExample": "// Next-Key Lock 既實現\n// 當執行：\nSELECT * FROM users WHERE age = 20 FOR UPDATE;\n\n// InnoDB 既 lock 結構：\nstruct lock_rec_t {\n    space_id;    // 表空間ID\n    page_no;     // 頁號\n    n_bits;      // bit數 = 頁中記錄數 + 1\n};\n\n// Gap Lock 區間：\n// 如果 age = 20 既 record lock 係 index=5\n// Gap 1: (prev_record, current) = (10, 20)\n// Gap 2: (current, next_record) = (20, 30)\n\n// 實際加既 lock：\n// LOCK_ORDINARY (Next-Key Lock):\n//   lock on page#N, bits [5, 6] -> 鎖住 20 呢條記錄 + (20, 30) 既gap\n// LOCK_GAP:\n//   lock on page#N, bit 5 -> 只鎖住 (10, 20) 既gap\n\n// 例子：\n// T1: SELECT * FROM users WHERE age = 20 FOR UPDATE;\n// T2: INSERT INTO users (age) VALUES (15);  // 會被 gap lock 阻塞！\n// T2: INSERT INTO users (age) VALUES (25);  // 會被 next-key lock 阻塞！\n\n// 但注意：\n// SELECT * FROM users WHERE age > 20;\n// 呢個會使用 Gap Lock 鎖住 (20, +∞)\n//\n// INSERT INTO users (age) VALUES (100);\n// 會被阻塞，因為要插入既位置被 lock 住"
+        },
+        {
+          "id": 3,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "InnoDB既Buffer Pool主要存儲咩？",
+          "optionA": "數據頁、索引頁、Undo頁、Change Buffer",
+          "optionB": "只存儲數據",
+          "optionC": "只存儲索引",
+          "optionD": "只存儲redo log",
+          "correct": "A",
+          "tags": "innodb,buffer-pool,cache",
+          "explanation": "**InnoDB Buffer Pool 既主要內容：**\n\n**Buffer Pool 係 InnoDB 既內存緩冲區，默認大小 ~128MB**\n\n主要存儲：\n\n1. **數據頁 (Data Pages)**\n   - 表既數據行\n   - 最重要既部分\n\n2. **索引頁 (Index Pages)**\n   - B+Tree 既索引節點\n\n3. **Undo 頁 (Undo Pages)**\n   - 未提交既事務既 undo log\n   - 用於 MVCC 既歷史版本\n\n4. **Change Buffer**\n   - 變更緩冲區\n   - 對二級索引既DML操作會先放入呢度\n   - 稍後合並到索引\n\n5. **Lock Info**\n   - 事務既鎖信息\n\n6. **Dictionary Cache**\n   - 表結構既元數據\n\n**LRU 淘汰策略：**\n- 列表分為 young 和 old 兩部分\n- old 部分既 page 首先要 age 到一定程度先會被淘汰\n- 目的：避免熱點數據被淘汰\n\n**面試點：** Buffer Pool 大小點設置？",
+          "codeExample": "// Buffer Pool 相關參數\ninnodb_buffer_pool_size = 8589934592  // 8GB，通常設置為物理內存既60-80%\ninnodb_buffer_pool_instances = 4       // 分為4個實例，減少競爭\ninnodb_old_blocks_pct = 37            // old區域比例 (默認37%)\ninnodb_old_blocks_time = 1000         // page進入old區既時間閾值(ms)\n\n// 查看 Buffer Pool 狀態\nSHOW ENGINE INNODB STATUS;\n-- Buffer pool(s) hit rate 964 / 1000 -> 命中率96.4%\n\n// 監控\nSELECT \n    POOL_ID,\n    POOL_SIZE,\n    FREE_BUFFERS,\n    DATABASE_PAGES,\n    HIT_RATE,\n    LRU_LEN\nFROM information_schema.INNODB_BUFFER_POOL_STATS;\n\n// Page 結構\nstruct page_t {\n    page_header_t header;  // 38 bytes\n    infimum_t infimum;     // 8 bytes\n    suprema_t supremum;   // 8 bytes\n    page_dir_t dir;       // 4 bytes\n    page_body_t body;     // 剩餘空間 = 16KB - 56 bytes\n};\n\n// Page 類型\n// FIL_PAGE_INDEX: 索引頁 (B+Tree 節點)\n// FIL_PAGE_DATA: 數據頁\n// FIL_PAGE_UNDO_LOG: Undo 頁\n// FIL_PAGE_INODE: Inode 頁"
+        }
+      ]
+    },
+    {
+      "topicId": "spring-boot-deep",
+      "name": "Spring Boot 深入原理",
+      "description": "自動配置、啟動流程、內嵌容器",
+      "category": "spring",
+      "questions": [
+        {
+          "id": 1,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Spring Boot既自動配置原理？",
+          "optionA": "@EnableAutoConfiguration + META-INF/spring.factories",
+          "optionB": "手動配置",
+          "optionC": "根據classpath",
+          "optionD": "反射",
+          "correct": "A",
+          "tags": "spring-boot,auto-config,@EnableAutoConfiguration",
+          "explanation": "**Spring Boot 自動配置既核心原理：**\n\n**@EnableAutoConfiguration 既作用：**\n\n1. **導入 AutoConfigurationImportSelector**\n2. **調用 selectImports() 方法**\n3. **掃描 META-INF/spring.factories 或 spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports**\n4. **根據條件 (@Conditional) 判斷邊啲要加載**\n\n**條件註解 (@Conditional)：**\n- @ConditionalOnClass：Classpath有呢個類先加載\n- @ConditionalOnMissingBean：容器中冇呢個Bean先加載\n- @ConditionalOnProperty：配置文件中有所屬性先加載\n- @ConditionalOnBean：指定Bean存在先加載\n\n**執行順序：**\n1. 掃描 classpath\n2. 載入所有 @Configuration 既類\n3. 按條件過濾\n4. 註冊到 BeanFactory\n\n**面試點：** 點樣睇有咩自動配置被加載？",
+          "codeExample": "// 1. 啟動類\n@SpringBootApplication\npublic class MyApp {\n    public static void main(String[] args) {\n        SpringApplication.run(MyApp.class, args);\n    }\n}\n\n// @SpringBootApplication = @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan\n\n// 2. EnableAutoConfiguration 源碼\n@Target(ElementType.TYPE)\n@Retention(RetentionPolicy.RUNTIME)\n@Import(AutoConfigurationImportSelector.class)\npublic @interface EnableAutoConfiguration {\n    String name() default \"\";\n}\n\n// 3. AutoConfigurationImportSelector\npublic class AutoConfigurationImportSelector \n    implements DeferredImportSelector {\n    \n    public String[] selectImports(AnnotationMetadata annotationMetadata) {\n        // 1. 獲取所有自動配置類\n        List<String> configurations = getCandidateConfigurations(...);\n        \n        // 2. 去重\n        configurations = removeDuplicates(configurations);\n        \n        // 3. 按 @Order 排序\n        configurations = sort(configurations);\n        \n        // 4. 根據 @Conditional 過濾\n        configurations = getExclusions(...);\n        \n        return configurations.toArray(new String[0]);\n    }\n}\n\n// 4. 自定義自動配置\n@Configuration\n@ConditionalOnClass(DataSource.class)  // 需要呢個class存在\n@ConditionalOnMissingBean(DataSource.class)  // 需要冇呢個bean\n@EnableConfigurationProperties(DataSourceProperties.class)\npublic class DataSourceAutoConfiguration {\n    \n    @Bean\n    @ConditionalOnMissingBean\n    public DataSource dataSource() {\n        return new HikariDataSource();\n    }\n}\n\n// 5. spring.factories (舊版)\norg.springframework.boot.autoconfigure.EnableAutoConfiguration=\\\ncom.example.MyAutoConfiguration\n\n// 或 spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports (新版)"
+        },
+        {
+          "id": 2,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "Spring Boot既啟動流程？",
+          "optionA": "構造SpringApplication -> 環境準備 -> Bean加載 -> CommandLineRunner",
+          "optionB": "直接加載Bean",
+          "optionC": "先執行main方法",
+          "optionD": "從web.xml啟動",
+          "correct": "A",
+          "tags": "spring-boot,startup,流程",
+          "explanation": "**Spring Boot 啟動流程：**\n\n**1. 構造 SpringApplication**\n```java\nnew SpringApplication(primarySources)\n    -> 判斷 WebApplicationType (Servlet/Reactive/None)\n    -> 設置 ApplicationContextInitializer\n    -> 設置 ApplicationListener\n    -> 設置 main 方法既類為 primarySource\n```\n\n**2. run() 方法執行**\n```\n① prepareEnvironment()\n   - 創建 ConfigurableEnvironment\n   - 處理 args\n   - 加載 application.properties/yaml\n   \n② prepareContext()\n   - 創建 ApplicationContext\n   - BeanDefinitionLoader 掃描\n   - 執行 InitializingBean\n   \n③ refreshContext()\n   - 核心！\n   - 調用 AbstractApplicationContext.refresh()\n   - BeanFactoryPostProcessor\n   - Bean 生命周期回調\n   - @PostConstruct\n   \n④ afterRefresh()\n   - 調用 CommandLineRunner\n   - 調用 ApplicationRunner\n```\n\n**面試點：** Spring Boot 點樣實現既零配置？",
+          "codeExample": "// SpringApplication.run() 源碼\npublic ConfigurableApplicationContext run(String... args) {\n    // 1. 計時\n    StopWatch stopWatch = new StopWatch();\n    stopWatch.start();\n    \n    // 2. 準備環境\n    ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);\n    \n    // 3. 創建 Context\n    ConfigurableApplicationContext context = createApplicationContext();\n    \n    // 4. 準備 Context\n    prepareContext(context, environment, listeners, applicationArguments, printedBanner);\n    \n    // 5. 刷新 Context (核心！)\n    refreshContext(context);\n    \n    // 6. 後置處理\n    afterRefresh(context, applicationArguments);\n    \n    // 7. 返回\n    return context;\n}\n\n// prepareContext 詳細：\nprivate void prepareContext(...) {\n    // 1. 設置 environment\n    context.setEnvironment(environment);\n    \n    // 2. BeanNameGenerator\n    context.getBeanFactory().setBeanNameGenerator(beanNameGenerator);\n    \n    // 3. 掃描並註冊 Bean\n    load(context, sources.toArray(new Object[0]));\n    \n    // 4. 發送 ContextPreparedEvent\n    listeners.contextPrepared(context);\n    \n    // 5. 所有 Bean 載入完成\n    listeners.contextLoaded(context);\n}\n\n// 自定義 CommandLineRunner\n@Component\npublic class MyRunner implements CommandLineRunner {\n    @Override\n    public void run(String... args) throws Exception {\n        // 啟動後既邏輯\n    }\n}"
+        },
+        {
+          "id": 3,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Spring Boot既內嵌Tomcat係點工作既？",
+          "optionA": "SPI加載ServletContainerInitializer + 動態註冊Servlet",
+          "optionB": "傳統既web.xml",
+          "optionC": "直接用外置Tomcat",
+          "optionD": "通過JNI",
+          "correct": "A",
+          "tags": "tomcat,embedded,servlet",
+          "explanation": "**Spring Boot 內嵌 Tomcat 既工作原理：**\n\n**核心組件：**\n\n1. **Tomcat 類**\n   - 底層仲係標準既 Tomcat Engine\n   - 通過 `new Tomcat()` 創建\n\n2. **ServletContainerInitializer (SPI)**\n   - Tomcat 啟動時通過 SPI 發現\n   - Spring 既 `SpringServletContainerInitializer` \n   - 負責掃描 `@WebServlet`, `@WebFilter`, `@WebListener`\n\n3. **DispatcherServlet 既註冊**\n   - 通過 `ServletRegistrationBean` 手動註冊\n   - 映射到 `/`\n\n**啟動流程：**\n```\n1. SpringBootServletInitializer\n2. 創建 WebApplicationContext (Root)\n3. DispatcherServlet 註冊\n4. Tomcat 啟動\n```\n\n**與傳統部署既分別：**\n- 傳統：WAR 包 -> 外置 Tomcat\n- Spring Boot：JAR 包 -> 內嵌 Tomcat",
+          "codeExample": "// 內嵌 Tomcat 初始化\n// Spring Boot 2.x 使用 Tomcat 9\n\n// 1. Tomcat 創建\nTomcat tomcat = new Tomcat();\ntomcat.setPort(8080);\ntomcat.getConnector();\n\n// 2. 添加 Context\nContext ctx = tomcat.addWebapp(\"/\", \n    new File(\"src/main/webapp\").getAbsolutePath());\n\n// 3. Spring Boot 既自動配置\n// ServletWebServerFactoryAutoConfiguration\n\n// 4. DispatcherServlet 註冊\n@Bean\npublic ServletRegistrationBean<DispatcherServlet> \n    dispatcherServlet(ApplicationContext applicationContext) {\n    \n    DispatcherServlet dispatcherServlet = \n        new DispatcherServlet(applicationContext);\n    \n    return new ServletRegistrationBean<>(\n        dispatcherServlet, \n        \"/\"\n    );\n}\n\n// 5. 內嵌 Tomcat 配置\n// application.properties\nserver.port=8080\nserver.tomcat.threads.max=200\nserver.tomcat.accept-count=100\nserver.tomcat.max-connections=10000\n\n// 6. 如果你想用其他容器：\n// Jetty\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-jetty</artifactId>\n</dependency>\n\n// Undertow\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-undertow</artifactId>\n</dependency>\n\n// Netty (WebFlux)\n// spring-boot-starter-webflux"
+        }
+      ]
     }
   ]
 }
