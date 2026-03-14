@@ -88,7 +88,7 @@ public class SessionService {
     /**
      * 獲取下一題 ID
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<Long> getNextQuestionId(String sessionId, String topicId) {
         UserSession session = getOrCreateSession(sessionId, topicId);
         
@@ -142,15 +142,14 @@ public class SessionService {
     /**
      * 檢查是否最後一題
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public boolean isLastQuestion(String sessionId, String topicId) {
-        return userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
-                .map(session -> {
-                    List<Long> questionIds = parseQuestionIds(session);
-                    int currentIndex = session.getCurrentIndex() != null ? session.getCurrentIndex() : 0;
-                    return currentIndex + 1 >= questionIds.size();
-                })
-                .orElse(true);
+        // First ensure session exists (create if not)
+        UserSession session = getOrCreateSession(sessionId, topicId);
+        
+        List<Long> questionIds = parseQuestionIds(session);
+        int currentIndex = session.getCurrentIndex() != null ? session.getCurrentIndex() : 0;
+        return currentIndex + 1 >= questionIds.size();
     }
 
     private String toJson(List<Long> list) {
