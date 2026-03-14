@@ -88,6 +88,7 @@ public class SessionService {
     /**
      * 獲取下一題 ID
      */
+    @Transactional(readOnly = true)
     public Optional<Long> getNextQuestionId(String sessionId, String topicId) {
         UserSession session = getOrCreateSession(sessionId, topicId);
         
