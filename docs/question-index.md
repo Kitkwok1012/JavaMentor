@@ -115,12 +115,10 @@
 | Topic ID | Name | Questions |
 |----------|------|----------|
  | gap-fill | Review & Gap Fill | 10 |
- | final-fill | Final Fill | 14 |
  | bonus-java | Java Core Bonus | 28 |
- | last-12 | Final 12 | 12 |
 
 ## Statistics
 
 - **Total Topics:** 56
-- **Total Questions:** 596
+- **Total Questions:** 584
 - **Categories:** 13
