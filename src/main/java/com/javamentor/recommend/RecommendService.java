@@ -79,7 +79,7 @@ public class RecommendService {
         }
         
         // Fallback: random question
-        return questionService.toDto(getRandomQuestion(answeredIds));
+        return getRandomQuestionDto(answeredIds);
     }
 
     /**
@@ -167,13 +167,27 @@ public class RecommendService {
         return null;
     }
 
+    private QuestionDto getRandomQuestionDto(Set<Long> excludeIds) {
+        Question q = getRandomQuestion(excludeIds);
+        return q != null ? questionService.toDto(q) : null;
+    }
+    
     private Question getRandomQuestion(Set<Long> excludeIds) {
         // Handle empty excludeIds to avoid JPQL error with empty IN clause
         Set<Long> safeExcludeIds = excludeIds.isEmpty() ? Set.of(-1L) : excludeIds;
         
         List<Question> candidates = questionRepository.findExcluding(safeExcludeIds);
         
-        return candidates.isEmpty() ? null : candidates.get(new Random().nextInt(candidates.size()));
+        if (candidates.isEmpty()) {
+            // Fallback: return any question not in excludeIds by loading all
+            List<Question> allQuestions = questionRepository.findAll();
+            List<Question> unanswered = allQuestions.stream()
+                .filter(q -> !excludeIds.contains(q.getId()))
+                .toList();
+            return unanswered.isEmpty() ? null : unanswered.get(new Random().nextInt(unanswered.size()));
+        }
+        
+        return candidates.get(new Random().nextInt(candidates.size()));
     }
 
     private boolean hasSharedTags(Set<String> tags1, Set<String> tags2) {

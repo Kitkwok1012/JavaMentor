@@ -69,8 +69,8 @@ public class AnswerService {
         if (followUp != null && !followUp.isBlank()) {
             response.setHasFollowUp(true);
             response.setFollowUpQuestion(followUp);
-            // TODO: Implement dynamic follow-up options when follow-up data is added
-            response.setFollowUpOptions(null);
+            // Use default A/B options for follow-up when dynamic options not available
+            response.setFollowUpOptions(Arrays.asList("A", "B"));
         } else {
             response.setHasFollowUp(false);
         }
