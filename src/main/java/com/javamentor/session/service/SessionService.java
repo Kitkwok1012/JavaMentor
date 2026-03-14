@@ -38,8 +38,9 @@ public class SessionService {
     }
 
     /**
-     * 獲取或創建會話
+     * 獲取或創建會話 ( transactional to prevent race conditions )
      */
+    @Transactional
     public UserSession getOrCreateSession(String sessionId, String topicId) {
         return userSessionRepository.findBySessionIdAndTopicId(sessionId, topicId)
                 .orElseGet(() -> createNewSession(sessionId, topicId));
