@@ -12,7 +12,6 @@ public class MockTestDto {
     private List<Long> questionIds;
     private int totalQuestions;
     private int currentIndex;
-    private String selectedTopic;
     private List<String> selectedTopics;
     private Long startTime;
 }

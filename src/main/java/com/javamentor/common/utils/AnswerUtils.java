@@ -14,6 +14,8 @@ public final class AnswerUtils {
 
     /**
      * Check if user's answer is correct
+     * Note: userAnswer is expected to be already normalized (uppercase, trimmed)
+     * from AnswerService, but we also support case-insensitive comparison for flexibility
      */
     public static boolean isCorrect(String userAnswer, String correctAnswer, Boolean multiSelect) {
         if (userAnswer == null || correctAnswer == null) {
@@ -21,9 +23,12 @@ public final class AnswerUtils {
         }
         
         if (Boolean.TRUE.equals(multiSelect)) {
+            // Multi-select: normalize both and compare
             return normalizeMultiSelectAnswer(userAnswer).equals(normalizeMultiSelectAnswer(correctAnswer));
         } else {
-            return userAnswer.equalsIgnoreCase(correctAnswer);
+            // Single-select: normalize correctAnswer to uppercase (userAnswer already uppercase in practice)
+            String normalizedCorrect = correctAnswer.trim().toUpperCase();
+            return userAnswer.toUpperCase().equals(normalizedCorrect);
         }
     }
 
