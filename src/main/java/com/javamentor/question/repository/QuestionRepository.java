@@ -25,7 +25,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @EntityGraph(attributePaths = {"topic", "options"})
     List<Question> findByTopicTopicIdIn(List<String> topicIds);
     
-    @Query("SELECT q.topic.topicId, COUNT(q) FROM Question q GROUP BY q.topic.topicId")
+    @Query("SELECT q.topic.topicId, COUNT(q) FROM Question q WHERE q.topic IS NOT NULL GROUP BY q.topic.topicId")
     List<Object[]> countAllGroupedByTopic();
     
     @EntityGraph(attributePaths = {"topic", "options"})

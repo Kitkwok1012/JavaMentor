@@ -22,17 +22,17 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
     @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.isCorrect = true")
     Long countCorrectBySessionId(@Param("sessionId") String sessionId);
 
-    @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId")
+    @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question IS NOT NULL AND p.question.topic IS NOT NULL AND p.question.topic.topicId = :topicId")
     Long countBySessionIdAndTopicId(@Param("sessionId") String sessionId, @Param("topicId") String topicId);
 
-    @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question.topic.topicId = :topicId AND p.isCorrect = true")
+    @Query("SELECT COUNT(p) FROM UserProgress p WHERE p.sessionId = :sessionId AND p.question IS NOT NULL AND p.question.topic IS NOT NULL AND p.question.topic.topicId = :topicId AND p.isCorrect = true")
     Long countCorrectBySessionIdAndTopicId(@Param("sessionId") String sessionId, @Param("topicId") String topicId);
 
     @Query("SELECT p.question.topic.topicId, " +
            "COUNT(p), " +
            "SUM(CASE WHEN p.isCorrect = true THEN 1 ELSE 0 END) " +
            "FROM UserProgress p " +
-           "WHERE p.sessionId = :sessionId " +
+           "WHERE p.sessionId = :sessionId AND p.question IS NOT NULL AND p.question.topic IS NOT NULL " +
            "GROUP BY p.question.topic.topicId")
     List<Object[]> getTopicStatsGrouped(@Param("sessionId") String sessionId);
 
