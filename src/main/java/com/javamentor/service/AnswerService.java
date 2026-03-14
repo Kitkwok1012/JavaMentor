@@ -76,7 +76,7 @@ public class AnswerService {
         }
 
         // Check if last question
-        String topicId = question.getTopic().getTopicId();
+        String topicId = question.getTopic() != null ? question.getTopic().getTopicId() : null;
         response.setIsLastQuestion(sessionService.isLastQuestion(sessionId, topicId));
 
         return response;

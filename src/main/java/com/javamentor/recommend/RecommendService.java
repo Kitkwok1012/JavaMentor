@@ -40,6 +40,11 @@ public class RecommendService {
     public QuestionDto recommendNextQuestion(String sessionId, Long currentQuestionId, boolean correct) {
         Question current = questionService.getQuestionEntityById(currentQuestionId);
         
+        // Guard against null topic
+        if (current.getTopic() == null) {
+            return getRandomQuestionDto(getAnsweredQuestionIds(sessionId));
+        }
+        
         Set<Long> answeredIds = getAnsweredQuestionIds(sessionId);
         Map<String, Double> topicAccuracy = calculateTopicAccuracy(sessionId);
         List<String> weakTopics = getWeakTopics(topicAccuracy);
@@ -89,7 +94,8 @@ public class RecommendService {
     public List<QuestionDto> findRelatedQuestions(Long currentQuestionId, boolean answeredCorrect) {
         Question current = questionService.getQuestionEntityById(currentQuestionId);
         
-        if (current.getTags() == null) return Collections.emptyList();
+        // Guard against null topic
+        if (current.getTopic() == null || current.getTags() == null) return Collections.emptyList();
 
         String topicId = current.getTopic().getTopicId();
         List<Question> candidates = questionService.getQuestionsByTopic(topicId);
