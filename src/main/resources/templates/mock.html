@@ -15,6 +15,8 @@
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .option-selected { @apply ring-2 ring-blue-500 bg-blue-50; }
+        .option-correct { @apply ring-2 ring-green-500 bg-green-100 !important; }
+        .option-wrong { @apply ring-2 ring-red-500 bg-red-100 !important; }
     </style>
 <script>
         function toggleDarkMode() {
@@ -379,13 +381,14 @@
                         document.getElementById('answerInput').placeholder = '輸入答案 (A/B/C/D)';
                     }
                     
-                    // Clear previous feedback
+                    // Clear previous feedback and reset option styles
                     document.getElementById('resultFeedback').classList.add('hidden');
                     document.getElementById('answerInput').value = '';
                     
-                    // Reset option styles
+                    // Reset all option styles
                     ['A', 'B', 'C', 'D'].forEach(opt => {
-                        document.getElementById('option' + opt).classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50');
+                        const btn = document.getElementById('option' + opt);
+                        btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
                     });
                 });
         }
@@ -408,9 +411,11 @@
                 input.value = opt;
             }
             
-            // Visual feedback
+            // Visual feedback - blue for selection
             ['A', 'B', 'C', 'D'].forEach(o => {
                 const btn = document.getElementById('option' + o);
+                // Remove correct/wrong classes but keep selection
+                btn.classList.remove('option-correct', 'option-wrong');
                 if (input.value.includes(o)) {
                     btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
                 } else {
@@ -420,7 +425,7 @@
         }
         
         function submitAnswer() {
-            const answer = document.getElementById('answerInput').value.trim();
+            const answer = document.getElementById('answerInput').value.trim().toUpperCase();
             if (!answer) {
                 alert('請輸入答案');
                 return;
@@ -436,6 +441,30 @@
             })
             .then(res => res.json())
             .then(data => {
+                // Highlight options based on correct/wrong
+                const userAnswers = answer.split(',').map(a => a.trim()).filter(a => a);
+                const correctAnswers = data.correctAnswer.split(',').map(a => a.trim()).filter(a => a);
+                
+                // Reset all options first
+                ['A', 'B', 'C', 'D'].forEach(opt => {
+                    const btn = document.getElementById('option' + opt);
+                    btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
+                });
+                
+                // Highlight correct options (green)
+                correctAnswers.forEach(opt => {
+                    const btn = document.getElementById('option' + opt);
+                    if (btn) btn.classList.add('option-correct');
+                });
+                
+                // Highlight wrong options (red) - only user's selected wrong ones
+                userAnswers.forEach(opt => {
+                    if (!correctAnswers.includes(opt)) {
+                        const btn = document.getElementById('option' + opt);
+                        if (btn) btn.classList.add('option-wrong');
+                    }
+                });
+                
                 // Show feedback
                 const feedback = document.getElementById('resultFeedback');
                 const content = document.getElementById('feedbackContent');
@@ -450,10 +479,10 @@
                 
                 feedback.classList.remove('hidden');
                 
-                // Load next question after short delay
+                // Load next question after delay
                 setTimeout(() => {
                     loadQuestion();
-                }, 1500);
+                }, 2000);  // 2 seconds to see the highlights
             });
         }
         
