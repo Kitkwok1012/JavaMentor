@@ -1643,7 +1643,7 @@
         },
         {
           "id": 2603,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "咩係覆蓋索引？",
           "optionA": "查詢既字段全部係索引",
@@ -1652,8 +1652,8 @@
           "optionD": "無呢樣野",
           "correct": "A",
           "tags": "mysql,covering-index",
-          "explanation": "**mysql,covering-index相關知識點。**\n\n呢題考核mysql,covering-index既基本概念同原理。理解呢個概念對面試好重要。",
-          "codeExample": "CREATE INDEX idx_name_age ON users(name, age);\nSELECT name, age FROM users WHERE name = 'Tom';"
+          "explanation": "**覆蓋索引 (Covering Index)**\n\n**定義：** 要查詢既字段全部喺索引中，無需回表\n\n**例子：**\n```sql\n-- 索引：idx_name_age (name, age)\nSELECT name, age FROM users WHERE name = 'Tom';\n-- 覆蓋索引：只需讀索引，唔洗回表\n\nSELECT * FROM users WHERE name = 'Tom';\n-- 非覆蓋索引：需要回表讀完整行\n```\n\n**優點：**\n- 減少磁盤 I/O\n- 提高查詢性能\n\n**使用場景：**\n- 經常查詢既字段建立組合索引\n- 將 WHERE 同 SELECT 既字段包含喺索引中\n\n**面試點：** \n- 點解 VARCHAR(255) 既索引可以好大？\n- 組合索引既最左前綴原則？",
+          "codeExample": "-- 建立覆蓋索引\nCREATE INDEX idx_user_name_age ON users(name, age);\n\n-- 覆蓋索引查詢（使用索引）\nEXPLAIN SELECT name, age FROM users WHERE name = 'Tom';\n-- type: ref, Extra: Using index (覆蓋索引！)\n\n-- 非覆蓋索引查詢（回表）\nEXPLAIN SELECT * FROM users WHERE name = 'Tom';\n-- type: ref, Extra: NULL (需要回表)\n\n-- 常見既覆蓋索引優化\n-- 場景：查詢狀態=1既用戶既ID同狀態\nCREATE INDEX idx_user_status ON users(status);\n\n-- 如果經常咁查：\nSELECT id, status FROM users WHERE status = 1;\n-- 覆蓋索引就用到\n\n-- 組合索引順序好重要！\n-- 呢個索引：(age, name)\n-- 可以用於：WHERE age = 20\n--          WHERE age = 20 AND name = 'Tom'\n-- 但唔可以用於：WHERE name = 'Tom'"
         },
         {
           "id": 2604,
@@ -1671,7 +1671,7 @@
         },
         {
           "id": 2605,
-          "difficulty": 2,
+          "difficulty": 4,
           "multiSelect": false,
           "question": "Buffer Pool既作用？",
           "optionA": "緩存數據同索引",
@@ -1680,8 +1680,50 @@
           "optionD": "無作用",
           "correct": "A",
           "tags": "mysql,buffer-pool",
-          "explanation": "**mysql,buffer-pool相關知識點。**\n\n呢題考核mysql,buffer-pool既基本概念同原理。理解呢個概念對面試好重要。",
-          "codeExample": "innodb_buffer_pool_size = 4G"
+          "explanation": "**Buffer Pool 既作用**\n\nBuffer Pool 係 InnoDB 既內存緩冲區，默認 128MB。\n\n**主要功能：**\n1. **緩存數據頁** - 減少磁盤 I/O\n2. **緩存索引頁** - 提高索引查詢速度\n3. **Change Buffer** - 緩冲二級索引既變更\n4. **Undo 頁** - 存儲 MVCC 既歷史版本\n5. **Lock Info** - 事務既鎖信息\n\n**LRU 淘汰策略：**\n- 列表分為 young (5/8) 同 old (3/8) 兩部分\n- old 區既 page 需要 age 到某程度先會被淘汰\n- 目的：避免一次訪問既大表掃描淘汰熱點數據\n\n**面試點：**\n- Buffer Pool 大小點設置？(建議 60-80% 物理內存)\n- 点樣睇 Buffer Pool 既命中率？\n- Buffer Pool 既預熱？",
+          "codeExample": "# Buffer Pool 配置\ninnodb_buffer_pool_size = 8589934592  # 8GB\ninnodb_buffer_pool_instances = 4     # 分為4個實例，減少鎖競爭\ninnodb_old_blocks_pct = 37            # old區域比例\ninnodb_old_blocks_time = 1000         # 進入old區既時間閾值(ms)\n\n# 查看 Buffer Pool 狀態\nSHOW ENGINE INNODB STATUS;\n-- Buffer pool hit rate 964 / 1000 = 96.4%\n\n# 查看詳細統計\nSELECT \n    POOL_ID,\n    PAGES_DATA,\n    PAGES_DIRTY,\n    PAGES_FLUSHED,\n    HIT_RATE,\n    LRU_LEN\nFROM information_schema.INNODB_BUFFER_POOL_STATS;\n\n# 查看緩冲既page\nSELECT \n    table_name,\n    index_name,\n    count(*) as pages\nFROM information_schema.INNODB_BUFFER_PAGE\nGROUP BY table_name, index_name\nORDER BY pages DESC;\n\n# Buffer Pool 預熱\n-- 方法1：重啟前dump\nSET GLOBAL innodb_buffer_pool_dump_now = ON;\n\n-- 重啟後load\nSET GLOBAL innodb_buffer_pool_load_now = ON;\n\n# 監控\nSHOW STATUS LIKE 'Innodb_buffer_pool%';\n-- Innodb_buffer_pool_read_requests: 1234567\n-- Innodb_buffer_pool_reads: 12345\n-- 命中率 = 1 - (reads / requests)"
+        },
+        {
+          "id": 2606,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "InnoDB既Redo Log同BinLog既分別？",
+          "optionA": "Redo係物理日誌用於崩溃恢復，BinLog係邏輯日誌用於主從同步",
+          "optionB": "一樣既野",
+          "optionC": "Redo用於主從，BinLog用於恢復",
+          "optionD": "無分別",
+          "correct": "A",
+          "tags": "mysql,redolog,binlog,difference",
+          "explanation": "**Redo Log vs BinLog 既分別：**\n\n**Redo Log (InnoDB)**\n- 物理日誌：記錄數據頁既物理修改\n- 用於：崩潰恢復 (Crash Recovery)\n- 循環寫：寫滿一圈會覆蓋\n- 寫入比較：先寫 Redo Log，數據先唔落盤 (Write-Ahead Logging)\n\n**BinLog (Server層)**\n- 邏輯日誌：記錄 SQL 既邏輯修改\n- 用於：主從複製、數據恢復\n- 追加寫：一直追加，唔覆蓋\n- 三種格式：Statement / Row / Mixed\n\n**協調流程：**\n1. 事務提交時，先寫 Redo Log (prepare)\n2. 寫 BinLog\n3. 提交事務 (Redo Log commit)\n\n**面試點：** 點解要先寫 Redo Log？",
+          "codeExample": "# Redo Log 配置\ninnodb_log_file_size = 48M      # 每個日誌文件大小\ninnodb_log_files_in_group = 2   # 日誌組既文件數\ninnodb_log_buffer_size = 16M    # 日誌緩冲區大小\n\n# BinLog 配置\nlog_bin = /var/log/mysql/mysql-bin\nbinlog_format = ROW              # 推薦使用 Row 格式\nexpire_logs_days = 7             # 保留7天\nmax_binlog_size = 100M          # 每個文件最大100M\n\n# 查看 Redo Log 狀態\nSHOW ENGINE INNODB STATUS;\n-- Log sequence number: 123456789\n-- Log flushed up to:  123456789\n-- Pages flushed up to: 123456789\n\n# 查看 BinLog\nSHOW MASTER STATUS;\nSHOW BINLOG EVENTS IN 'mysql-bin.000001';\n\n# 兩階段提交\n-- 1. 寫 Redo Log (prepare)\n-- 2. 寫 BinLog\n-- 3. 提交事務 (commit)\n\n# 如果第二步失敗：回滾 Redo Log (prepare)\n# 如果第三步失敗：自動重試提交"
+        },
+        {
+          "id": 2607,
+          "difficulty": 5,
+          "multiSelect": false,
+          "question": "InnoDB既Undo Log作用係咩？",
+          "optionA": "記錄數據既舊版本，用於MVCC同回滾",
+          "optionB": "記錄新數據",
+          "optionC": "用於崩溃恢復",
+          "optionD": "用於主從同步",
+          "correct": "A",
+          "tags": "mysql,undolog,mvcc,rollback",
+          "explanation": "**Undo Log 既作用：**\n\n**核心功能：**\n\n1. **MVCC (多版本並發控制)**\n   - 每條記錄都有 undo log 形成版本鏈\n   - 讀取時根據 Read View 選擇合適既版本\n   \n2. **事務回滾**\n   - 事務失敗時，通過 Undo Log 恢復數據\n   - 實現原子性\n\n**存放位置：**\n- 系統表空間 (ibdata1) 既 undo 段\n- 5.6+ 可以獨立 undo 表空間\n\n**Truncate 機制：**\n- Undo Log 需要定期清理\n- 通過 Purge 線程處理\n\n**面試點：**\n- Undo Log 太大點解決？\n- 點解需要獨立 undo 表空間？",
+          "codeExample": "# Undo Log 配置\ninnodb_undo_directory = /data/undo/     # 獨立目錄\ninnodb_undo_tablespaces = 4             # undo表空間數\ninnodb_undo_log_truncate = 1            # 開啟truncate\ninnodb_max_undo_log_size = 1G           # 最大undo表空間\n\n# 查看 Undo Log 狀態\nSHOW ENGINE INNODB STATUS;\n-- Transaction 1: undo number entries 123\n\n# Undo Log 結構\n-- 每個事務有兩個 undo segment\n-- 每個 segment 有 1024 個 undo slot\n-- 最大支持 ~2000 個並發事務\n\n# MVCC 版本鏈示意\n-- row: (id=1, name='Tom', trx_id=5, roll_ptr=NULL)\n-- undo: [\n--   {name: 'Jerry', trx_id: 3, roll_ptr: NULL},  -- 第一個版本\n--   {name: 'Alice', trx_id: 5, roll_ptr: 0x1234} -- 當前版本\n-- ]\n\n# 讀取過程：\n-- 1. 獲得 Read View (active_trx = [3, 5])\n-- 2. 睇到 trx_id=3：睇 undo，發現 trx_id=3 在 m_ids 入面，skip\n-- 3. 睇到 trx_id=5：自己既，可以讀"
+        },
+        {
+          "id": 2608,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "MySQL既BinLog有邊種格式？有咩分別？",
+          "optionA": "Statement( SQL ) / Row( 數據變化 ) / Mixed( 混合 )",
+          "optionB": "只有一種",
+          "optionC": "Text同Binary",
+          "optionD": "無格式",
+          "correct": "A",
+          "tags": "mysql,binlog,format,statement,row",
+          "explanation": "**BinLog 三種格式：**\n\n**1. Statement (基於SQL)**\n- 記錄實際執行既 SQL\n- 優點：日誌量小\n- 缺點：可能出現主從不一致 (如 NOW(), RAND())\n\n**2. Row (基於行)**\n- 記錄數據既具體變化\n- 優點：一定一致\n- 缺點：日誌量大\n\n**3. Mixed (混合)**\n- 默認用 Statement，需要時自動轉 Row\n- 解決函數導致既不一致問題\n\n**面試點：** \n- 點解要用 Row 格式？\n- SBR 同 RBR 既選擇？\n- GTID 既作用？",
+          "codeExample": "# 配置 BinLog 格式\nbinlog_format = STATEMENT   # SQL (默認5.7前)\nbinlog_format = ROW         # 數據變化 (推薦)\nbinlog_format = MIXED       # 混合\n\n# Statement 格式示例\nUPDATE users SET score = score + 1 WHERE id = 1;\n-- BinLog: UPDATE users SET score = score + 1 WHERE id = 1\n\n-- 問題：如果使用 RAND()，主從結果唔同！\nUPDATE users SET score = RAND() * 100;\n\n# Row 格式示例\nUPDATE users SET score = score + 1 WHERE id = 1;\n-- BinLog: UPDATE users SET score=101 WHERE id=1 AND score=100\n\n# 查看 BinLog 內容\nmysqlbinlog --no-base64-output=decode-rows -v mysql-bin.000001\n\n# GTID 模式 (5.6+)\ngtid_mode = ON\nenforce_gtid_consistency = 1\n\n# GTID 既好處\n-- 1. 自動定位同步位置\n-- 2. 簡化failover\n-- 3. 支持多源複製\n\n# 查看 GTID\nSHOW MASTER STATUS;\nSHOW SLAVE STATUS;"
         }
       ],
       "category": "database"
@@ -3246,7 +3288,7 @@
         },
         {
           "id": 3,
-          "difficulty": 2,
+          "difficulty": 4,
           "multiSelect": false,
           "question": "Redis的持久化方式？",
           "optionA": "RDB(快照) + AOF(日誌)",
@@ -3255,7 +3297,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "redis,persist",
-          "explanation": "Redis持久化：1)RDB定時生成數據快照 2)AOF記錄每次寫操作。AOF數據更完整，RDB恢復更快。"
+          "explanation": "**Redis 持久化方式：RDB + AOF**\n\nRedis 有兩種持久化方式，預設同時開啟。\n\n**1. RDB (Redis Database) - 快照方式**\n- 定時 fork 子進程，將內存數據寫入 RDB 文件\n- 默認策略：900秒(1個key) / 300秒(10個key) / 60秒(10000個key)\n- 優點：恢復快（只需加載一個文件）\n- 缺點：可能丟失最後一次快照後既數據\n\n**2. AOF (Append Only File) - 命令日誌方式**\n- 每次寫操作追加到 AOF 文件\n- 同步策略：always / everysec / no\n- 優點：數據更完整（everysec 只丟1秒）\n- 缺點：文件比 RDB 大，恢復慢\n\n**3. 混合模式 (4.0+)**\n- AOF 重寫時使用 RDB 格式\n- 兼具快速恢復同完整數據\n\n**面試點：** \n- 點解 fork 子進程唔會阻塞主線程？\n- AOF 重寫既觸發時機？\n- RDB 既 COW (Copy-on-Write) 機制？",
+          "codeExample": "# RDB 配置\nsave 900 1\nsave 300 10\nsave 60 10000\nstop-writes-on-bgsave-error yes  # bgsave失敗停止寫\nrdbcompression yes                # 壓縮\nrdbchecksum yes                  # 校驗\n\n# AOF 配置\nappendonly yes\nappendfilename \"appendonly.aof\"\nappendfsync everysec              # 每秒同步（推薦）\nauto-aof-rewrite-percentage 100  # 文件大小翻倍觸發重寫\nauto-aof-rewrite-min-size 64mb   # 最小64MB\n\n# 混合模式\naof-use-rdb-preamble yes\n\n# 手動觸發\nBGSAVE           # 後台保存 RDB\nBGREWRITEAOF     # 後台重寫 AOF\n\n# 查看持久化狀態\nINFO persistence\n# persistence:aof_enabled:1\n# persistence:rdb_changes_since_last_save:123\n# persistence:rdb_bgsave_in_progress:0"
         },
         {
           "id": 4,
@@ -3298,7 +3341,7 @@
         },
         {
           "id": 7,
-          "difficulty": 2,
+          "difficulty": 4,
           "multiSelect": false,
           "question": "Redis分布式鎖的實現？",
           "optionA": "SET key value NX EX",
@@ -3307,11 +3350,12 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "redis,lock",
-          "explanation": "**redis,lock相關知識點。**\n\n呢題考核redis,lock既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**Redis 分布式鎖實現**\n\n**核心命令：** SET key value NX EX seconds\n\n**正確既 Lock 實現：**\n1. 加鎖：SET lock_key unique_id NX EX 30\n2. 釋放鎖：Lua 腳本保證原子性\n3. 自動續期：watchdog 機制\n\n**問題同解決方案：**\n- **業務超時：** 使用 Lua 腳本保證釋放自己既鎖\n- **Client 1 鎖住，但Client 2 拿到：** 釋放前檢查 value 是否自己既\n- **主從切換丟鎖：** 使用 RedLock（但有爭議）或 Redisson\n\n**面試點：**\n- 點解要用 Lua 腳本釋放鎖？\n- Redisson 既看門狗機制？\n- Redis Cluster 下的分布式鎖？",
+          "codeExample": "# 正確既加鎖\nSET lock:order:123456 nx ex 30\n# 返回 OK 表示獲取鎖成功\n# 返回 nil 表示獲取失敗\n\n# 錯誤既釋放鎖（會釋放其他人既鎖！）\nDEL lock:order:123456\n\n# 正確既釋放鎖（Lua 腳本）\nif redis.call(\"get\", KEYS[1]) == ARGV[1] then\n    return redis.call(\"del\", KEYS[1])\nelse\n    return 0\nend\n\n# Java Redisson 實現\nRLock lock = redissonClient.getLock(\"lock:order:123456\");\nlock.lock(30, TimeUnit.SECONDS);  // 自動續期\ntry {\n    // 業務邏輯\n} finally {\n    lock.unlock();\n}\n\n# Redisson 看門狗\n// 默認 30 秒鎖，10 秒自動續期\n// 業務執行緊就會自動延長"
         },
         {
           "id": 8,
-          "difficulty": 2,
+          "difficulty": 3,
           "multiSelect": false,
           "question": "Redis的Pipeline的作用？",
           "optionA": "批量執行命令，減少網絡往返",
@@ -3320,7 +3364,8 @@
           "optionD": "以上都不是",
           "correct": "A",
           "tags": "redis,pipeline",
-          "explanation": "**redis,pipeline相關知識點。**\n\n呢題考核redis,pipeline既基本概念同原理。理解呢個概念對面試好重要。"
+          "explanation": "**Redis Pipeline 既作用**\n\n**問題：** 每條 Redis 命令都有網絡往返開銷 (RTT)\n\n**解決：** Pipeline 批量發送命令，減少 RTT 次數\n\n**原理：**\n- Client 將多条命令打包，一次性發送\n- Server 一次性執行，返回所有結果\n- 減少網絡往返次數\n\n**注意：**\n- Pipeline 不保證原子性（除非用 MULTI/EXEC）\n- 命令數據量太大要分批\n- 適用於批量讀寫\n\n**面試點：** Pipeline 同 MGET 既分別？Pipeline 同 Lua 腳本既分別？",
+          "codeExample": "# 普通方式：10次網絡往返\nfor i in range(10):\n    r.set(f\"key{i}\", f\"value{i}\")  # 每次都等server回覆\n\n# Pipeline：1次網絡往返\npipe = redis.pipeline()\nfor i in range(10):\n    pipe.set(f\"key{i}\", f\"value{i}\")\npipe.execute()  # 一次過發送，一次過回覆\n\n# Python 示例\nimport redis\nr = redis.Redis(host='localhost', port=6379)\npipe = r.pipeline()\npipe.set('foo', 'bar')\npipe.get('foo')\nresult = pipe.execute()  # [True, b'bar']\n\n# Java 示例\nList<Object> results = redisTemplate.executePipelined(new SessionCallback<Object>() {\n    @Override\n    public Object execute(RedisOperations operations) throws DataAccessException {\n        for (int i = 0; i < 1000; i++) {\n            operations.opsForValue().set(\"key\" + i, \"value\" + i);\n            operations.opsForValue().get(\"key\" + i);\n        }\n        return null;\n    }\n});"
         },
         {
           "id": 9,
@@ -3334,6 +3379,34 @@
           "correct": "A",
           "tags": "redis,transaction",
           "explanation": "Redis事務用MULTI/EXEC/WATCH，保證原子性，但不支持回滾(如果命令失敗繼續執行)。"
+        },
+        {
+          "id": 10,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Redis既AOF重寫機制？",
+          "optionA": "後台fork子進程重寫，合併相同命令，減少文件大小",
+          "optionB": "每次重啟既時候重寫",
+          "optionC": "每次append既時候重寫",
+          "optionD": "唔會重寫",
+          "correct": "A",
+          "tags": "redis,aof,rewrite,bgrewriteaof",
+          "explanation": "**AOF 重寫機制：**\n\n**問題：** AOF 文件會越來越大\n\n**解決：** BGREWRITEAOF - 後台重寫\n\n**流程：**\n1. Fork 子進程\n2. 子進程遍歷內存數據，寫入新 AOF\n3. 父進程繼續寫舊 AOF，同時將新命令緩存\n4. 子進程完成後，緩存既命令追加到新文件\n5. 替換舊 AOF 文件\n\n**觸發條件：**\n- auto-aof-rewrite-percentage: 默認 100%\n- auto-aof-rewrite-min-size: 默認 64MB\n\n**面試點：** 點解要用子進程而唔可以直接寫？",
+          "codeExample": "# AOF 重寫配置\nauto-aof-rewrite-percentage 100   # 文件大小翻倍觸發\nauto-aof-rewrite-min-size 64mb   # 最小64MB\n\n# 手動觸發\nBGREWRITEAOF\n\n# 阻塞觸發\nBGREWRITEAOF NO ONE  # 等待完成\n\n# 查看重寫狀態\nINFO persistence\n# aof_last_bgrewrite_status: ok\n# aof_current_size: 12345678\n\n# 重寫過程\n-- 1. 主進程 fork 子進程 (copy-on-write)\n-- 2. 子進程讀內存，寫新 AOF\n-- 3. 父進程緩存新命令 (aof_rewrite_buf)\n-- 4. 子進程完成，緩存追加到新文件\n-- 5. 原子替換\n\n# copy-on-write\n-- fork 時唔會真正copy\n-- 只有修改既page會copy\n-- 如果係讀多寫少，幾乎無額外開銷"
+        },
+        {
+          "id": 11,
+          "difficulty": 4,
+          "multiSelect": false,
+          "question": "Redis既RDB快照過程？",
+          "optionA": "fork子進程，遍歷內存，寫入RDB文件",
+          "optionB": "直接寫磁盤",
+          "optionC": "每次客戶端請求既時候寫",
+          "optionD": "唔會寫",
+          "correct": "A",
+          "tags": "redis,rdb,snapshot,bgsave",
+          "explanation": "**RDB 快照過程：**\n\n**觸發方式：**\n1. 自動觸發 (根據 save 策略)\n2. 手動觸發 (BGSAVE / SAVE)\n\n**流程：**\n1. Fork 子進程 (COW)\n2. 子進程遍歷內存，寫入 RDB\n3. 父進程繼續處理請求\n4. 完成後替換舊文件\n\n**COW (Copy-on-Write)：**\n- Fork 唔會真正複製內存\n- 父子進程共享內存頁\n- 只有寫入時先複製修改既頁\n\n**面試點：** \n- Fork 阻塞點解？\n- 點解 Redis 建議keep物理內存既 twice？",
+          "codeExample": "# RDB 配置\nsave 900 1         # 900秒內1個key變化\nsave 300 10        # 300秒內10個key\nsave 60 10000      # 60秒內10000個key\nstop-writes-on-bgsave-error yes  # bgsave失敗停止寫\nrdbcompression yes               # 壓縮\nrdbchecksum yes                  # 校驗\n\n# 手動觸發\nBGSAVE       # 後台異步，唔阻塞\nSAVE         # 同步阻塞（一般用係shutdown既時候）\n\n# 查看狀態\nINFO persistence\n# rdb_bgsave_in_progress: 0\n# rdb_last_save_time: 1678888888\n# rdb_last_bgsave_status: ok\n# rdb_changes_since_last_save: 12345\n\n# RDB 文件結構\n-- 9 bytes header: \"REDIS\" + version\n-- EOF mark: 9 bytes\n-- CRC64 checksum: 8 bytes\n\n# COW 過程\n-- fork() -> 子進程\n-- 子進程調用 rdbSave()\n-- 遍歷 dict 寫入\n-- 過程中父進程既修改會copy到新page\n-- 如果寫入量大，內存可能 double"
         }
       ],
       "category": "database"
