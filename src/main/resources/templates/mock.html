@@ -137,7 +137,10 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 fade-in">
             <div class="flex justify-between items-start mb-4">
-                <span id="difficultyBadge" class="text-xs px-2 py-1 rounded bg-green-100 text-green-600">Easy</span>
+                <div class="flex items-center gap-2">
+                    <span id="topicBadge" class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded"></span>
+                    <span id="difficultyBadge" class="text-xs px-2 py-1 rounded bg-green-100 text-green-600">Easy</span>
+                </div>
                 <span id="multiSelectBadge" class="hidden text-xs px-2 py-1 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300"
                       th:text="#{question.multiselect.badge}">Multi-select</span>
             </div>
@@ -317,6 +320,7 @@
                         diffBadge.className = 'text-xs px-2 py-1 rounded bg-red-100 text-red-600';
                     }
 
+                    document.getElementById('topicBadge').textContent = data.topicName || '';
                     document.getElementById('questionText').textContent = data.question;
                     ['A', 'B', 'C', 'D'].forEach(label => {
                         const opt = data.options ? data.options.find(o => o.label === label) : null;
