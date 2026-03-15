@@ -125,29 +125,19 @@
             </div>
         </div>
 
-        <!-- Features -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4 md:p-6 text-center">
-                <div class="text-2xl md:text-3xl mb-2">🎯</div>
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm md:text-base" th:text="#{feature.one.title}">One by one</h3>
-                <p class="text-xs md:text-sm text-gray-500 mt-1" th:text="#{feature.one.desc}">Description</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4 md:p-6 text-center">
-                <div class="text-2xl md:text-3xl mb-2">🤔</div>
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm md:text-base" th:text="#{feature.ai.title}">AI Follow-up</h3>
-                <p class="text-xs md:text-sm text-gray-500 mt-1" th:text="#{feature.ai.desc}">Description</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4 md:p-6 text-center">
-                <div class="text-2xl md:text-3xl mb-2">📚</div>
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm md:text-base" th:text="#{feature.review.title}">Wrong Review</h3>
-                <p class="text-xs md:text-sm text-gray-500 mt-1" th:text="#{feature.review.desc}">Description</p>
-            </div>
-        </div>
-
         <!-- Topics -->
         <div class="mb-4 flex justify-between items-center">
             <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white" th:text="#{topics.title}">Topics</h2>
-            <span class="text-xs md:text-sm text-gray-500" th:text="${progress.size()} + ' Topics'">Topics</span>
+            <div class="flex items-center gap-3">
+                <span class="text-xs md:text-sm text-gray-500" th:text="${progress.size()} + ' Topics'">Topics</span>
+                <form th:action="@{/reset-all}" method="POST"
+                      th:attr="data-confirm=#{button.reset.all.confirm}"
+                      onsubmit="return confirm(this.dataset.confirm)">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            th:text="#{button.reset.all}">🗑️ Clear Progress</button>
+                </form>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
