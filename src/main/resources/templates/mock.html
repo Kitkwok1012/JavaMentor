@@ -138,30 +138,29 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 fade-in">
             <div class="flex justify-between items-start mb-4">
                 <span id="difficultyBadge" class="text-xs px-2 py-1 rounded bg-green-100 text-green-600">Easy</span>
+                <span id="multiSelectBadge" class="hidden text-xs px-2 py-1 rounded bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300"
+                      th:text="#{question.multiselect.badge}">Multi-select</span>
             </div>
             <h2 id="questionText" class="text-lg text-gray-900 dark:text-white mb-6">Question text here...</h2>
-            <div class="space-y-3" id="optionsContainer">
-                <button onclick="selectOption('A')" id="optionA" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+            <div class="space-y-3 mb-6" id="optionsContainer">
+                <button onclick="selectOption('A')" id="optionA" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
                     <span class="font-medium mr-2">A.</span><span id="optionAText">Option A</span>
                 </button>
-                <button onclick="selectOption('B')" id="optionB" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                <button onclick="selectOption('B')" id="optionB" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
                     <span class="font-medium mr-2">B.</span><span id="optionBText">Option B</span>
                 </button>
-                <button onclick="selectOption('C')" id="optionC" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                <button onclick="selectOption('C')" id="optionC" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
                     <span class="font-medium mr-2">C.</span><span id="optionCText">Option C</span>
                 </button>
-                <button onclick="selectOption('D')" id="optionD" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                <button onclick="selectOption('D')" id="optionD" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
                     <span class="font-medium mr-2">D.</span><span id="optionDText">Option D</span>
                 </button>
             </div>
-            <div id="multiSelectHint" class="hidden mt-4 text-sm text-orange-600 bg-orange-50 p-2 rounded"
-                 th:text="#{mock.multiselect.hint}">Multi-select hint</div>
-            <div class="mt-6 flex gap-4">
-                <input type="text" id="answerInput" th:placeholder="#{mock.answer.placeholder}"
-                       class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
-                <button onclick="submitAnswer()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-                        th:text="#{mock.submit}">Submit</button>
-            </div>
+            <!-- hidden input keeps answer state for submitAnswer() -->
+            <input type="hidden" id="answerInput">
+            <button onclick="submitAnswer()" id="submitBtn" disabled
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                    th:text="#{mock.submit}">Submit</button>
         </div>
 
         <div id="resultFeedback" class="hidden mt-6 p-4 rounded-lg fade-in">
@@ -327,20 +326,19 @@
                         btn.style.display = opt ? 'block' : 'none';
                     });
 
-                    const multiHint = document.getElementById('multiSelectHint');
+                    const multiBadge = document.getElementById('multiSelectBadge');
                     if (data.multiSelect) {
-                        multiHint.classList.remove('hidden');
-                        document.getElementById('answerInput').placeholder = i18n.multiPlaceholder;
+                        multiBadge.classList.remove('hidden');
                     } else {
-                        multiHint.classList.add('hidden');
-                        document.getElementById('answerInput').placeholder = i18n.singlePlaceholder;
+                        multiBadge.classList.add('hidden');
                     }
 
                     document.getElementById('resultFeedback').classList.add('hidden');
                     document.getElementById('answerInput').value = '';
+                    document.getElementById('submitBtn').disabled = true;
                     ['A', 'B', 'C', 'D'].forEach(opt => {
                         const btn = document.getElementById('option' + opt);
-                        btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
+                        btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900');
                     });
                 });
         }
@@ -358,17 +356,19 @@
             ['A', 'B', 'C', 'D'].forEach(o => {
                 const btn = document.getElementById('option' + o);
                 btn.classList.remove('option-correct', 'option-wrong');
-                if (input.value.includes(o)) {
-                    btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
+                if (input.value.split(',').includes(o)) {
+                    btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/30', 'dark:border-blue-500');
                 } else {
-                    btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50');
+                    btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-900/30', 'dark:border-blue-500');
                 }
             });
+            document.getElementById('submitBtn').disabled = !input.value;
         }
 
         function submitAnswer() {
             const answer = document.getElementById('answerInput').value.trim().toUpperCase();
-            if (!answer) { alert(i18n.enterAnswer); return; }
+            if (!answer) return;
+            document.getElementById('submitBtn').disabled = true;
 
             fetch(`/api/v1/mock/${sessionId}/answer`, {
                 method: 'POST',
