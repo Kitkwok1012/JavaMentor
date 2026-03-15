@@ -319,15 +319,12 @@
                     }
 
                     document.getElementById('questionText').textContent = data.question;
-                    document.getElementById('optionAText').textContent = data.optionA || '';
-                    document.getElementById('optionBText').textContent = data.optionB || '';
-                    document.getElementById('optionCText').textContent = data.optionC || '';
-                    document.getElementById('optionDText').textContent = data.optionD || '';
-
-                    ['A', 'B', 'C', 'D'].forEach(opt => {
-                        const btn = document.getElementById('option' + opt);
-                        const text = document.getElementById('option' + opt + 'Text');
-                        btn.style.display = text.textContent ? 'block' : 'none';
+                    ['A', 'B', 'C', 'D'].forEach(label => {
+                        const opt = data.options ? data.options.find(o => o.label === label) : null;
+                        const btn = document.getElementById('option' + label);
+                        const text = document.getElementById('option' + label + 'Text');
+                        text.textContent = opt ? opt.content : '';
+                        btn.style.display = opt ? 'block' : 'none';
                     });
 
                     const multiHint = document.getElementById('multiSelectHint');
