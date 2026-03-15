@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:17-jdk-jammy AS builder
 
 WORKDIR /app
 
@@ -7,11 +7,11 @@ COPY pom.xml .
 COPY src ./src
 
 # Build the application
-RUN apk add --no-cache maven && \
+RUN apt-get update && apt-get install -y maven && \
     mvn clean package -DskipTests
 
 # Final stage - minimal runtime image
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 

@@ -12,6 +12,7 @@ services:
     environment:
       - PORT=8080
       - DB_PATH=file:/app/data/javamentor
+      - DDL_AUTO=update
       - H2_CONSOLE_ENABLED=true
       - SHOW_SQL=false
       - THYMELEAF_CACHE=false

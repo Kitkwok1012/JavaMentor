@@ -77,28 +77,52 @@ public class LearnController {
     @Operation(summary = "開始學習 Topic", description = "根據 Topic ID 獲取題目進行學習")
     @GetMapping("/learn/{topicId}")
     public String learnTopic(
-            @Parameter(description = "Topic ID") @PathVariable String topicId, 
+            @Parameter(description = "Topic ID") @PathVariable String topicId,
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        
-        var topic = questionService.getTopicById(topicId);
-        
-        // Get next question ID from session
-        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
-        
-        QuestionDto question = null;
-        if (questionIdOpt.isPresent()) {
-            question = questionService.getQuestionById(questionIdOpt.get());
+
+        try {
+            var topic = questionService.getTopicById(topicId);
+
+            // Get next question ID from session
+            var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+
+            QuestionDto question = null;
+            if (questionIdOpt.isPresent()) {
+                question = questionService.getQuestionById(questionIdOpt.get());
+            }
+
+            model.addAttribute("topic", topic);
+            model.addAttribute("question", question);
+            model.addAttribute("topicId", topicId);
+
+            if (question == null) {
+                model.addAttribute("completed", true);
+            }
+
+            return "learn";
+        } catch (Exception e) {
+            log.warn("Failed to load topic {}: {}", topicId, e.getMessage());
+            return "redirect:/";
         }
+    }
 
-        model.addAttribute("topic", topic);
-        model.addAttribute("question", question);
+    @Operation(summary = "隨機開始學習", description = "隨機選擇一個 Topic 開始學習")
+    @GetMapping("/learn/random")
+    public String learnRandom() {
+        var topics = questionService.getAllTopics();
+        if (topics.isEmpty()) return "redirect:/";
+        int idx = (int)(Math.random() * topics.size());
+        return "redirect:/learn/" + topics.get(idx).getTopicId();
+    }
 
-        if (question == null) {
-            model.addAttribute("completed", true);
-        }
-
-        return "learn";
+    @Operation(summary = "模擬考試頁面", description = "顯示模擬考試頁面")
+    @GetMapping("/mock")
+    public String mockExam(Model model, HttpServletRequest request) {
+        String sessionId = getSessionId(request);
+        List<TopicProgressDto> progress = progressService.getTopicProgress(sessionId);
+        model.addAttribute("progress", progress);
+        return "mock";
     }
 
     @Operation(summary = "題目詳情", description = "根據 Question ID 獲取題目詳情")
@@ -107,102 +131,113 @@ public class LearnController {
             @Parameter(description = "Question ID") @PathVariable Long questionId,
             @Parameter(description = "Topic ID (optional)") @RequestParam(required = false) String topicId,
             Model model, HttpServletRequest request) {
-        
-        QuestionDto question = questionService.getQuestionById(questionId);
-        
-        if (question == null) {
-            model.addAttribute("error", "Question not found");
-            return "error";
+
+        try {
+            QuestionDto question = questionService.getQuestionById(questionId);
+            model.addAttribute("question", question);
+
+            String resolvedTopicId = topicId != null ? topicId : question.getTopicId();
+            if (resolvedTopicId != null) {
+                var topic = questionService.getTopicById(resolvedTopicId);
+                model.addAttribute("topic", topic);
+            }
+
+            return "question-detail";
+        } catch (Exception e) {
+            log.warn("Failed to load question {}: {}", questionId, e.getMessage());
+            return "redirect:/";
         }
-        
-        model.addAttribute("question", question);
-        
-        // If topicId provided, get topic info
-        if (topicId != null) {
-            var topic = questionService.getTopicById(topicId);
-            model.addAttribute("topic", topic);
-        } else if (question.getTopicId() != null) {
-            var topic = questionService.getTopicById(question.getTopicId());
-            model.addAttribute("topic", topic);
-        }
-        
-        return "question-detail";
     }
 
     @Operation(summary = "下一題", description = "移動到下一題")
     @GetMapping("/question/next")
     public String getNextQuestion(
-            @Parameter(description = "Topic ID") @RequestParam @NotBlank String topicId, 
+            @Parameter(description = "Topic ID") @RequestParam @NotBlank String topicId,
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        
-        sessionService.moveToNextQuestion(sessionId, topicId);
 
-        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
-        
-        QuestionDto question = null;
-        if (questionIdOpt.isPresent()) {
-            question = questionService.getQuestionById(questionIdOpt.get());
+        try {
+            sessionService.moveToNextQuestion(sessionId, topicId);
+            var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+
+            QuestionDto question = null;
+            if (questionIdOpt.isPresent()) {
+                question = questionService.getQuestionById(questionIdOpt.get());
+            }
+
+            var topic = questionService.getTopicById(topicId);
+            model.addAttribute("topic", topic);
+            model.addAttribute("question", question);
+
+            if (question == null) {
+                model.addAttribute("completed", true);
+            }
+
+            return "learn";
+        } catch (Exception e) {
+            log.warn("Failed to get next question for topic {}: {}", topicId, e.getMessage());
+            return "redirect:/learn/" + topicId;
         }
-        
-        var topic = questionService.getTopicById(topicId);
-
-        model.addAttribute("topic", topic);
-        model.addAttribute("question", question);
-
-        if (question == null) {
-            model.addAttribute("completed", true);
-        }
-
-        return "learn";
     }
-    
+
     /**
      * HTMX fragment endpoint for next question - returns only the question section
      */
     @GetMapping("/question/next-fragment")
     public String getNextQuestionFragment(
-            @RequestParam @NotBlank String topicId, 
+            @RequestParam @NotBlank String topicId,
             Model model, HttpServletRequest request) {
         String sessionId = getSessionId(request);
-        
-        sessionService.moveToNextQuestion(sessionId, topicId);
-        var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
-        
-        QuestionDto question = null;
-        if (questionIdOpt.isPresent()) {
-            question = questionService.getQuestionById(questionIdOpt.get());
-        }
-        
-        var topic = questionService.getTopicById(topicId);
-        model.addAttribute("topic", topic);
-        model.addAttribute("question", question);
-        model.addAttribute("topicId", topicId);
 
-        if (question == null) {
-            model.addAttribute("completed", true);
-        }
+        try {
+            sessionService.moveToNextQuestion(sessionId, topicId);
+            var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
 
-        return "learn :: questionFragment";
+            QuestionDto question = null;
+            if (questionIdOpt.isPresent()) {
+                question = questionService.getQuestionById(questionIdOpt.get());
+            }
+
+            var topic = questionService.getTopicById(topicId);
+            model.addAttribute("topic", topic);
+            model.addAttribute("question", question);
+            model.addAttribute("topicId", topicId);
+
+            if (question == null) {
+                model.addAttribute("completed", true);
+            }
+
+            return "learn :: questionFragment";
+        } catch (Exception e) {
+            log.warn("Failed to get next question fragment for topic {}: {}", topicId, e.getMessage());
+            return "redirect:/learn/" + topicId;
+        }
     }
 
     @Operation(summary = "提交答案", description = "提交問題答案並獲取結果")
     @PostMapping("/answer")
     public String submitAnswer(
             @Parameter(description = "Question ID") @RequestParam @NotNull Long questionId,
-            @Parameter(description = "答案 (A/B/C/D)") @RequestParam @NotBlank String answer,
+            @Parameter(description = "答案 (A/B/C/D)") @RequestParam List<String> answer,
             @Parameter(description = "Topic ID") @RequestParam @NotBlank String topicId,
             Model model,
             HttpServletRequest request) {
 
         String sessionId = getSessionId(request);
-        
-        log.info("Submitting answer: sessionId={}, questionId={}, answer={}, topicId={}", 
-                sessionId, questionId, answer, topicId);
+
+        // Join multi-select answers (checkboxes send answer=A&answer=C as separate params)
+        String answerStr = answer.stream()
+                .filter(a -> a != null && !a.isBlank())
+                .map(a -> a.trim().toUpperCase())
+                .sorted()
+                .collect(java.util.stream.Collectors.joining(","));
+
+        log.info("Submitting answer: sessionId={}, questionId={}, answer={}, topicId={}",
+                sessionId, questionId, answerStr, topicId);
 
         try {
             var question = questionService.getQuestionById(questionId);
-            AnswerResponseDto response = answerService.submitAnswer(sessionId, questionId, answer);
+            AnswerResponseDto response = answerService.submitAnswer(sessionId, questionId, answerStr);
             var topic = questionService.getTopicById(topicId);
 
             model.addAttribute("topic", topic);
@@ -211,6 +246,10 @@ public class LearnController {
             model.addAttribute("questionId", questionId);
             model.addAttribute("topicId", topicId);
 
+            // HTMX requests only need the fragment, not the full page
+            if ("true".equals(request.getHeader("HX-Request"))) {
+                return "learn :: questionFragment";
+            }
             return "learn";
 
         } catch (Exception e) {

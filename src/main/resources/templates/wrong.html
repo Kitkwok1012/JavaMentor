@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaMentor - 錯題簿 | Wrong Answers</title>
+    <title th:text="#{wrong.title} + ' - JavaMentor'">Wrong Answers - JavaMentor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .markdown-body p { margin: 0.4rem 0; }
+        .markdown-body ul,.markdown-body ol { margin: 0.4rem 0; padding-left: 1.5rem; }
+        .markdown-body code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+        .markdown-body pre { background: #f3f4f6; padding: 0.75rem; border-radius: 6px; overflow-x: auto; }
+        .markdown-body pre code { background: none; padding: 0; }
+        .markdown-body strong { font-weight: 600; }
     </style>
-<script>
+    <script>
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
@@ -19,6 +24,14 @@
         if (localStorage.getItem('darkMode') === 'true') {
             document.documentElement.classList.add('dark');
         }
+        function changeLang(lang) {
+            window.location.href = window.location.pathname + '?lang=' + lang;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-markdown]').forEach(function(el) {
+                el.innerHTML = marked.parse(el.getAttribute('data-markdown') || '');
+            });
+        });
     </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
@@ -26,51 +39,62 @@
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
-                <!-- Search Form -->
                 <form th:action="@{/search}" method="get" class="flex">
-                    <input type="text" name="keyword" 
-                           placeholder="搜尋題目..."
+                    <input type="text" name="keyword"
+                           th:placeholder="#{search.placeholder}"
                            class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700" th:text="#{search.button}">Search</button>
                 </form>
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">錯題簿</a>
-                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="切換深色模式">
+                <select onchange="changeLang(this.value)" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:text-white">
+                    <option value="en" th:selected="${#locale.language == 'en'}">EN</option>
+                    <option value="zh" th:selected="${#locale.language == 'zh' and #locale.country != 'TW'}">简</option>
+                    <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
+                </select>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.progress}">Progress</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.wrong}">Wrong</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" th:title="#{ui.dark.mode}">
                     <span class="dark:hidden">🌙</span>
                     <span class="hidden dark:inline">☀️</span>
                 </button>
             </div>
         </div>
     </nav>
-    
+
     <main class="max-w-4xl mx-auto px-4 py-8">
-        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁 | Back to Home</a>
-        
-        <h1 class="text-2xl font-bold text-gray-900 mb-8">錯題簿 | Wrong Answers</h1>
-        
+        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block" th:text="#{wrong.back.home}">← Back to Home</a>
+
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" th:text="#{wrong.title}">Wrong Answers</h1>
+
         <div th:if="${#lists.isEmpty(wrongQuestions)}" class="text-center py-12">
             <div class="text-6xl mb-4">🎉</div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">沒有錯題！</h2>
-            <p class="text-gray-500 dark:text-gray-400">您的表現非常出色！</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2" th:text="#{wrong.empty.title}">No wrong answers!</h2>
+            <p class="text-gray-500 dark:text-gray-400" th:text="#{wrong.empty.msg}">Excellent!</p>
         </div>
-        
+
         <div class="space-y-4">
             <div th:each="wp : ${wrongQuestions}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
                 <div class="flex justify-between items-start mb-4">
                     <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded" th:text="${wp.question.topic.name}">Topic</span>
                     <span class="text-xs text-gray-400" th:text="${#temporals.format(wp.answeredAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>
                 </div>
-                
-                <h3 class="font-medium text-gray-900 mb-4" th:text="${wp.question.question}">Question?</h3>
-                
+
+                <h3 class="font-medium text-gray-900 dark:text-white mb-4" th:text="${wp.question.question}">Question?</h3>
+
                 <div class="flex gap-4 text-sm mb-4">
-                    <span class="text-red-600">您的答案: <strong th:text="${wp.userAnswer}">A</strong></span>
-                    <span class="text-green-600">正確答案: <strong th:text="${wp.question.correctAnswer}">B</strong></span>
+                    <span class="text-red-600">
+                        <span th:text="#{wrong.your.answer}">Your answer:</span>
+                        <strong th:text="${wp.userAnswer}">A</strong>
+                    </span>
+                    <span class="text-green-600">
+                        <span th:text="#{wrong.correct.answer}">Correct:</span>
+                        <strong th:text="${wp.question.correctAnswer}">B</strong>
+                    </span>
                 </div>
-                
-                <div class="p-4 bg-gray-50 rounded-lg">
-                    <h4 class="font-medium text-gray-700 mb-2">解釋 | Explanation</h4>
-                    <p class="text-gray-600 text-sm" th:text="${wp.question.explanation}">Explanation...</p>
+
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2" th:text="#{wrong.explanation}">Explanation</h4>
+                    <div class="text-gray-600 dark:text-gray-300 text-sm markdown-body"
+                         th:attr="data-markdown=${wp.question.explanation}"></div>
                 </div>
             </div>
         </div>

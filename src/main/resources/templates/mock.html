@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mock考試 - JavaMentor</title>
+    <title th:text="#{mock.title} + ' - JavaMentor'">Mock - JavaMentor</title>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .option-selected { @apply ring-2 ring-blue-500 bg-blue-50; }
-        .option-correct { @apply ring-2 ring-green-500 bg-green-100 !important; }
-        .option-wrong { @apply ring-2 ring-red-500 bg-red-100 !important; }
+        .option-selected { ring: 2px solid #3b82f6; background: #eff6ff; }
+        .option-correct { outline: 2px solid #22c55e !important; background: #dcfce7 !important; }
+        .option-wrong { outline: 2px solid #ef4444 !important; background: #fee2e2 !important; }
     </style>
-<script>
+    <script>
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
         }
         if (localStorage.getItem('darkMode') === 'true') {
             document.documentElement.classList.add('dark');
+        }
+        function changeLang(lang) {
+            window.location.href = window.location.pathname + '?lang=' + lang;
         }
     </script>
 </head>
@@ -33,388 +34,330 @@
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
             <div class="space-x-4 flex items-center">
-                <!-- Search Form -->
                 <form th:action="@{/search}" method="get" class="flex">
-                    <input type="text" name="keyword" 
-                           placeholder="搜尋題目..."
+                    <input type="text" name="keyword"
+                           th:placeholder="#{search.placeholder}"
                            class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700">搜尋</button>
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700" th:text="#{search.button}">Search</button>
                 </form>
-                <a href="/" class="text-gray-600 hover:text-blue-600">首頁</a>
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
+                <select onchange="changeLang(this.value)" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:text-white">
+                    <option value="en" th:selected="${#locale.language == 'en'}">EN</option>
+                    <option value="zh" th:selected="${#locale.language == 'zh' and #locale.country != 'TW'}">简</option>
+                    <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
+                </select>
+                <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.home}">Home</a>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.progress}">Progress</a>
             </div>
         </div>
     </nav>
-    
+
     <!-- Start Screen -->
     <div id="startScreen" class="max-w-2xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-sm border p-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">Mock考試模式</h1>
-            <p class="text-gray-600 mb-8">模擬真實面試，計時作答，測試您的實力！</p>
-            
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4" th:text="#{mock.title}">Mock Exam</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8" th:text="#{mock.description}">Description</p>
+
             <!-- Topic Selection -->
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">選擇題目範圍</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" th:text="#{mock.select.topics}">Select topics</label>
                 <div class="grid grid-cols-2 gap-2" id="topicList">
-                    <label th:each="p : ${progress}" class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label th:each="p : ${progress}" class="flex items-center p-3 border dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                         <input type="checkbox" class="topic-checkbox mr-2" th:value="${p.topicId}" checked>
-                        <span class="text-sm" th:text="${p.topicName}">Topic</span>
+                        <span class="text-sm dark:text-gray-300" th:text="${p.topicName}">Topic</span>
                     </label>
                 </div>
             </div>
-            
+
             <!-- Question Count -->
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">題目數量</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" th:text="#{mock.question.count}">Number of questions</label>
                 <div class="flex gap-4 mb-3">
-                    <label class="flex items-center">
+                    <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="30" class="mr-2 count-radio" checked onchange="updateTimeHint()">
-                        <span>30題</span>
+                        <span>30</span>
                     </label>
-                    <label class="flex items-center">
+                    <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="60" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>60題</span>
+                        <span>60</span>
                     </label>
-                    <label class="flex items-center">
+                    <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="90" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>90題</span>
+                        <span>90</span>
                     </label>
-                    <label class="flex items-center">
+                    <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="custom" class="mr-2 count-radio" onchange="showCustomTime()">
-                        <span>自訂</span>
+                        <span th:text="#{mock.custom}">Custom</span>
                     </label>
                 </div>
-                
-                <!-- Custom Time Input -->
-                <div id="customTimeSection" class="hidden bg-gray-50 p-4 rounded-lg">
+                <div id="customTimeSection" class="hidden bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <div class="flex gap-4 items-center">
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">題目數量</label>
-                            <input type="number" id="customCount" value="20" min="5" max="200" class="w-20 p-2 border rounded-lg">
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1" th:text="#{mock.custom.count}">Questions</label>
+                            <input type="number" id="customCount" value="20" min="5" max="200" class="w-20 p-2 border rounded-lg dark:bg-gray-600 dark:text-white">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">時間 (分鐘)</label>
-                            <input type="number" id="customTime" value="10" min="1" max="120" class="w-20 p-2 border rounded-lg">
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1" th:text="#{mock.custom.time}">Time (min)</label>
+                            <input type="number" id="customTime" value="10" min="1" max="120" class="w-20 p-2 border rounded-lg dark:bg-gray-600 dark:text-white">
                         </div>
-                        <div class="text-sm text-gray-600">
-                            = <span id="timePerQuestion">30</span> 秒/題
+                        <div class="text-sm text-gray-600 dark:text-gray-300">
+                            = <span id="timePerQuestion">30</span> s/q
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <button onclick="startMockTest()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition">
-                開始考試
-            </button>
+
+            <button onclick="startMockTest()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition"
+                    th:text="#{mock.start.exam}">Start Exam</button>
         </div>
     </div>
-    
+
     <!-- Exam Screen -->
     <div id="examScreen" class="hidden max-w-3xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="bg-white rounded-lg shadow-sm border p-4 mb-6 flex justify-between items-center">
-            <div>
-                <span class="text-gray-600">題目 </span>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 mb-6 flex justify-between items-center">
+            <div class="dark:text-gray-300">
+                <span th:text="#{mock.question.label}">Question</span>
                 <span id="currentNum" class="font-bold text-blue-600">1</span>
-                <span class="text-gray-600"> / </span>
+                <span> / </span>
                 <span id="totalNum" class="font-bold">60</span>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <div class="text-xs text-gray-500">剩餘時間</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400" th:text="#{mock.time.remaining}">Time remaining</div>
                     <div id="timer" class="font-mono font-bold text-lg text-blue-600">30:00</div>
                 </div>
-                <button onclick="endExam()" class="text-red-600 hover:text-red-700 text-sm font-medium">
-                    結束考試
-                </button>
+                <button onclick="endExam()" class="text-red-600 hover:text-red-700 text-sm font-medium" th:text="#{mock.end.exam}">End Exam</button>
             </div>
         </div>
-        
-        <!-- Progress Bar -->
-        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6">
             <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
         </div>
-        
-        <!-- Question -->
-        <div class="bg-white rounded-lg shadow-sm border p-6 fade-in">
-            <!-- Difficulty Badge -->
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 fade-in">
             <div class="flex justify-between items-start mb-4">
                 <span id="difficultyBadge" class="text-xs px-2 py-1 rounded bg-green-100 text-green-600">Easy</span>
             </div>
-            
-            <!-- Question Text -->
-            <h2 id="questionText" class="text-lg text-gray-900 mb-6">Question text here...</h2>
-            
-            <!-- Options -->
+            <h2 id="questionText" class="text-lg text-gray-900 dark:text-white mb-6">Question text here...</h2>
             <div class="space-y-3" id="optionsContainer">
-                <button onclick="selectOption('A')" id="optionA" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
-                    <span class="font-medium mr-2">A.</span>
-                    <span id="optionAText">Option A</span>
+                <button onclick="selectOption('A')" id="optionA" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                    <span class="font-medium mr-2">A.</span><span id="optionAText">Option A</span>
                 </button>
-                <button onclick="selectOption('B')" id="optionB" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
-                    <span class="font-medium mr-2">B.</span>
-                    <span id="optionBText">Option B</span>
+                <button onclick="selectOption('B')" id="optionB" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                    <span class="font-medium mr-2">B.</span><span id="optionBText">Option B</span>
                 </button>
-                <button onclick="selectOption('C')" id="optionC" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
-                    <span class="font-medium mr-2">C.</span>
-                    <span id="optionCText">Option C</span>
+                <button onclick="selectOption('C')" id="optionC" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                    <span class="font-medium mr-2">C.</span><span id="optionCText">Option C</span>
                 </button>
-                <button onclick="selectOption('D')" id="optionD" class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition">
-                    <span class="font-medium mr-2">D.</span>
-                    <span id="optionDText">Option D</span>
+                <button onclick="selectOption('D')" id="optionD" class="w-full text-left p-4 border dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-300">
+                    <span class="font-medium mr-2">D.</span><span id="optionDText">Option D</span>
                 </button>
             </div>
-            
-            <!-- Multi-select hint -->
-            <div id="multiSelectHint" class="hidden mt-4 text-sm text-orange-600 bg-orange-50 p-2 rounded">
-                ⚠️ 此題係多選題，請選擇多個答案（用逗號分隔，如：A,C）
-            </div>
-            
-            <!-- Submit Button -->
+            <div id="multiSelectHint" class="hidden mt-4 text-sm text-orange-600 bg-orange-50 p-2 rounded"
+                 th:text="#{mock.multiselect.hint}">Multi-select hint</div>
             <div class="mt-6 flex gap-4">
-                <input type="text" id="answerInput" placeholder="輸入答案 (A/B/C/D 或 A,C)" 
-                       class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <button onclick="submitAnswer()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-                    提交
-                </button>
+                <input type="text" id="answerInput" th:placeholder="#{mock.answer.placeholder}"
+                       class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                <button onclick="submitAnswer()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                        th:text="#{mock.submit}">Submit</button>
             </div>
         </div>
-        
-        <!-- Result Feedback -->
+
         <div id="resultFeedback" class="hidden mt-6 p-4 rounded-lg fade-in">
             <div id="feedbackContent"></div>
         </div>
     </div>
-    
+
     <!-- Result Screen -->
     <div id="resultScreen" class="hidden max-w-2xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-sm border p-8 text-center">
-            <h1 class="text-3xl font-bold mb-6">考試完成！</h1>
-            
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 text-center">
+            <h1 class="text-3xl font-bold mb-6 dark:text-white" th:text="#{mock.result.title}">Exam Complete!</h1>
             <div class="mb-8">
                 <div id="scoreDisplay" class="text-6xl font-bold text-blue-600 mb-2">85%</div>
-                <div id="scoreDetail" class="text-gray-600">51/60 正確</div>
+                <div id="scoreDetail" class="text-gray-600 dark:text-gray-400">51/60</div>
             </div>
-            
             <div class="grid grid-cols-2 gap-4 mb-8 text-left">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="text-sm text-gray-500">用時</div>
-                    <div id="timeSpent" class="text-xl font-semibold">25:30</div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{mock.result.time.spent}">Time spent</div>
+                    <div id="timeSpent" class="text-xl font-semibold dark:text-white">25:30</div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="text-sm text-gray-500">題目數量</div>
-                    <div id="totalQuestions" class="text-xl font-semibold">60</div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{mock.result.total.questions}">Total questions</div>
+                    <div id="totalQuestions" class="text-xl font-semibold dark:text-white">60</div>
                 </div>
             </div>
-            
             <div class="flex gap-4">
-                <a href="/mock" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition">
-                    再考一次
-                </a>
-                <a href="/" class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition">
-                    返回首頁
-                </a>
+                <a href="/mock" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition"
+                   th:text="#{mock.result.retry}">Take Again</a>
+                <a href="/" class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition"
+                   th:text="#{mock.result.home}">Back to Home</a>
             </div>
         </div>
     </div>
-    
+
+    <!-- i18n strings for JavaScript -->
+    <script th:inline="javascript">
+        var i18n = {
+            easy:              /*[[#{difficulty.easy}]]*/         'Easy',
+            medium:            /*[[#{difficulty.medium}]]*/       'Medium',
+            hard:              /*[[#{difficulty.hard}]]*/         'Hard',
+            correct:           /*[[#{mock.result.correct}]]*/     '✅ Correct!',
+            wrong:             /*[[#{mock.result.wrong}]]*/       '❌ Wrong! Correct answer: ',
+            correctDetail:     /*[[#{mock.result.correct.detail}]]*/ 'correct',
+            enterAnswer:       /*[[#{mock.alert.enter.answer}]]*/ 'Please enter an answer',
+            multiHint:         /*[[#{mock.multiselect.hint}]]*/   '⚠️ Multi-select',
+            multiPlaceholder:  /*[[#{mock.multiselect.placeholder}]]*/ 'Enter answer (e.g. A,C)',
+            singlePlaceholder: /*[[#{mock.single.placeholder}]]*/ 'Enter answer (A/B/C/D)'
+        };
+    </script>
+
     <script>
         let sessionId = null;
         let currentQuestion = null;
         let timerInterval = null;
         let timeRemaining = 0;
-        
+
         function getCsrfHeaders() {
             const token = document.querySelector('meta[name="_csrf"]').content;
             const header = document.querySelector('meta[name="_csrf_header"]').content;
             return { [header]: token };
         }
-        
+
         function updateTimeHint() {
-            const customSection = document.getElementById('customTimeSection');
-            customSection.classList.add('hidden');
-            
-            const count = parseInt(document.querySelector('input[name="count"]:checked').value);
-            const time = count * 30; // 30 seconds per question default
-            const mins = Math.floor(time / 60);
-            document.getElementById('timePerQuestion').textContent = '30';
+            document.getElementById('customTimeSection').classList.add('hidden');
         }
-        
+
         function showCustomTime() {
             document.getElementById('customTimeSection').classList.remove('hidden');
             updateCustomTimePerQuestion();
         }
-        
+
         function updateCustomTimePerQuestion() {
             const count = parseInt(document.getElementById('customCount').value) || 20;
             const time = parseInt(document.getElementById('customTime').value) || 10;
             const perQuestion = Math.floor((time * 60) / count);
             document.getElementById('timePerQuestion').textContent = perQuestion;
         }
-        
-        // Add event listeners for custom inputs
+
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('customCount').addEventListener('input', updateCustomTimePerQuestion);
             document.getElementById('customTime').addEventListener('input', updateCustomTimePerQuestion);
         });
-        
+
         function startMockTest() {
             const topics = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.value);
-            
-            // Get count and time
             let count, timeMinutes;
             const countRadio = document.querySelector('input[name="count"]:checked').value;
-            
             if (countRadio === 'custom') {
                 count = parseInt(document.getElementById('customCount').value) || 20;
                 timeMinutes = parseInt(document.getElementById('customTime').value) || 10;
             } else {
                 count = parseInt(countRadio);
-                timeMinutes = Math.ceil(count * 0.5); // 30 seconds per question
+                timeMinutes = Math.ceil(count * 0.5);
             }
-            
             timeRemaining = timeMinutes * 60;
-            
-            fetch('/api/mock/start', {
+
+            fetch('/api/v1/mock/start', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getCsrfHeaders()
-                },
-                body: JSON.stringify({topics: topics, count: count})
+                headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
+                body: JSON.stringify({ topics: topics, count: count })
             })
             .then(res => res.json())
             .then(data => {
                 sessionId = data.sessionId;
                 document.getElementById('totalNum').textContent = data.totalQuestions;
-                
-                // Switch screens
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('examScreen').classList.remove('hidden');
-                
-                // Start timer
                 startTimer();
-                
-                // Load first question
                 loadQuestion();
             });
         }
-        
+
         function startTimer() {
             updateTimerDisplay();
             timerInterval = setInterval(() => {
                 timeRemaining--;
                 updateTimerDisplay();
-                if (timeRemaining <= 0) {
-                    endExam();
-                }
+                if (timeRemaining <= 0) endExam();
             }, 1000);
         }
-        
+
         function updateTimerDisplay() {
             const mins = Math.floor(timeRemaining / 60);
             const secs = timeRemaining % 60;
-            document.getElementById('timer').textContent = 
+            document.getElementById('timer').textContent =
                 `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            
-            // Warning colors
             if (timeRemaining < 300) {
                 document.getElementById('timer').classList.add('text-red-600');
                 document.getElementById('timer').classList.remove('text-blue-600');
             }
         }
-        
+
         function loadQuestion() {
-            fetch(`/api/mock/${sessionId}/question`)
+            fetch(`/api/v1/mock/${sessionId}/question`)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.completed) {
-                        endExam();
-                        return;
-                    }
-                    
+                    if (data.completed) { endExam(); return; }
                     currentQuestion = data;
-                    
-                    // Update UI
+
                     const currentNum = parseInt(document.getElementById('currentNum').textContent);
                     const totalNum = parseInt(document.getElementById('totalNum').textContent);
                     document.getElementById('currentNum').textContent = currentNum + 1;
-                    
-                    // Progress bar
-                    const progress = ((currentNum + 1) / totalNum) * 100;
-                    document.getElementById('progressBar').style.width = progress + '%';
-                    
-                    // Difficulty badge
+                    document.getElementById('progressBar').style.width = ((currentNum + 1) / totalNum * 100) + '%';
+
                     const diffBadge = document.getElementById('difficultyBadge');
                     if (data.difficulty === 1) {
-                        diffBadge.textContent = 'Easy';
+                        diffBadge.textContent = i18n.easy;
                         diffBadge.className = 'text-xs px-2 py-1 rounded bg-green-100 text-green-600';
                     } else if (data.difficulty === 2) {
-                        diffBadge.textContent = 'Medium';
+                        diffBadge.textContent = i18n.medium;
                         diffBadge.className = 'text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-600';
                     } else {
-                        diffBadge.textContent = 'Hard';
+                        diffBadge.textContent = i18n.hard;
                         diffBadge.className = 'text-xs px-2 py-1 rounded bg-red-100 text-red-600';
                     }
-                    
-                    // Question and options
+
                     document.getElementById('questionText').textContent = data.question;
                     document.getElementById('optionAText').textContent = data.optionA || '';
                     document.getElementById('optionBText').textContent = data.optionB || '';
                     document.getElementById('optionCText').textContent = data.optionC || '';
                     document.getElementById('optionDText').textContent = data.optionD || '';
-                    
-                    // Show/hide options based on what's available
+
                     ['A', 'B', 'C', 'D'].forEach(opt => {
                         const btn = document.getElementById('option' + opt);
                         const text = document.getElementById('option' + opt + 'Text');
                         btn.style.display = text.textContent ? 'block' : 'none';
                     });
-                    
-                    // Multi-select hint
+
                     const multiHint = document.getElementById('multiSelectHint');
                     if (data.multiSelect) {
                         multiHint.classList.remove('hidden');
-                        document.getElementById('answerInput').placeholder = '輸入答案 (如：A,C)';
+                        document.getElementById('answerInput').placeholder = i18n.multiPlaceholder;
                     } else {
                         multiHint.classList.add('hidden');
-                        document.getElementById('answerInput').placeholder = '輸入答案 (A/B/C/D)';
+                        document.getElementById('answerInput').placeholder = i18n.singlePlaceholder;
                     }
-                    
-                    // Clear previous feedback and reset option styles
+
                     document.getElementById('resultFeedback').classList.add('hidden');
                     document.getElementById('answerInput').value = '';
-                    
-                    // Reset all option styles
                     ['A', 'B', 'C', 'D'].forEach(opt => {
                         const btn = document.getElementById('option' + opt);
                         btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
                     });
                 });
         }
-        
+
         function selectOption(opt) {
             const input = document.getElementById('answerInput');
             const current = input.value.toUpperCase().replace(/\s/g, '');
-            
             if (currentQuestion.multiSelect) {
-                // Multi-select: toggle option
                 let parts = current ? current.split(',') : [];
-                if (parts.includes(opt)) {
-                    parts = parts.filter(p => p !== opt);
-                } else {
-                    parts.push(opt);
-                }
+                if (parts.includes(opt)) { parts = parts.filter(p => p !== opt); } else { parts.push(opt); }
                 input.value = parts.sort().join(',');
             } else {
-                // Single select
                 input.value = opt;
             }
-            
-            // Visual feedback - blue for selection
             ['A', 'B', 'C', 'D'].forEach(o => {
                 const btn = document.getElementById('option' + o);
-                // Remove correct/wrong classes but keep selection
                 btn.classList.remove('option-correct', 'option-wrong');
                 if (input.value.includes(o)) {
                     btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
@@ -423,103 +366,71 @@
                 }
             });
         }
-        
+
         function submitAnswer() {
             const answer = document.getElementById('answerInput').value.trim().toUpperCase();
-            if (!answer) {
-                alert('請輸入答案');
-                return;
-            }
-            
-            fetch(`/api/mock/${sessionId}/answer`, {
+            if (!answer) { alert(i18n.enterAnswer); return; }
+
+            fetch(`/api/v1/mock/${sessionId}/answer`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getCsrfHeaders()
-                },
-                body: JSON.stringify({answer: answer})
+                headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
+                body: JSON.stringify({ answer: answer })
             })
             .then(res => res.json())
             .then(data => {
-                // Highlight options based on correct/wrong
                 const userAnswers = answer.split(',').map(a => a.trim()).filter(a => a);
                 const correctAnswers = data.correctAnswer.split(',').map(a => a.trim()).filter(a => a);
-                
-                // Reset all options first
+
                 ['A', 'B', 'C', 'D'].forEach(opt => {
-                    const btn = document.getElementById('option' + opt);
-                    btn.classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
+                    document.getElementById('option' + opt).classList.remove('option-correct', 'option-wrong', 'ring-2', 'ring-blue-500', 'bg-blue-50');
                 });
-                
-                // Highlight correct options (green)
                 correctAnswers.forEach(opt => {
                     const btn = document.getElementById('option' + opt);
                     if (btn) btn.classList.add('option-correct');
                 });
-                
-                // Highlight wrong options (red) - only user's selected wrong ones
                 userAnswers.forEach(opt => {
                     if (!correctAnswers.includes(opt)) {
                         const btn = document.getElementById('option' + opt);
                         if (btn) btn.classList.add('option-wrong');
                     }
                 });
-                
-                // Show feedback
+
                 const feedback = document.getElementById('resultFeedback');
                 const content = document.getElementById('feedbackContent');
-                
                 if (data.correct) {
                     feedback.className = 'mt-6 p-4 rounded-lg bg-green-100 border border-green-300 fade-in';
-                    content.innerHTML = '<div class="text-green-700 font-medium">✅ 正確！</div>';
+                    content.innerHTML = `<div class="text-green-700 font-medium">${i18n.correct}</div>`;
                 } else {
                     feedback.className = 'mt-6 p-4 rounded-lg bg-red-100 border border-red-300 fade-in';
-                    content.innerHTML = `<div class="text-red-700 font-medium">❌ 錯誤！正確答案：${data.correctAnswer}</div>`;
+                    content.innerHTML = `<div class="text-red-700 font-medium">${i18n.wrong}${data.correctAnswer}</div>`;
                 }
-                
                 feedback.classList.remove('hidden');
-                
-                // Load next question after delay
-                setTimeout(() => {
-                    loadQuestion();
-                }, 2000);  // 2 seconds to see the highlights
+                setTimeout(() => loadQuestion(), 2000);
             });
         }
-        
+
         function endExam() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            
-            fetch(`/api/mock/${sessionId}/result`)
+            if (timerInterval) clearInterval(timerInterval);
+            fetch(`/api/v1/mock/${sessionId}/result`)
                 .then(res => res.json())
                 .then(data => {
-                    // Show result screen
                     document.getElementById('examScreen').classList.add('hidden');
                     document.getElementById('resultScreen').classList.remove('hidden');
-                    
-                    // Fill in results
                     document.getElementById('scoreDisplay').textContent = Math.round(data.accuracy) + '%';
-                    document.getElementById('scoreDetail').textContent = 
-                        `${data.correctAnswers}/${data.totalQuestions} 正確`;
-                    
+                    document.getElementById('scoreDetail').textContent =
+                        `${data.correctAnswers}/${data.totalQuestions} ${i18n.correctDetail}`;
+
                     const timeSpentSec = Math.floor(data.timeSpent / 1000);
                     const mins = Math.floor(timeSpentSec / 60);
                     const secs = timeSpentSec % 60;
-                    document.getElementById('timeSpent').textContent = 
+                    document.getElementById('timeSpent').textContent =
                         `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    
                     document.getElementById('totalQuestions').textContent = data.totalQuestions;
-                    
-                    // Color based on score
+
                     const scoreDisplay = document.getElementById('scoreDisplay');
-                    if (data.accuracy >= 80) {
-                        scoreDisplay.className = 'text-6xl font-bold text-green-600 mb-2';
-                    } else if (data.accuracy >= 60) {
-                        scoreDisplay.className = 'text-6xl font-bold text-blue-600 mb-2';
-                    } else {
-                        scoreDisplay.className = 'text-6xl font-bold text-red-600 mb-2';
-                    }
+                    if (data.accuracy >= 80) scoreDisplay.className = 'text-6xl font-bold text-green-600 mb-2';
+                    else if (data.accuracy >= 60) scoreDisplay.className = 'text-6xl font-bold text-blue-600 mb-2';
+                    else scoreDisplay.className = 'text-6xl font-bold text-red-600 mb-2';
                 });
         }
     </script>

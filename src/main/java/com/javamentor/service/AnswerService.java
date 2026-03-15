@@ -62,6 +62,7 @@ public class AnswerService {
         AnswerResponseDto response = new AnswerResponseDto();
         response.setCorrect(isCorrect);
         response.setCorrectAnswer(question.getCorrectAnswer());
+        response.setUserAnswer(answer);
         response.setExplanation(question.getExplanation());
 
         // Follow-up question

@@ -15,9 +15,10 @@ import java.util.stream.Collectors;
 
 /**
  * Global Exception Handler
- * Provides consistent API error responses across all endpoints
+ * Handles exceptions from REST API controllers only (@RestController).
+ * MVC controller (@Controller) exceptions fall through to error.html via BasicErrorController.
  */
-@RestControllerAdvice
+@RestControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);

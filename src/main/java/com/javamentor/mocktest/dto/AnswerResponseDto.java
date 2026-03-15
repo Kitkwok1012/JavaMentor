@@ -10,6 +10,7 @@ import java.util.List;
 public class AnswerResponseDto {
     private Boolean correct;
     private String correctAnswer;
+    private String userAnswer;
     private String explanation;
     private String followUpQuestion;
     private List<String> followUpOptions;
