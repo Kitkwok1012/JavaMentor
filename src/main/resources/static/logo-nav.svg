@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 40" width="140" height="40">
+  <defs>
+    <linearGradient id="bookGradN" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="cupGradN" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mini open book icon -->
+  <!-- Left page -->
+  <path d="M4 10 Q13 8 20 10.5 L20 32 Q13 30 4 31.5 Z" fill="url(#bookGradN)"/>
+  <!-- Right page -->
+  <path d="M36 10 Q27 8 20 10.5 L20 32 Q27 30 36 31.5 Z" fill="#2563eb" opacity="0.85"/>
+  <!-- Spine -->
+  <rect x="19" y="10" width="2" height="22" rx="1" fill="#93c5fd" opacity="0.7"/>
+
+  <!-- Coffee cup badge -->
+  <g transform="translate(26, 2)">
+    <path d="M2 4 L1 13 Q1 15 3 15 L9 15 Q11 15 11 13 L10 4 Z" fill="url(#cupGradN)"/>
+    <rect x="1.5" y="3" width="9" height="2" rx="1" fill="#fbbf24"/>
+    <path d="M11 6 Q15 6 15 9 Q15 12 11 12" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- steam -->
+    <path d="M4 1.5 Q3 0 4 -1.5" fill="none" stroke="#93c5fd" stroke-width="1" stroke-linecap="round" opacity="0.8"/>
+    <path d="M6.5 0.5 Q5.5 -1 6.5 -2.5" fill="none" stroke="#93c5fd" stroke-width="1" stroke-linecap="round" opacity="0.8"/>
+    <path d="M9 1.5 Q8 0 9 -1.5" fill="none" stroke="#93c5fd" stroke-width="1" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="48" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="20" font-weight="700" fill="#2563eb" letter-spacing="-0.3">Java</text>
+  <text x="94" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="20" font-weight="400" fill="#374151" letter-spacing="-0.3">Mentor</text>
+</svg>
