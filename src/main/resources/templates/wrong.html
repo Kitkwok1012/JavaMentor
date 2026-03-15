@@ -80,15 +80,22 @@
 
                 <h3 class="font-medium text-gray-900 dark:text-white mb-4" th:text="${wp.question.question}">Question?</h3>
 
-                <div class="flex gap-4 text-sm mb-4">
-                    <span class="text-red-600">
-                        <span th:text="#{wrong.your.answer}">Your answer:</span>
-                        <strong th:text="${wp.userAnswer}">A</strong>
-                    </span>
-                    <span class="text-green-600">
-                        <span th:text="#{wrong.correct.answer}">Correct:</span>
-                        <strong th:text="${wp.question.correctAnswer}">B</strong>
-                    </span>
+                <!-- Options with highlight -->
+                <div class="space-y-2 mb-4">
+                    <div th:each="opt : ${wp.question.options}"
+                         th:with="isCorrect=${opt.isCorrect},
+                                  isSelected=${#strings.contains(wp.userAnswer, opt.label)}"
+                         th:classappend="${isCorrect} ? 'bg-green-50 dark:bg-green-900/30 border-green-400 dark:border-green-600' : (${isSelected} ? 'bg-red-50 dark:bg-red-900/30 border-red-400 dark:border-red-600' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600')"
+                         class="flex items-center justify-between px-3 py-2 border rounded-lg text-sm">
+                        <div class="flex items-start gap-2">
+                            <span th:classappend="${isCorrect} ? 'text-green-700 dark:text-green-300 font-semibold' : (${isSelected} ? 'text-red-700 dark:text-red-300 font-semibold' : 'text-gray-500 dark:text-gray-400')"
+                                  th:text="${opt.label + '.'}">A.</span>
+                            <span th:classappend="${isCorrect} ? 'text-green-900 dark:text-green-100' : (${isSelected} ? 'text-red-900 dark:text-red-100' : 'text-gray-700 dark:text-gray-300')"
+                                  th:text="${opt.content}">Option</span>
+                        </div>
+                        <span th:if="${isCorrect}" class="text-green-600 dark:text-green-400 font-bold ml-2 shrink-0">✓</span>
+                        <span th:if="${isSelected and !isCorrect}" class="text-red-600 dark:text-red-400 font-bold ml-2 shrink-0">✗</span>
+                    </div>
                 </div>
 
                 <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
