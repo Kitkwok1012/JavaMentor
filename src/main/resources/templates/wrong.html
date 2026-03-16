@@ -17,6 +17,32 @@
         .markdown-body pre { background: #f3f4f6; padding: 0.75rem; border-radius: 6px; overflow-x: auto; }
         .markdown-body pre code { background: none; padding: 0; }
         .markdown-body strong { font-weight: 600; }
+        .term-tooltip {
+            border-bottom: 1px dashed #6366f1;
+            cursor: help;
+            position: relative;
+            display: inline;
+        }
+        .term-tooltip::after {
+            content: attr(data-definition);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            width: 240px;
+            white-space: normal;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 50;
+        }
+        .term-tooltip:hover::after { opacity: 1; }
     </style>
     <script>
         function toggleDarkMode() {
@@ -29,10 +55,51 @@
         function changeLang(lang) {
             window.location.href = window.location.pathname + '?lang=' + lang;
         }
+        let termsDict = null;
+        fetch('/js/terms.json')
+            .then(r => r.json())
+            .then(data => { termsDict = data; applyTermTooltips(); });
+
+        function applyTermTooltips() {
+            if (!termsDict) return;
+            const terms = Object.keys(termsDict).sort((a, b) => b.length - a.length);
+            document.querySelectorAll('.markdown-body').forEach(el => {
+                highlightTerms(el, terms);
+            });
+        }
+
+        function highlightTerms(root, terms) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let node;
+            while ((node = walker.nextNode())) nodes.push(node);
+            nodes.forEach(textNode => {
+                const parent = textNode.parentNode;
+                if (!parent || parent.classList?.contains('term-tooltip')) return;
+                let text = textNode.textContent;
+                let matched = false;
+                terms.forEach(term => {
+                    if (text.includes(term)) {
+                        const def = termsDict[term].replace(/"/g, '&quot;');
+                        text = text.split(term).join(
+                            `<span class="term-tooltip" data-definition="${def}">${term}</span>`
+                        );
+                        matched = true;
+                    }
+                });
+                if (matched) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text;
+                    parent.replaceChild(span, textNode);
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('[data-markdown]').forEach(function(el) {
                 el.innerHTML = marked.parse(el.getAttribute('data-markdown') || '');
             });
+            applyTermTooltips();
         });
     </script>
 </head>
