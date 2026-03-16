@@ -2,55 +2,242 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaMentor - 學習進度</title>
+    <title th:text="#{progress.title} + ' - JavaMentor'">Progress - JavaMentor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .skill-tree { position: relative; padding: 20px 0; }
+        .skill-branch { display: flex; flex-direction: column; align-items: center; }
+        .skill-level-1 { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-bottom: 30px; }
+        .skill-level-2 { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; }
+        .skill-node { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.3s ease; text-decoration: none; }
+        .skill-node:hover { transform: scale(1.05); }
+        .skill-icon { width: 65px; height: 65px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .skill-node.locked .skill-icon { opacity: 0.4; filter: grayscale(1); }
+        .skill-node.completed .skill-icon, .skill-icon.completed-icon { box-shadow: 0 0 25px 5px rgba(34,197,94,0.8) !important; border: 3px solid #22c55e; }
+        .skill-node.in-progress .skill-icon, .skill-icon.in-progress-icon { box-shadow: 0 0 25px 5px rgba(59,130,246,0.8) !important; border: 3px solid #3b82f6; }
+        .skill-label { margin-top: 6px; font-size: 11px; font-weight: 500; color: #374151; text-align: center; }
+        .skill-progress { font-size: 9px; color: #6b7280; margin-top: 2px; }
+        .dark .skill-label { color: #d1d5db; }
+        .bg-java { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .bg-web { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-db { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .bg-cache { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .bg-dist { background: linear-gradient(135deg, #10b981, #059669); }
     </style>
+    <script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        function changeLang(lang) {
+            window.location.href = window.location.pathname + '?lang=' + lang;
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
-            <div class="space-x-4">
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+            <a href="/"><img src="/logo-nav.svg" alt="JavaMentor" class="h-8 w-auto"></a>
+            <div class="space-x-4 flex items-center">
+                <form th:action="@{/search}" method="get" class="flex">
+                    <input type="text" name="keyword"
+                           th:placeholder="#{search.placeholder}"
+                           class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700" th:text="#{search.button}">Search</button>
+                </form>
+                <select onchange="changeLang(this.value)" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:text-white">
+                    <option value="en" th:selected="${#locale.language == 'en'}">EN</option>
+                    <option value="zh" th:selected="${#locale.language == 'zh' and #locale.country != 'TW'}">简</option>
+                    <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
+                </select>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.progress}">Progress</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.wrong}">Wrong</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" th:title="#{ui.dark.mode}">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
+                <form th:action="@{/reset-all}" method="POST"
+                      th:attr="data-confirm=#{progress.reset.confirm}"
+                      onsubmit="return confirm(this.dataset.confirm)"
+                      style="display:inline;">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm" th:text="#{progress.reset.btn}">Clear Progress</button>
+                </form>
             </div>
         </div>
     </nav>
-    
+
     <main class="max-w-4xl mx-auto px-4 py-8">
-        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁</a>
-        
-        <h1 class="text-2xl font-bold text-gray-900 mb-8">學習進度</h1>
-        
-        <div class="space-y-6">
-            <div th:each="p : ${progress}" class="bg-white rounded-lg shadow-sm border p-6">
+        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block" th:text="#{progress.back.home}">← Back to Home</a>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4" th:text="#{progress.title}">Learning Progress</h1>
+
+        <!-- Overall Stats -->
+        <div th:if="${stats}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 mb-8">
+            <div class="grid grid-cols-4 gap-4 text-center">
+                <div>
+                    <div class="text-2xl font-bold text-blue-600" th:text="${stats.totalAnswered}">0</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{progress.stats.total}">Total</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-green-600" th:text="${stats.totalCorrect}">0</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{progress.stats.correct}">Correct</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-red-600" th:text="${stats.totalWrong}">0</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{progress.stats.wrong}">Wrong</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-purple-600" th:text="${stats.accuracy}">0%</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400" th:text="#{progress.stats.accuracy}">Accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Tree -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <span class="mr-2">🌳</span>
+                <span th:text="#{progress.skill.tree}">My Skill Tree</span>
+            </h2>
+
+            <div class="skill-tree overflow-x-auto">
+                <div class="skill-level-1">
+                    <!-- Java Basic -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-java">☕</div>
+                        <div class="skill-label mt-2">Java</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/oop}" class="skill-node" id="node-oop"><div class="skill-icon bg-java">🔷</div><div class="skill-label">OOP</div><div class="skill-progress" id="prog-oop">-</div></a>
+                            <a th:href="@{/learn/collection}" class="skill-node" id="node-collection"><div class="skill-icon bg-java">📦</div><div class="skill-label">Collections</div><div class="skill-progress" id="prog-collection">-</div></a>
+                            <a th:href="@{/learn/exception}" class="skill-node" id="node-exception"><div class="skill-icon bg-java">⚠️</div><div class="skill-label">Exception</div><div class="skill-progress" id="prog-exception">-</div></a>
+                        </div>
+                    </div>
+
+                    <!-- Java Advance -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-java">🚀</div>
+                        <div class="skill-label mt-2">Advanced</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/thread}" class="skill-node" id="node-thread"><div class="skill-icon bg-java">🧵</div><div class="skill-label">Thread</div><div class="skill-progress" id="prog-thread">-</div></a>
+                            <a th:href="@{/learn/jvm}" class="skill-node" id="node-jvm"><div class="skill-icon bg-java">⚙️</div><div class="skill-label">JVM</div><div class="skill-progress" id="prog-jvm">-</div></a>
+                        </div>
+                    </div>
+
+                    <!-- Web -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-web">🌐</div>
+                        <div class="skill-label mt-2">Web</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/servlet}" class="skill-node" id="node-servlet"><div class="skill-icon bg-web">🔌</div><div class="skill-label">Servlet</div><div class="skill-progress" id="prog-servlet">-</div></a>
+                            <a th:href="@{/learn/spring}" class="skill-node" id="node-spring"><div class="skill-icon bg-web">🌱</div><div class="skill-label">Spring</div><div class="skill-progress" id="prog-spring">-</div></a>
+                        </div>
+                    </div>
+
+                    <!-- Database -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-db">🗄️</div>
+                        <div class="skill-label mt-2">Database</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/mysql}" class="skill-node" id="node-mysql"><div class="skill-icon bg-db">🐬</div><div class="skill-label">MySQL</div><div class="skill-progress" id="prog-mysql">-</div></a>
+                        </div>
+                    </div>
+
+                    <!-- Cache -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-cache">⚡</div>
+                        <div class="skill-label mt-2">Cache</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/redis-basic}" class="skill-node" id="node-redis-basic"><div class="skill-icon bg-cache">🔴</div><div class="skill-label">Redis</div><div class="skill-progress" id="prog-redis-basic">-</div></a>
+                        </div>
+                    </div>
+
+                    <!-- Distributed -->
+                    <div class="skill-branch">
+                        <div class="skill-icon bg-dist">🌍</div>
+                        <div class="skill-label mt-2">Distributed</div>
+                        <div class="skill-level-2">
+                            <a th:href="@{/learn/microservice}" class="skill-node" id="node-microservice"><div class="skill-icon bg-dist">🏗️</div><div class="skill-label">Microservice</div><div class="skill-progress" id="prog-microservice">-</div></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="flex justify-center gap-6 mt-6 pt-4 border-t dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #f97316, #ea580c);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400" th:text="#{progress.legend.not.started}">Not started</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 0 8px rgba(59,130,246,0.5);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400" th:text="#{progress.legend.in.progress}">In progress</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded mr-2" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 0 8px rgba(34,197,94,0.5);"></div>
+                    <span class="text-sm text-gray-600 dark:text-gray-400" th:text="#{progress.legend.completed}">Completed</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress by Topic -->
+        <div class="space-y-4">
+            <div th:each="p : ${progress}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg" th:text="${p.topicName}">Topic Name</h3>
-                    <span class="text-sm text-gray-500" th:text="${p.answeredQuestions} + '/' + ${p.totalQuestions} + ' 題'">5/10</span>
+                    <h3 class="font-semibold text-lg dark:text-white" th:text="${p.topicName}">Topic Name</h3>
+                    <span class="text-sm text-gray-500" th:text="${p.answeredQuestions} + '/' + ${p.totalQuestions}">5/10</span>
                 </div>
-                
-                <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                    <div class="bg-blue-600 h-3 rounded-full transition-all" 
-                         th:style="'width:' + ${p.totalQuestions > 0 ? p.answeredQuestions * 100 / p.totalQuestions : 0} + '%'"
-                         style="width: 50%"></div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+                    <div class="bg-blue-600 h-3 rounded-full transition-all"
+                         th:style="'width:' + ${p.totalQuestions > 0 ? p.answeredQuestions * 100 / p.totalQuestions : 0} + '%'"></div>
                 </div>
-                
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">準確率</span>
+                    <span class="text-gray-500 dark:text-gray-400" th:text="#{progress.topic.accuracy}">Accuracy</span>
                     <span th:class="${p.accuracy >= 80 ? 'text-green-600' : p.accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'}"
-                          class="font-medium"
-                          th:text="${#numbers.formatDecimal(p.accuracy, 1, 1)} + '%'">80%</span>
+                          class="font-medium" th:text="${#numbers.formatDecimal(p.accuracy, 1, 1)} + '%'">80%</span>
                 </div>
-                
-                <a th:href="@{/learn/{topicId}(topicId=${p.topicId})}" 
-                   class="mt-4 block text-center text-blue-600 hover:underline text-sm">
-                    繼續學習 &rarr;
-                </a>
+                <a th:href="@{/learn/{topicId}(topicId=${p.topicId})}"
+                   class="mt-4 block text-center text-blue-600 hover:underline text-sm"
+                   th:text="#{progress.continue}">Continue Learning →</a>
             </div>
         </div>
     </main>
+
+    <script th:inline="javascript">
+        var progressData = /*[[${progress}]]*/ [];
+        var notStartedLabel = /*[[#{progress.not.started}]]*/ 'Not started';
+
+        progressData.forEach(function(p) {
+            var nodeId = 'node-' + p.topicId;
+            var progId = 'prog-' + p.topicId;
+            var node = document.getElementById(nodeId);
+            var prog = document.getElementById(progId);
+            var icon = node ? node.querySelector('.skill-icon') : null;
+
+            if (node && prog) {
+                if (p.answeredQuestions > 0 && p.totalQuestions > 0) {
+                    var percent = Math.round(p.answeredQuestions * 100 / p.totalQuestions);
+                    prog.textContent = p.answeredQuestions + '/' + p.totalQuestions;
+                    if (percent >= 80) {
+                        node.classList.add('completed');
+                        if (icon) icon.classList.add('completed-icon');
+                    } else {
+                        node.classList.add('in-progress');
+                        if (icon) icon.classList.add('in-progress-icon');
+                    }
+                } else {
+                    prog.textContent = notStartedLabel;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,160 +2,217 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaMentor - 學習</title>
+    <title>JavaMentor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        .htmx-request.htmx-indicator { opacity: 1; }
+        .markdown-body h1,.markdown-body h2,.markdown-body h3 { font-weight: 600; margin: 0.75rem 0 0.25rem; }
+        .markdown-body p { margin: 0.4rem 0; }
+        .markdown-body ul,.markdown-body ol { margin: 0.4rem 0; padding-left: 1.5rem; }
+        .markdown-body code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+        .markdown-body pre { background: #f3f4f6; padding: 0.75rem; border-radius: 6px; overflow-x: auto; }
+        .markdown-body pre code { background: none; padding: 0; }
+        .dark .markdown-body code { background: #374151; color: #e5e7eb; }
+        .dark .markdown-body pre { background: #1f2937; }
+        .dark .markdown-body pre code { background: none; }
+        .markdown-body strong { font-weight: 600; }
     </style>
+    <script>
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        function changeLang(lang) {
+            window.location.href = window.location.pathname + '?lang=' + lang;
+        }
+        function renderMarkdown() {
+            document.querySelectorAll('[data-markdown]').forEach(function(el) {
+                el.innerHTML = marked.parse(el.getAttribute('data-markdown') || '');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', renderMarkdown);
+        document.addEventListener('htmx:afterSwap', renderMarkdown);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key >= '1' && e.key <= '9') {
+                const index = parseInt(e.key) - 1;
+                const options = document.querySelectorAll('input[name="answer"]');
+                if (options[index]) { options[index].checked = true; e.preventDefault(); }
+            }
+            if (e.key === 'n' || e.key === 'N') {
+                const nextBtn = document.querySelector('[data-next-btn]');
+                if (nextBtn) nextBtn.click();
+            }
+            if (e.key === 'd' || e.key === 'D') { toggleDarkMode(); }
+        });
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-600">JavaMentor</a>
-            <div class="space-x-4">
-                <a href="/progress" class="text-gray-600 hover:text-blue-600">學習進度</a>
-                <a href="/wrong" class="text-gray-600 hover:text-blue-600">錯題簿</a>
+            <a href="/"><img src="/logo-nav.svg" alt="JavaMentor" class="h-8 w-auto"></a>
+            <div class="space-x-4 flex items-center">
+                <form th:action="@{/search}" method="get" class="flex">
+                    <input type="text" name="keyword"
+                           th:placeholder="#{search.placeholder}"
+                           class="border rounded-l px-3 py-1 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-r text-sm hover:bg-blue-700" th:text="#{search.button}">Search</button>
+                </form>
+                <select onchange="changeLang(this.value)" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:text-white">
+                    <option value="en" th:selected="${#locale.language == 'en'}">EN</option>
+                    <option value="zh" th:selected="${#locale.language == 'zh' and #locale.country != 'TW'}">简</option>
+                    <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
+                </select>
+                <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.progress}">Progress</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.wrong}">Wrong</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" th:title="#{ui.dark.mode}">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
             </div>
         </div>
     </nav>
-    
-    <main class="max-w-4xl mx-auto px-4 py-8">
-        <!-- Back Link -->
-        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block">&larr; 返回首頁</a>
-        
-        <!-- Topic Header -->
+
+    <main class="max-w-4xl mx-auto px-4 py-8" id="main-content">
+        <a href="/" class="text-blue-600 hover:underline mb-6 inline-block" th:text="#{learn.back.home}">← Back</a>
+
         <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900" th:text="${topic.name}">Topic Name</h1>
-            <p class="text-gray-500" th:text="${topic.description}">Description</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${topic.name}">Topic Name</h1>
+            <p class="text-gray-500 dark:text-gray-400" th:text="${topic.description}">Description</p>
         </div>
-        
+
         <!-- Completed State -->
         <div th:if="${completed}" class="text-center py-12">
             <div class="text-6xl mb-4">🎉</div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">呢個Topic完成晒啦！</h2>
-            <p class="text-gray-500 mb-6">做得幾好！要唔要再溫一次？</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" th:text="#{learn.topic.completed.title}">Completed!</h2>
+            <p class="text-gray-500 mb-6" th:text="#{learn.topic.completed.msg}">Excellent!</p>
             <div class="space-x-4">
-                <a th:href="@{/learn/{topicId}(topicId=${topic.topicId})}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">再做一次</a>
-                <a href="/" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">返去首頁</a>
+                <a th:href="@{/learn/{topicId}(topicId=${topic.topicId})}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700" th:text="#{learn.review.btn}">Review</a>
+                <a href="/" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300" th:text="#{learn.back.home.btn}">Home</a>
             </div>
         </div>
-        
-        <!-- Question -->
-        <div th:if="${question != null and (completed == null or not completed)}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-sm text-gray-500">問題</span>
-                <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1" th:text="${question.difficulty == 1 ? '簡單' : question.difficulty == 2 ? '中等' : '困難'}">中等</span>
-            </div>
-            
-            <h2 class="text-xl font-medium text-gray-900 mb-8" th:text="${question.question}">Question text goes here?</h2>
-            
-            <form th:action="@{/answer}" method="post" id="answerForm">
-                <input type="hidden" name="questionId" th:value="${question.id}">
-                <input type="hidden" name="topicId" th:value="${question.topicId}">
-                
-                <!-- Single Select: Radio buttons -->
-                <div th:if="${question.multiSelect == null or not question.multiSelect}" class="space-y-4 mb-8">
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="A" class="mt-1 mr-3" required>
-                        <span class="font-medium mr-2">A.</span>
-                        <span th:text="${question.optionA}">Option A</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="B" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">B.</span>
-                        <span th:text="${question.optionB}">Option B</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="C" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">C.</span>
-                        <span th:text="${question.optionC}">Option C</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="radio" name="answer" value="D" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">D.</span>
-                        <span th:text="${question.optionD}">Option D</span>
-                    </label>
+
+        <!-- Question Section (HTMX target) -->
+        <div id="answer-section" th:fragment="questionFragment">
+            <div th:if="${question != null and (completed == null or not completed)}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-sm text-gray-500" th:text="#{learn.question.label}">Question</span>
+                    <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1"
+                          th:text="${question.difficulty == 1 ? #messages.msg('difficulty.easy') : question.difficulty == 2 ? #messages.msg('difficulty.medium') : #messages.msg('difficulty.hard')}">Medium</span>
                 </div>
-                
-                <!-- Multi Select: Checkboxes -->
-                <div th:if="${question.multiSelect}" class="space-y-4 mb-8">
-                    <p class="text-sm text-gray-500 mb-4">請選擇所有正確答案（可多選）</p>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="A" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">A.</span>
-                        <span th:text="${question.optionA}">Option A</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="B" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">B.</span>
-                        <span th:text="${question.optionB}">Option B</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="C" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">C.</span>
-                        <span th:text="${question.optionC}">Option C</span>
-                    </label>
-                    <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="D" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">D.</span>
-                        <span th:text="${question.optionD}">Option D</span>
-                    </label>
-                    <label th:if="${question.optionE != null}" class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
-                        <input type="checkbox" name="answer" value="E" class="mt-1 mr-3">
-                        <span class="font-medium mr-2">E.</span>
-                        <span th:text="${question.optionE}">Option E</span>
-                    </label>
+
+                <h2 class="text-xl font-medium text-gray-900 dark:text-white mb-8" th:text="${question.question}">Question text</h2>
+
+                <!-- BEFORE submission: interactive form -->
+                <form th:if="${response == null}"
+                      th:action="@{/answer}" method="post"
+                      hx-post="/answer"
+                      hx-target="#answer-section"
+                      hx-swap="outerHTML"
+                      hx-indicator=".loading"
+                      id="answerForm">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+                    <input type="hidden" name="topicId" th:value="${question.topicId}">
+
+                    <div class="space-y-4 mb-8">
+                        <th:block th:if="${question.multiSelect == null or not question.multiSelect}">
+                            <label th:each="opt : ${question.options}"
+                                   class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                                <input type="radio" name="answer" th:value="${opt.label}" class="mt-1 mr-3" required>
+                                <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                                <span th:text="${opt.content}">Option content</span>
+                            </label>
+                        </th:block>
+
+                        <th:block th:if="${question.multiSelect}">
+                            <p class="text-sm text-gray-500 mb-4" th:text="#{learn.multiselect.hint}">Select all correct</p>
+                            <label th:each="opt : ${question.options}"
+                                   class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" name="answer" th:value="${opt.label}" class="mt-1 mr-3">
+                                <span class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                                <span th:text="${opt.content}">Option content</span>
+                            </label>
+                        </th:block>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition relative">
+                        <span class="htmx-indicator" th:text="#{ui.submitting}">Submitting...</span>
+                        <span class="htmx-inverse" th:text="#{learn.submit.btn}">Submit Answer</span>
+                    </button>
+                    <div class="mt-4 text-xs text-gray-400 dark:text-gray-500 text-center" th:text="#{learn.shortcuts}">Shortcuts</div>
+                </form>
+
+                <!-- AFTER submission: locked highlighted options + result -->
+                <div th:if="${response != null}">
+                    <!-- Locked Options with Highlights -->
+                    <div class="space-y-2 mb-6">
+                        <div th:each="opt : ${question.options}"
+                             th:with="isCorrect=${#strings.contains(response.correctAnswer, opt.label)},
+                                      isSelected=${#strings.contains(response.userAnswer, opt.label)}"
+                             th:classappend="${isCorrect ? 'bg-green-50 dark:bg-green-900 border-green-400 dark:border-green-600' : (isSelected ? 'bg-red-50 dark:bg-red-900 border-red-400 dark:border-red-600' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600')}"
+                             class="flex items-center justify-between p-4 border rounded-lg cursor-not-allowed select-none">
+                            <div class="flex items-start">
+                                <span th:classappend="${isCorrect ? 'text-green-700 dark:text-green-300' : (isSelected ? 'text-red-700 dark:text-red-300' : 'text-gray-500 dark:text-gray-400')}"
+                                      class="font-medium mr-2" th:text="${opt.label + '.'}">A.</span>
+                                <span th:classappend="${isCorrect ? 'text-green-900 dark:text-green-100' : (isSelected ? 'text-red-900 dark:text-red-100' : 'text-gray-700 dark:text-gray-300')}"
+                                      th:text="${opt.content}">Option content</span>
+                            </div>
+                            <span th:if="${isCorrect}" class="text-green-600 dark:text-green-400 font-bold ml-4">✓</span>
+                            <span th:if="${isSelected and !isCorrect}" class="text-red-600 dark:text-red-400 font-bold ml-4">✗</span>
+                        </div>
+                    </div>
+
+                    <!-- Correct/Wrong Banner -->
+                    <div th:classappend="${response.correct ? 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700' : 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700'}"
+                         class="border rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3" th:text="${response.correct ? '✅' : '❌'}">✅</span>
+                            <span th:classappend="${response.correct ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}"
+                                  class="text-xl font-bold"
+                                  th:text="${response.correct ? #messages.msg('learn.result.correct') : #messages.msg('learn.result.wrong')}">Correct!</span>
+                        </div>
+                    </div>
+
+                    <!-- Explanation (Markdown) -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2" th:text="#{learn.explanation.title}">Explanation</h3>
+                        <div class="text-gray-700 dark:text-gray-300 leading-relaxed markdown-body"
+                             th:attr="data-markdown=${response.explanation}"></div>
+                    </div>
+
+                    <!-- Follow-up -->
+                    <div th:if="${response.hasFollowUp}" class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                        <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-2" th:text="#{learn.followup.title}">Follow-up</h3>
+                        <p class="text-yellow-900 dark:text-yellow-100 mb-4" th:text="${response.followUpQuestion}">Follow-up question...</p>
+                        <p class="text-sm text-yellow-700 dark:text-yellow-400" th:text="#{learn.followup.pending}">Pending...</p>
+                    </div>
+
+                    <!-- Next Question Button -->
+                    <div class="flex gap-4">
+                        <button data-next-btn
+                                th:attr="hx-get=@{/question/next-fragment(topicId=${topicId})}, hx-target='#answer-section', hx-swap='outerHTML'"
+                                class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                                th:text="#{learn.next.question}">Next Question</button>
+                        <a href="/" class="px-6 py-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
+                           th:text="#{learn.exit}">Exit</a>
+                    </div>
                 </div>
-                
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-                    提交答案
-                </button>
-            </form>
-        </div>
-        
-        <!-- Answer Result -->
-        <div th:if="${response}" class="bg-white rounded-lg shadow-sm border p-8 fade-in">
-            <!-- Correct/Wrong Banner -->
-            <div th:class="${response.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}" 
-                 class="border rounded-lg p-4 mb-6">
-                <div class="flex items-center">
-                    <span class="text-2xl mr-3" th:text="${response.correct ? '✅' : '❌'}">✅</span>
-                    <span th:class="${response.correct ? 'text-green-700' : 'text-red-700'}" 
-                          class="text-xl font-bold" th:text="${response.correct ? '答啱啦！' : '答錯啦！'}">答啱啦！</span>
-                </div>
-            </div>
-            
-            <!-- Explanation -->
-            <div class="mb-6">
-                <h3 class="font-semibold text-gray-900 mb-2">📖 詳細解釋</h3>
-                <p class="text-gray-700 leading-relaxed" th:text="${response.explanation}">Explanation...</p>
-            </div>
-            
-            <!-- Correct Answer -->
-            <div class="mb-6 p-4 bg-blue-50 rounded-lg">
-                <span class="font-medium text-blue-700">正確答案: </span>
-                <span class="text-blue-900" th:text="${response.correctAnswer}">B</span>
-            </div>
-            
-            <!-- Follow-up Question (Mock) -->
-            <div th:if="${response.hasFollowUp}" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h3 class="font-semibold text-yellow-800 mb-2">🤔 AI追問 (Mock)</h3>
-                <p class="text-yellow-900 mb-4" th:text="${response.followUpQuestion}">Follow-up question...</p>
-                <p class="text-sm text-yellow-700">(AI追問功能待接入...)</p>
-            </div>
-            
-            <!-- Next Question Button -->
-            <div class="flex gap-4">
-                <a th:href="@{/question/next(topicId=${topicId})}" 
-                   class="flex-1 text-center bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-                    下一題
-                </a>
-                <a href="/" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
-                    退出
-                </a>
             </div>
         </div>
     </main>

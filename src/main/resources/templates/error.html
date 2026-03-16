@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - JavaMentor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/"><img src="/logo-nav.svg" alt="JavaMentor" class="h-8 w-auto"></a>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center px-4 py-16">
+        <div class="text-center max-w-md">
+            <div class="text-6xl mb-6">
+                <span th:if="${status == 404}">🔍</span>
+                <span th:if="${status != 404}">⚠️</span>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2" th:text="${status ?: '500'}">500</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300 mb-2" th:text="${error ?: 'Internal Server Error'}">Internal Server Error</p>
+            <p class="text-gray-500 dark:text-gray-400 mb-8" th:if="${path}" th:text="'Path: ' + ${path}">Path</p>
+            <div class="space-x-4">
+                <a href="/"
+                   class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                    ← Back to Home
+                </a>
+                <button onclick="history.back()"
+                        class="inline-block border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    Go Back
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center text-gray-500 dark:text-gray-400 text-sm py-6">
+        JavaMentor
+    </footer>
+</body>
+</html>

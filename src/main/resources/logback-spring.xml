@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Application name property -->
+    <property name="APP_NAME" value="javamentor"/>
+    
+    <!-- Console Appender (for development) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- Include app name in all logs -->
+            <customFields>{"app_name":"${APP_NAME}"}</customFields>
+            
+            <!-- Include timestamp in RFC3339 format -->
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+            
+            <!-- Fields to include -->
+            <includeMdcKeyName>sessionId</includeMdcKeyName>
+            <includeMdcKeyName>questionId</includeMdcKeyName>
+            <includeMdcKeyName>topicId</includeMdcKeyName>
+            <includeMdcKeyName>requestUri</includeMdcKeyName>
+            <includeMdcKeyName>userAgent</includeMdcKeyName>
+        </encoder>
+    </appender>
+    
+    <!-- File Appender (for production) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app_name":"${APP_NAME}"}</customFields>
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+        </encoder>
+    </appender>
+    
+    <!-- Profile-specific configuration -->
+    
+    <!-- Dev profile: Console only, DEBUG level -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.javamentor" level="DEBUG"/>
+    </springProfile>
+    
+    <!-- Prod profile: File + Console, INFO level -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.javamentor" level="INFO"/>
+    </springProfile>
+    
+    <!-- Default: Console, INFO level -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

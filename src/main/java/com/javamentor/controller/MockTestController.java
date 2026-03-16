@@ -1,17 +1,23 @@
 package com.javamentor.controller;
 
-import com.javamentor.dto.MockTestDto;
-import com.javamentor.entity.Question;
+import com.javamentor.mocktest.dto.AnswerRequest;
+import com.javamentor.mocktest.dto.MockTestDto;
+import com.javamentor.mocktest.dto.StartMockTestRequest;
+import com.javamentor.question.dto.QuestionDto;
 import com.javamentor.service.MockTestService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/api/mock")
+@RequestMapping("/api/v1/mock")
+@Tag(name = "Mock Test API", description = "模擬考試 API (v1)")
 public class MockTestController {
     
     private final MockTestService mockTestService;
@@ -21,63 +27,64 @@ public class MockTestController {
     }
     
     /**
-     * POST /api/mock/start - Start a new mock test
+     * POST /api/v1/mock/start - Start a new mock test
      * Body: { "topics": ["oop", "collection"], "count": 60 }
      */
     @PostMapping("/start")
-    public ResponseEntity<MockTestDto> startMockTest(@RequestBody Map<String, Object> request) {
-        @SuppressWarnings("unchecked")
-        List<String> topics = (List<String>) request.get("topics");
-        Integer count = (Integer) request.getOrDefault("count", 60);
-        
-        MockTestDto mockTest = mockTestService.startMockTest(topics, count);
+    @Operation(summary = "開始模擬考試", description = "創建新的模擬考試session")
+    public ResponseEntity<MockTestDto> startMockTest(@RequestBody @Valid StartMockTestRequest request) {
+        MockTestDto mockTest = mockTestService.startMockTest(
+            request.topics(), 
+            request.count()
+        );
         return ResponseEntity.ok(mockTest);
     }
     
     /**
-     * GET /api/mock/{sessionId}/question - Get current question
+     * GET /api/v1/mock/{sessionId}/question - Get current question
+     * Returns QuestionDto instead of Entity
      */
     @GetMapping("/{sessionId}/question")
-    public ResponseEntity<?> getCurrentQuestion(@PathVariable String sessionId) {
-        Question question = mockTestService.getCurrentQuestion(sessionId);
+    @Operation(summary = "獲取當前題目", description = "獲取模擬考試既當前題目")
+    public ResponseEntity<?> getCurrentQuestion(
+            @Parameter(description = "Mock Test Session ID") @PathVariable String sessionId) {
+        QuestionDto question = mockTestService.getCurrentQuestion(sessionId);
         if (question == null) {
             return ResponseEntity.ok(Map.of("completed", true));
         }
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", question.getId());
-        response.put("question", question.getQuestion());
-        response.put("optionA", question.getOptionA());
-        response.put("optionB", question.getOptionB());
-        response.put("optionC", question.getOptionC());
-        response.put("optionD", question.getOptionD());
-        response.put("optionE", question.getOptionE());
-        response.put("multiSelect", question.getMultiSelect());
-        response.put("difficulty", question.getDifficulty());
-        
-        return ResponseEntity.ok(response);
+        // Return DTO directly - no exposure of internal entity fields
+        return ResponseEntity.ok(question);
     }
     
     /**
-     * POST /api/mock/{sessionId}/answer - Submit answer
+     * POST /api/v1/mock/{sessionId}/answer - Submit answer
      * Body: { "answer": "A" }
      */
     @PostMapping("/{sessionId}/answer")
-    public ResponseEntity<?> submitAnswer(@PathVariable String sessionId, @RequestBody Map<String, String> request) {
-        String answer = request.get("answer");
-        boolean isCorrect = mockTestService.submitAnswer(sessionId, answer);
+    @Operation(summary = "提交答案", description = "提交模擬考試既答案")
+    public ResponseEntity<?> submitAnswer(
+            @Parameter(description = "Mock Test Session ID") @PathVariable String sessionId, 
+            @RequestBody @Valid AnswerRequest request) {
+        String answer = request.getAnswer();
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("correct", isCorrect);
+        // Get result including correct answer for feedback
+        Map<String, Object> result = mockTestService.submitAnswerWithFeedback(sessionId, answer);
         
-        return ResponseEntity.ok(response);
+        if (result == null) {
+            return ResponseEntity.ok(Map.of("completed", true));
+        }
+        
+        return ResponseEntity.ok(result);
     }
     
     /**
-     * GET /api/mock/{sessionId}/result - Get final result
+     * GET /api/v1/mock/{sessionId}/result - Get final result
      */
     @GetMapping("/{sessionId}/result")
-    public ResponseEntity<?> getResult(@PathVariable String sessionId) {
+    @Operation(summary = "獲取考試結果", description = "獲取模擬考試既最終結果")
+    public ResponseEntity<?> getResult(
+            @Parameter(description = "Mock Test Session ID") @PathVariable String sessionId) {
         Map<String, Object> result = mockTestService.getTestResult(sessionId);
         if (result == null) {
             return ResponseEntity.notFound().build();
@@ -87,10 +94,12 @@ public class MockTestController {
     }
     
     /**
-     * GET /api/mock/{sessionId}/progress - Get progress
+     * GET /api/v1/mock/{sessionId}/progress - Get progress
      */
     @GetMapping("/{sessionId}/progress")
-    public ResponseEntity<?> getProgress(@PathVariable String sessionId) {
+    @Operation(summary = "獲取考試進度", description = "獲取模擬考試既當前進度")
+    public ResponseEntity<?> getProgress(
+            @Parameter(description = "Mock Test Session ID") @PathVariable String sessionId) {
         Map<String, Object> progress = mockTestService.getProgress(sessionId);
         if (progress == null) {
             return ResponseEntity.notFound().build();
