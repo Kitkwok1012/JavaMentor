@@ -21,7 +21,7 @@
             border-bottom: 1px dashed #6366f1;
             cursor: help;
             position: relative;
-            display: inline;
+            display: inline-block;
         }
         .term-tooltip::after {
             content: attr(data-definition);
@@ -76,6 +76,11 @@
             nodes.forEach(textNode => {
                 const parent = textNode.parentNode;
                 if (!parent || parent.classList?.contains('term-tooltip')) return;
+                let ancestor = parent;
+                while (ancestor && ancestor !== root) {
+                    if (ancestor.tagName === 'CODE' || ancestor.tagName === 'PRE') return;
+                    ancestor = ancestor.parentNode;
+                }
                 let text = textNode.textContent;
                 let matched = false;
                 terms.forEach(term => {

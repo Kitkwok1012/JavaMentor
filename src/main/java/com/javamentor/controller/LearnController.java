@@ -95,6 +95,8 @@ public class LearnController {
             model.addAttribute("topic", topic);
             model.addAttribute("question", question);
             model.addAttribute("topicId", topicId);
+            model.addAttribute("currentQuestionNum", sessionService.getCurrentQuestionNumber(sessionId, topicId));
+            model.addAttribute("totalQuestions", sessionService.getTotalQuestions(sessionId, topicId));
 
             if (question == null) {
                 model.addAttribute("completed", true);
@@ -202,6 +204,8 @@ public class LearnController {
             model.addAttribute("topic", topic);
             model.addAttribute("question", question);
             model.addAttribute("topicId", topicId);
+            model.addAttribute("currentQuestionNum", sessionService.getCurrentQuestionNumber(sessionId, topicId));
+            model.addAttribute("totalQuestions", sessionService.getTotalQuestions(sessionId, topicId));
 
             if (question == null) {
                 model.addAttribute("completed", true);
@@ -210,6 +214,42 @@ public class LearnController {
             return "learn :: questionFragment";
         } catch (Exception e) {
             log.warn("Failed to get next question fragment for topic {}: {}", topicId, e.getMessage());
+            return "redirect:/learn/" + topicId;
+        }
+    }
+
+    /**
+     * HTMX fragment endpoint for previous question - returns only the question section
+     */
+    @GetMapping("/question/prev-fragment")
+    public String getPrevQuestionFragment(
+            @RequestParam @NotBlank String topicId,
+            Model model, HttpServletRequest request) {
+        String sessionId = getSessionId(request);
+
+        try {
+            sessionService.moveToPreviousQuestion(sessionId, topicId);
+            var questionIdOpt = sessionService.getNextQuestionId(sessionId, topicId);
+
+            QuestionDto question = null;
+            if (questionIdOpt.isPresent()) {
+                question = questionService.getQuestionById(questionIdOpt.get());
+            }
+
+            var topic = questionService.getTopicById(topicId);
+            model.addAttribute("topic", topic);
+            model.addAttribute("question", question);
+            model.addAttribute("topicId", topicId);
+            model.addAttribute("currentQuestionNum", sessionService.getCurrentQuestionNumber(sessionId, topicId));
+            model.addAttribute("totalQuestions", sessionService.getTotalQuestions(sessionId, topicId));
+
+            if (question == null) {
+                model.addAttribute("completed", true);
+            }
+
+            return "learn :: questionFragment";
+        } catch (Exception e) {
+            log.warn("Failed to get prev question fragment for topic {}: {}", topicId, e.getMessage());
             return "redirect:/learn/" + topicId;
         }
     }
@@ -245,6 +285,8 @@ public class LearnController {
             model.addAttribute("response", response);
             model.addAttribute("questionId", questionId);
             model.addAttribute("topicId", topicId);
+            model.addAttribute("currentQuestionNum", sessionService.getCurrentQuestionNumber(sessionId, topicId));
+            model.addAttribute("totalQuestions", sessionService.getTotalQuestions(sessionId, topicId));
 
             // HTMX requests only need the fragment, not the full page
             if ("true".equals(request.getHeader("HX-Request"))) {

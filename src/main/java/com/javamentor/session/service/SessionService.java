@@ -146,10 +146,42 @@ public class SessionService {
     public boolean isLastQuestion(String sessionId, String topicId) {
         // First ensure session exists (create if not)
         UserSession session = getOrCreateSession(sessionId, topicId);
-        
+
         List<Long> questionIds = parseQuestionIds(session);
         int currentIndex = session.getCurrentIndex() != null ? session.getCurrentIndex() : 0;
         return currentIndex + 1 >= questionIds.size();
+    }
+
+    /**
+     * 獲取題目總數
+     */
+    @Transactional(readOnly = true)
+    public int getTotalQuestions(String sessionId, String topicId) {
+        UserSession session = getOrCreateSession(sessionId, topicId);
+        return parseQuestionIds(session).size();
+    }
+
+    /**
+     * 獲取當前題目序號 (1-based)
+     */
+    @Transactional(readOnly = true)
+    public int getCurrentQuestionNumber(String sessionId, String topicId) {
+        UserSession session = getOrCreateSession(sessionId, topicId);
+        int index = session.getCurrentIndex() != null ? session.getCurrentIndex() : 0;
+        return index + 1;
+    }
+
+    /**
+     * 移動到上一題
+     */
+    @Transactional
+    public void moveToPreviousQuestion(String sessionId, String topicId) {
+        UserSession session = getOrCreateSession(sessionId, topicId);
+        int current = session.getCurrentIndex() != null ? session.getCurrentIndex() : 0;
+        session.setCurrentIndex(Math.max(0, current - 1));
+        userSessionRepository.save(session);
+        log.info("Moved to previous question for session {}, topic {}, index: {}",
+                sessionId, topicId, session.getCurrentIndex());
     }
 
     private String toJson(List<Long> list) {
