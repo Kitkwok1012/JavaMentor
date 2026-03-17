@@ -412,6 +412,31 @@
             });
         }
 
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (document.getElementById('examScreen').classList.contains('hidden')) return;
+            if (e.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn && !submitBtn.disabled) { submitAnswer(); e.preventDefault(); }
+            }
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                if (!currentQuestion || currentQuestion.multiSelect) return;
+                const visibleOpts = ['A', 'B', 'C', 'D'].filter(l => {
+                    const b = document.getElementById('option' + l);
+                    return b && b.style.display !== 'none';
+                });
+                if (visibleOpts.length === 0) return;
+                const cur = document.getElementById('answerInput').value;
+                const curIdx = visibleOpts.indexOf(cur);
+                const nextIdx = e.key === 'ArrowRight'
+                    ? (curIdx + 1) % visibleOpts.length
+                    : (curIdx - 1 + visibleOpts.length) % visibleOpts.length;
+                selectOption(visibleOpts[nextIdx]);
+                e.preventDefault();
+            }
+            if (e.key === 'd' || e.key === 'D') { toggleDarkMode(); }
+        });
+
         function endExam() {
             if (timerInterval) clearInterval(timerInterval);
             fetch(`/api/v1/mock/${sessionId}/result`)
