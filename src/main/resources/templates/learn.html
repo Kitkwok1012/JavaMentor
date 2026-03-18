@@ -314,12 +314,6 @@
                              th:attr="data-markdown=${response.explanation}"></div>
                     </div>
 
-                    <!-- Follow-up -->
-                    <div th:if="${response.hasFollowUp}" class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-                        <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-2" th:text="#{learn.followup.title}">Follow-up</h3>
-                        <p class="text-yellow-900 dark:text-yellow-100 mb-4" th:text="${response.followUpQuestion}">Follow-up question...</p>
-                        <p class="text-sm text-yellow-700 dark:text-yellow-400" th:text="#{learn.followup.pending}">Pending...</p>
-                    </div>
 
                     <!-- Next Question Button -->
                     <div class="flex gap-4">

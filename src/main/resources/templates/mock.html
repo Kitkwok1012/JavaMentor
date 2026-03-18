@@ -47,8 +47,12 @@
                     <option value="zh" th:selected="${#locale.language == 'zh' and #locale.country != 'TW'}">简</option>
                     <option value="zh_TW" th:selected="${#locale.country == 'TW'}">繁</option>
                 </select>
-                <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.home}">Home</a>
                 <a href="/progress" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.progress}">Progress</a>
+                <a href="/wrong" class="text-gray-600 dark:text-gray-300 hover:text-blue-600" th:text="#{nav.wrong}">Wrong Answers</a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" th:title="#{ui.dark.mode}">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -73,18 +77,18 @@
             <!-- Question Count -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" th:text="#{mock.question.count}">Number of questions</label>
-                <div class="flex gap-4 mb-3">
+                <div class="flex gap-4 mb-3 flex-wrap">
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="30" class="mr-2 count-radio" checked onchange="updateTimeHint()">
-                        <span>30</span>
+                        <span>30 <span class="text-xs text-gray-400">~15 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="60" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>60</span>
+                        <span>60 <span class="text-xs text-gray-400">~30 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="90" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>90</span>
+                        <span>90 <span class="text-xs text-gray-400">~45 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="custom" class="mr-2 count-radio" onchange="showCustomTime()">
@@ -131,9 +135,10 @@
             </div>
         </div>
 
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6">
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
             <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
         </div>
+        <div id="questionDots" class="flex flex-wrap gap-1 mb-4 min-h-[12px]"></div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6 fade-in">
             <div class="flex justify-between items-start mb-4">
@@ -219,6 +224,28 @@
         let currentQuestion = null;
         let timerInterval = null;
         let timeRemaining = 0;
+        let answerResults = [];
+
+        function initDots(total) {
+            answerResults = [];
+            const container = document.getElementById('questionDots');
+            container.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600 inline-block';
+                dot.id = 'dot-' + i;
+                container.appendChild(dot);
+            }
+        }
+
+        function updateDot(index, correct) {
+            const dot = document.getElementById('dot-' + index);
+            if (dot) {
+                dot.className = correct
+                    ? 'w-2.5 h-2.5 rounded-full bg-green-500 inline-block'
+                    : 'w-2.5 h-2.5 rounded-full bg-red-500 inline-block';
+            }
+        }
 
         function getCsrfHeaders() {
             const token = document.querySelector('meta[name="_csrf"]').content;
@@ -271,6 +298,7 @@
                 document.getElementById('totalNum').textContent = data.totalQuestions;
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('examScreen').classList.remove('hidden');
+                initDots(data.totalQuestions);
                 startTimer();
                 loadQuestion();
             });
@@ -397,6 +425,10 @@
                         if (btn) btn.classList.add('option-wrong');
                     }
                 });
+
+                const dotIndex = answerResults.length;
+                answerResults.push(data.correct);
+                updateDot(dotIndex, data.correct);
 
                 const feedback = document.getElementById('resultFeedback');
                 const content = document.getElementById('feedbackContent');
