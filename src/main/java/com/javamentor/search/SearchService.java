@@ -75,6 +75,30 @@ public class SearchService {
     }
     
     /**
+     * Filtered search by keyword, optional topicId, optional difficulty
+     */
+    @Transactional(readOnly = true)
+    public Page<QuestionDto> searchFiltered(String keyword, String topicId, Integer difficulty, Pageable pageable) {
+        String kw = (keyword == null || keyword.trim().isEmpty()) ? "" : keyword.trim();
+        if (kw.isEmpty()) return Page.empty(pageable);
+
+        boolean hasTopic = topicId != null && !topicId.trim().isEmpty();
+        boolean hasDiff  = difficulty != null;
+
+        Page<Question> results;
+        if (hasTopic && hasDiff) {
+            results = questionRepository.searchByKeywordAndTopicAndDifficulty(kw, topicId, difficulty, pageable);
+        } else if (hasTopic) {
+            results = questionRepository.searchByKeywordAndTopic(kw, topicId, pageable);
+        } else if (hasDiff) {
+            results = questionRepository.searchByKeywordAndDifficulty(kw, difficulty, pageable);
+        } else {
+            results = questionRepository.searchByKeyword(kw, pageable);
+        }
+        return results.map(questionService::toDto);
+    }
+
+    /**
      * Truncate keyword for logging to avoid log bloat
      */
     private String truncateForLog(String input) {

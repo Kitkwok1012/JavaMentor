@@ -50,4 +50,16 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
      */
     @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE q.topic.topicId = :topicId AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Question> searchByKeywordAndTopic(@Param("keyword") String keyword, @Param("topicId") String topicId, Pageable pageable);
+
+    /**
+     * Search questions by keyword and difficulty
+     */
+    @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE q.difficulty = :difficulty AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Question> searchByKeywordAndDifficulty(@Param("keyword") String keyword, @Param("difficulty") int difficulty, Pageable pageable);
+
+    /**
+     * Search questions by keyword, topic, and difficulty
+     */
+    @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.topic LEFT JOIN FETCH q.options WHERE q.topic.topicId = :topicId AND q.difficulty = :difficulty AND (LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(q.explanation) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Question> searchByKeywordAndTopicAndDifficulty(@Param("keyword") String keyword, @Param("topicId") String topicId, @Param("difficulty") int difficulty, Pageable pageable);
 }

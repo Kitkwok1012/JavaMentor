@@ -51,21 +51,34 @@
     </nav>
 
     <main class="max-w-4xl mx-auto px-4 py-8">
-        <div class="mb-6 flex justify-between items-start">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" th:text="#{search.title}">Search Results</h1>
-                <p class="text-gray-600 dark:text-gray-300">
-                    <span th:text="#{search.keyword.label}">Keyword:</span>
-                    "<span th:text="${keyword}" class="font-medium text-blue-600">-</span>"
-                    | <span th:text="${totalElements}" class="font-medium">0</span>
-                    | <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span>
-                </p>
-            </div>
-            <form th:action="@{/search}" method="get" class="flex items-center gap-2">
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" th:text="#{search.title}">Search Results</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
+                <span th:text="#{search.keyword.label}">Keyword:</span>
+                "<span th:text="${keyword}" class="font-medium text-blue-600">-</span>"
+                | <span th:text="${totalElements}" class="font-medium">0</span>
+                | <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span>
+            </p>
+            <!-- Filters -->
+            <form th:action="@{/search}" method="get" class="flex flex-wrap gap-3 items-center">
                 <input type="hidden" name="keyword" th:value="${keyword}">
-                <label class="text-sm text-gray-600 dark:text-gray-400" th:text="#{search.per.page}">Per page:</label>
+                <input type="hidden" name="size" th:value="${pageSize}">
+                <select name="topicId" onchange="this.form.submit()"
+                        class="border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="" th:text="#{search.filter.all.topics}">All Topics</option>
+                    <option th:each="t : ${topics}" th:value="${t.topicId}" th:text="${t.name}"
+                            th:selected="${t.topicId == selectedTopicId}">Topic</option>
+                </select>
+                <select name="difficulty" onchange="this.form.submit()"
+                        class="border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="" th:text="#{search.filter.all.difficulties}">All Difficulties</option>
+                    <option value="1" th:selected="${selectedDifficulty == 1}" th:text="#{difficulty.easy}">Easy</option>
+                    <option value="2" th:selected="${selectedDifficulty == 2}" th:text="#{difficulty.medium}">Medium</option>
+                    <option value="3" th:selected="${selectedDifficulty == 3}" th:text="#{difficulty.hard}">Hard</option>
+                </select>
+                <label class="text-sm text-gray-600 dark:text-gray-400 ml-auto" th:text="#{search.per.page}">Per page:</label>
                 <select name="size" onchange="this.form.submit()"
-                        class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        class="border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600">
                     <option value="10" th:selected="${pageSize == 10 || pageSize == null}">10</option>
                     <option value="50" th:selected="${pageSize == 50}">50</option>
                     <option value="100" th:selected="${pageSize == 100}">100</option>
@@ -104,7 +117,7 @@
         <!-- Pagination -->
         <div th:if="${totalPages > 1}" class="flex justify-center items-center space-x-2">
             <a th:if="${hasPrevious}"
-               th:href="@{/search(keyword=${keyword}, page=${currentPage - 1}, size=${pageSize})}"
+               th:href="@{/search(keyword=${keyword}, page=${currentPage - 1}, size=${pageSize}, topicId=${selectedTopicId}, difficulty=${selectedDifficulty})}"
                class="px-3 py-1 border rounded hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
                th:text="#{button.prev.page}">Previous</a>
             <span th:unless="${hasPrevious}" class="px-3 py-1 text-gray-400" th:text="#{button.prev.page}">Previous</span>
@@ -114,13 +127,13 @@
                    class="px-3 py-1 bg-blue-600 text-white rounded"
                    th:text="${i + 1}">1</a>
                 <a th:unless="${i == currentPage}"
-                   th:href="@{/search(keyword=${keyword}, page=${i}, size=${pageSize})}"
+                   th:href="@{/search(keyword=${keyword}, page=${i}, size=${pageSize}, topicId=${selectedTopicId}, difficulty=${selectedDifficulty})}"
                    class="px-3 py-1 border rounded hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
                    th:text="${i + 1}">1</a>
             </th:block>
 
             <a th:if="${hasNext}"
-               th:href="@{/search(keyword=${keyword}, page=${currentPage + 1}, size=${pageSize})}"
+               th:href="@{/search(keyword=${keyword}, page=${currentPage + 1}, size=${pageSize}, topicId=${selectedTopicId}, difficulty=${selectedDifficulty})}"
                class="px-3 py-1 border rounded hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
                th:text="#{button.next.page}">Next</a>
             <span th:unless="${hasNext}" class="px-3 py-1 text-gray-400" th:text="#{button.next.page}">Next</span>

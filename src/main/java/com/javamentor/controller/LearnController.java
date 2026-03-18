@@ -347,32 +347,22 @@ public class LearnController {
             @Parameter(description = "搜尋關鍵字") @RequestParam String keyword,
             @Parameter(description = "頁碼") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "每頁數量") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Topic 篩選") @RequestParam(required = false) String topicId,
+            @Parameter(description = "難度篩選 (1/2/3)") @RequestParam(required = false) Integer difficulty,
             Model model) {
-        
-        // Validate page - must be non-negative
-        if (page < 0) {
-            page = 0;
-        }
-        
-        // Validate size - only allow 10, 50, 100
-        if (size != 10 && size != 50 && size != 100) {
-            size = 10;
-        }
-        
-        // Validate and sanitize keyword
-        String sanitizedKeyword = keyword;
-        if (keyword == null || keyword.trim().isEmpty()) {
-            sanitizedKeyword = "";
-        } else {
-            sanitizedKeyword = keyword.trim();
-            if (sanitizedKeyword.length() > 100) {
-                sanitizedKeyword = sanitizedKeyword.substring(0, 100);
-            }
-        }
-        
+
+        if (page < 0) page = 0;
+        if (size != 10 && size != 50 && size != 100) size = 10;
+
+        String sanitizedKeyword = (keyword == null || keyword.trim().isEmpty()) ? "" : keyword.trim();
+        if (sanitizedKeyword.length() > 100) sanitizedKeyword = sanitizedKeyword.substring(0, 100);
+
+        String filteredTopicId = (topicId != null && !topicId.trim().isEmpty()) ? topicId.trim() : null;
+        Integer filteredDifficulty = (difficulty != null && difficulty >= 1 && difficulty <= 3) ? difficulty : null;
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<QuestionDto> results = searchService.search(sanitizedKeyword, pageable);
-        
+        Page<QuestionDto> results = searchService.searchFiltered(sanitizedKeyword, filteredTopicId, filteredDifficulty, pageable);
+
         model.addAttribute("keyword", sanitizedKeyword);
         model.addAttribute("results", results.getContent());
         model.addAttribute("currentPage", results.getNumber());
@@ -381,7 +371,10 @@ public class LearnController {
         model.addAttribute("hasPrevious", results.hasPrevious());
         model.addAttribute("hasNext", results.hasNext());
         model.addAttribute("pageSize", size);
-        
+        model.addAttribute("selectedTopicId", filteredTopicId);
+        model.addAttribute("selectedDifficulty", filteredDifficulty);
+        model.addAttribute("topics", questionService.getAllTopics());
+
         return "search";
     }
 }

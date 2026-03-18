@@ -77,18 +77,18 @@
             <!-- Question Count -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" th:text="#{mock.question.count}">Number of questions</label>
-                <div class="flex gap-4 mb-3">
+                <div class="flex gap-4 mb-3 flex-wrap">
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="30" class="mr-2 count-radio" checked onchange="updateTimeHint()">
-                        <span>30</span>
+                        <span>30 <span class="text-xs text-gray-400">~15 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="60" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>60</span>
+                        <span>60 <span class="text-xs text-gray-400">~30 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="90" class="mr-2 count-radio" onchange="updateTimeHint()">
-                        <span>90</span>
+                        <span>90 <span class="text-xs text-gray-400">~45 min</span></span>
                     </label>
                     <label class="flex items-center dark:text-gray-300">
                         <input type="radio" name="count" value="custom" class="mr-2 count-radio" onchange="showCustomTime()">
