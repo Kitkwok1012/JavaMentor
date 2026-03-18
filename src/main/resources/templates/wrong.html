@@ -100,11 +100,45 @@
             });
         }
 
+        function applyFilters() {
+            const topic = document.getElementById('filterTopic').value;
+            const difficulty = document.getElementById('filterDifficulty').value;
+            let visible = 0;
+            document.querySelectorAll('.wrong-card').forEach(card => {
+                const matchTopic = !topic || card.dataset.topic === topic;
+                const matchDiff  = !difficulty || card.dataset.difficulty === difficulty;
+                const show = matchTopic && matchDiff;
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const countEl = document.getElementById('filterCount');
+            if (countEl) countEl.textContent = visible + ' / ' + document.querySelectorAll('.wrong-card').length;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('[data-markdown]').forEach(function(el) {
                 el.innerHTML = marked.parse(el.getAttribute('data-markdown') || '');
             });
             applyTermTooltips();
+
+            // Build topic dropdown from cards
+            const topicSelect = document.getElementById('filterTopic');
+            if (topicSelect) {
+                const seen = new Map();
+                document.querySelectorAll('.wrong-card').forEach(card => {
+                    const id = card.dataset.topic;
+                    if (id && !seen.has(id)) {
+                        seen.set(id, card.dataset.topicName || id);
+                    }
+                });
+                seen.forEach((name, id) => {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = name;
+                    topicSelect.appendChild(opt);
+                });
+                applyFilters();
+            }
         });
     </script>
 </head>
@@ -137,7 +171,21 @@
     <main class="max-w-4xl mx-auto px-4 py-8">
         <a href="/" class="text-blue-600 hover:underline mb-6 inline-block" th:text="#{wrong.back.home}">← Back to Home</a>
 
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" th:text="#{wrong.title}">Wrong Answers</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6" th:text="#{wrong.title}">Wrong Answers</h1>
+
+        <!-- Filters -->
+        <div th:if="${!#lists.isEmpty(wrongQuestions)}" class="flex flex-wrap gap-3 mb-6">
+            <select id="filterTopic" onchange="applyFilters()" class="text-sm border rounded px-3 py-1.5 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                <option value="" th:text="#{wrong.filter.all.topics}">All Topics</option>
+            </select>
+            <select id="filterDifficulty" onchange="applyFilters()" class="text-sm border rounded px-3 py-1.5 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                <option value="" th:text="#{wrong.filter.all.difficulties}">All Difficulties</option>
+                <option value="1" th:text="#{difficulty.easy}">Easy</option>
+                <option value="2" th:text="#{difficulty.medium}">Medium</option>
+                <option value="3" th:text="#{difficulty.hard}">Hard</option>
+            </select>
+            <span id="filterCount" class="text-sm text-gray-500 dark:text-gray-400 self-center"></span>
+        </div>
 
         <div th:if="${#lists.isEmpty(wrongQuestions)}" class="text-center py-12">
             <div class="text-6xl mb-4">🎉</div>
@@ -146,7 +194,9 @@
         </div>
 
         <div class="space-y-4">
-            <div th:each="wp : ${wrongQuestions}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+            <div th:each="wp : ${wrongQuestions}"
+                 th:attr="data-topic=${wp.question.topic.topicId}, data-topic-name=${wp.question.topic.name}, data-difficulty=${wp.question.difficulty}"
+                 class="wrong-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
                 <div class="flex justify-between items-start mb-4">
                     <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded" th:text="${wp.question.topic.name}">Topic</span>
                     <span class="text-xs text-gray-400" th:text="${#temporals.format(wp.answeredAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>
