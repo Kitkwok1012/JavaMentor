@@ -85,7 +85,7 @@
                 let matched = false;
                 terms.forEach(term => {
                     if (text.includes(term)) {
-                        const def = termsDict[term].replace(/"/g, '&quot;');
+                        const def = termsDict[term].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
                         text = text.split(term).join(
                             `<span class="term-tooltip" data-definition="${def}">${term}</span>`
                         );
