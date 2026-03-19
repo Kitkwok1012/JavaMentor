@@ -81,7 +81,7 @@
                     if (ancestor.tagName === 'CODE' || ancestor.tagName === 'PRE') return;
                     ancestor = ancestor.parentNode;
                 }
-                let text = textNode.textContent;
+                let text = textNode.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 let matched = false;
                 terms.forEach(term => {
                     if (text.includes(term)) {

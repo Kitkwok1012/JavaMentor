@@ -97,7 +97,7 @@
                     if (ancestor.tagName === 'CODE' || ancestor.tagName === 'PRE') return;
                     ancestor = ancestor.parentNode;
                 }
-                let text = textNode.textContent;
+                let text = textNode.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 let matched = false;
                 terms.forEach(term => {
                     if (text.includes(term)) {
@@ -229,7 +229,7 @@
             <div th:if="${question != null and (completed == null or not completed)}" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 fade-in">
                 <div class="flex justify-between items-center mb-6">
                     <span class="text-sm text-gray-500"
-                          th:text="${currentQuestionNum != null} ? (currentQuestionNum + ' / ' + totalQuestions) : #{learn.question.label}">Question</span>
+                          th:text="${currentQuestionNum != null} ? |${currentQuestionNum} / ${totalQuestions}| : #{learn.question.label}">Question</span>
                     <span class="text-sm bg-gray-100 text-gray-600 px-2 py-1"
                           th:text="${question.difficulty == 1 ? #messages.msg('difficulty.easy') : question.difficulty == 2 ? #messages.msg('difficulty.medium') : #messages.msg('difficulty.hard')}">Medium</span>
                 </div>
