@@ -109,9 +109,9 @@
                     }
                 });
                 if (matched) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text;
-                    parent.replaceChild(span, textNode);
+                    const tpl = document.createElement('template');
+                    tpl.innerHTML = text;
+                    parent.replaceChild(tpl.content, textNode);
                 }
             });
         }
